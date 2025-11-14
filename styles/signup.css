@@ -8,6 +8,9 @@
 
 body {
     background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 /* NAVBAR */
@@ -78,6 +81,7 @@ body {
     display: flex;
     justify-content: center;
     margin: 70px 0 60px;
+    flex: 1;
 }
 
 .signup-card {
