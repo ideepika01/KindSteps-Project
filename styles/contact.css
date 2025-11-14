@@ -1,199 +1,296 @@
+/* RESET */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Inter", sans-serif;
 }
+
 body {
-    background-color: #f8f9fc;
-    color: #0b2850;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    background: #ffffff;
 }
-/* Header & Footer */
-header, footer {
-    background: #0b2850;
-    color: #fff;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    padding: 25px 80px;
+
+/* NAVBAR */
+.navbar {
+    background: #0e7bf1;
+    padding: 15px 0;
+    width: 100%;
+}
+
+.nav-container {
+    width: 90%;
+    margin: auto;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-}
-.logo-section {
-    display: flex;
     align-items: center;
-    gap: 12px;
 }
 
 .logo {
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-}
-.logo-text {
-    font-size: 2rem;
+    color: #fff;
+    font-size: 22px;
     font-weight: 700;
-    letter-spacing: 1px;
 }
-nav ul {
+
+.nav-links {
     display: flex;
-    gap: 40px;
     list-style: none;
+    gap: 28px;
 }
-nav ul li a {
-    text-decoration: none;
-    font-weight: 600;
-    color: #ffffff;
-    font-size: 1.1rem;
-    transition: 0.3s ease;
-}
-nav ul li a:hover {
-    color: #cce0ff;
-}
-.footer-social {
-    display: flex;
-    gap: 15px;
-}
-.footer-social a {
+
+.nav-links a {
     color: #fff;
-    font-size: 1.35rem;
-    transition: color 0.25s;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.25s;
 }
-.footer-social a:hover {
-    color: #a8c1ff;
+
+.nav-links a:hover,
+.nav-links a.active {
+    opacity: 0.75;
 }
-footer {
+
+/* HERO */
+.hero {
     text-align: center;
-    font-size: 1rem;
-    margin-top: auto;
-    flex-shrink: 0;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    padding: 60px 20px 40px;
 }
-/* Main Section */
-.main-section {
-    width: 100%;
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 55px 18px 0 18px;
-    flex: 1 0 auto;
-    display: flex;
-    flex-direction: column;
-    min-height: 65vh;
-    position: relative;
-}
-.main-section h2 {
-    text-align: center;
-    font-size: 2.4rem;
+
+.hero h1 {
+    font-size: 32px;
     font-weight: 700;
-    margin-bottom: 52px;
+    margin-bottom: 10px;
 }
-/* Contact Cards Grid */
-.contact-cards {
+
+.hero p {
+    font-size: 15px;
+    color: #555;
+}
+
+/* CONTACT OPTIONS */
+.contact-options {
+    width: 90%;
+    margin: 50px auto;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    gap: 48px;
-    margin-bottom: 54px;
-    flex-wrap: wrap;
+    gap: 35px;
 }
+
 .contact-card {
-    background: #ddd;
-    border-radius: 8px;
-    width: 315px;
-    min-height: 270px;
-    box-shadow: 0 4px 17px rgba(16,40,87,0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-/* Contact Message Section */
-.contact-message {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    margin-top: 6px;
-    margin-bottom: 38px;
-}
-.contact-message textarea {
-    width: 70vw;
-    max-width: 860px;
-    height: 65px;
-    font-size: 1.15rem;
-    padding: 18px;
-    border-radius: 11px;
-    border: 1.7px solid #0b2850;
-    background: #f8f9fc;
-    color: #0b2850;
-    resize: vertical;
-}
-.send-btn {
-    width: 220px;
-    background: #0b2850;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 16px 0;
-    font-size: 1.18rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.3s, box-shadow 0.3s;
-    box-shadow: 0px 5px 13px rgba(16, 40, 87, 0.13);
-    margin-top: 8px;
-}
-.send-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0px 9px 19px rgba(0, 40, 80, 0.16);
-}
-/* Back Arrow Button */
-.back-arrow-btn {
-    position: absolute;
-    left: 25px;
-    bottom: 30px;
-    color: #0b2850;
-    font-size: 2.1em;
-    text-decoration: none;
+    width: 300px;
+    padding: 25px;
     background: #fff;
-    border-radius: 50%;
-    padding: 8px 14px 8px 12px;
-    box-shadow: 0 2px 8px rgba(16, 40, 87, 0.09);
-    transition: background 0.2s;
-    display: inline-block;
+    border-radius: 12px;
+    border: 1px solid #e5e5e5;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: 0.3s;
 }
-.back-arrow-btn:hover {
-    background: #e9f0ff;
+
+.contact-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.10);
 }
-/* Responsive */
+
+.icon {
+    font-size: 35px;
+    margin-bottom: 12px;
+}
+
+.contact-card h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.contact-card p {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 15px;
+}
+.contact-card p {
+    margin: 6px 0;
+    color: #555;
+}
+
+/* BUTTON */
+.btn-primary {
+    background: #0e7bf1;
+    color: #fff;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.btn-primary:hover {
+    background: #0668d6;
+}
+
+/* GENERAL INQUIRIES */
+.inquiries {
+    width: 85%;
+    margin: 50px auto;
+    background: #f4f6fa;
+    text-align: center;
+    padding: 45px;
+    border-radius: 12px;
+}
+
+.inquiries h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.inquiries p {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 25px;
+}
+
+.email-btn {
+    background: #fff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.email-btn:hover {
+    background: #eef2ff;
+    border-color: #0e7bf1;
+}
+
+/* FOOTER */
+.footer {
+    margin-top: 80px;
+    padding: 30px 5%;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #0e7bf1;
+    color: white;
+
+}
+
+.footer-logo {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.footer-links a {
+    margin-left: 20px;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.25s;
+}
+
+.footer-links a:hover {
+    color: black;
+}
+
+/* RESPONSIVE */
 @media (max-width: 900px) {
-    header, footer {
+    .contact-options {
         flex-direction: column;
-        gap: 15px;
+        align-items: center;
+    }
+
+    .contact-card {
+        width: 90%;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .nav-links {
+        display: none;
+    }
+
+    .navbar::after {
+        content: "☰";
+        color: #fff;
+        font-size: 26px;
+        margin-right: 20px;
+        cursor: pointer;
+    }
+
+    .inquiries {
+        width: 90%;
+        padding: 35px;
+    }
+
+    .footer {
+        flex-direction: column;
         text-align: center;
-        padding: 25px 22px;
+        gap: 12px;
     }
-    .contact-cards {
-        gap: 20px;
-    }
-    .contact-card {
-        width: 95vw;
-        max-width: 330px;
-        min-height: 180px;
-    }
-    .contact-message textarea {
-        width: 100vw;
-        max-width: 100vw;
-    }
-    .main-section { padding-left: 6vw; padding-right: 6vw;}
 }
-@media (max-width: 500px) {
-    .contact-card {
-        min-height: 130px;
-    }
-    .send-btn { width: 96vw; min-width: unset; }
-    .back-arrow-btn { font-size: 1.42em; padding: 5px 10px 5px 10px; left: 7px; bottom: 20px;}
-    .main-section h2 { font-size: 1.3em;}
+/* 3-column grid and centered page width */
+.contact-card-container {
+  width: 90%;                  /* adjust to match your layout */
+  max-width: 1100px;
+  margin: 40px auto;          /* center block on page */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;                  /* space between cards */
+  align-items: start;         /* keep grid items aligned to top */
 }
+
+/* Make each card equal height and center its content */
+.contact-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px 22px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;        /* center icon and headings horizontally */
+  justify-content: flex-start;/* keep content from stretching odd ways */
+  min-height: 300px;          /* forces uniform card height — adjust if needed */
+  box-sizing: border-box;
+}
+
+/* Icon sizing and spacing */
+.contact-card .contact-icon {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  margin-bottom: 18px;
+}
+
+/* Title and description */
+.contact-card h3 {
+  font-size: 20px;
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.contact-card p {
+  margin: 6px 0;
+  color: #555;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Make sure phone/email lines stand out but remain centered */
+.contact-card p strong {
+  color: #222;
+  display: block;
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+/* On narrow screens stack the cards */
+@media (max-width: 980px) {
+  .contact-card-container {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .contact-card { min-height: auto; }
+}
+

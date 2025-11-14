@@ -1,68 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KindSteps | Small Steps, Big Change</title>
-  <link rel="stylesheet" href="../styles/report_list.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Dashboard</title>
+<link rel="stylesheet" href="../styles/report_list.css">
 </head>
+
 <body>
-  <!-- Header -->
-  <header>
-    <div class="logo-section">
-      <img src="../assets/kindsteps_logo.png" alt="KindSteps Logo" class="logo">
-      <h1>KindSteps</h1>
-    </div>
-    <nav>
-      <ul>
-        <li><a href="#">About Us</a></li>
-        <li><a href="#">Volunteer</a></li>
-        <li><a href="#">Contact Us</a></li>
-      </ul>
-    </nav>
+
+<!-- NAVBAR -->
+
+      <nav class="navbar">
+    <div class="logo">KindSteps</div>
+
+    <ul class="nav-links">
+        <li><a href="./about.html">About Us</a></li>
+        <li><a href="./contact.html">Contact</a></li>
+        <li><a href="./works.html">How it works</a></li>
+    </ul>
+</nav>
+
     </header>
 
-    <div class="main-section">
-        <h2>Reports</h2>
-        <div class="reports-grid">
-            <div class="report-card">
-                <img src="https://via.placeholder.com/180?text=Report+Image" alt="Report 1" class="report-img">
-                <span class="district-name">Chennai</span>
-            </div>
-            <div class="report-card">
-                <img src="https://via.placeholder.com/180?text=Report+Image" alt="Report 2" class="report-img">
-                <span class="district-name">Bangalore</span>
-            </div>
-            <div class="report-card">
-                <img src="https://via.placeholder.com/180?text=Report+Image" alt="Report 3" class="report-img">
-                <span class="district-name">Delhi</span>
-            </div>
-            <div class="report-card">
-                <img src="https://via.placeholder.com/180?text=Report+Image" alt="Report 4" class="report-img">
-                <span class="district-name">Mumbai</span>
-            </div>
-            <div class="report-card">
-                <img src="https://via.placeholder.com/180?text=Report+Image" alt="Report 5" class="report-img">
-                <span class="district-name">Kolkata</span>
-            </div>
-            <div class="report-card">
-                <img src="https://via.placeholder.com/180?text=Report+Image" alt="Report 6" class="report-img">
-                <span class="district-name">Hyderabad</span>
-            </div>
+<div class="dashboard-container">
+
+    <!-- LEFT MAIN CONTENT -->
+    <div class="left-content">
+
+        <div class="welcome-box">
+            <h2>Welcome, Team!</h2>
+            <p class="date">Wednesday, November 12</p>
         </div>
-        <a href="#" class="back-arrow-btn" title="Back" aria-label="Go Back">
-            <i class="fa-solid fa-arrow-left"></i>
-        </a>
+
+        <!-- STAT BOXES -->
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <h3>Total Reports</h3>
+                <p class="stat-num">124</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>In Progress</h3>
+                <p class="stat-num">18</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Completed</h3>
+                <p class="stat-num">210</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Pending Verification</h3>
+                <p class="stat-num">7</p>
+            </div>
+
+        </div>
+
+        <!-- RECENT CASES -->
+        <h2 class="section-title">Recent Cases</h2>
+
+        <!-- Search + Filter -->
+        <div class="top-bar">
+            <input type="text" class="search-input" placeholder="Search cases by ID or keyword…">
+            <button class="filter-btn">Filter Options</button>
+        </div>
+
+        <!-- CASES (3 ONLY) -->
+        <div class="cases-grid">
+
+            <!-- CARD 1 -->
+            <div class="case-card">
+                <h3 class="case-id">RSC-001001</h3>
+                <span class="badge high">High</span>
+                <p class="case-desc">Vehicle accident with entrapment near I-95 North.</p>
+                <ul class="case-details">
+                    <li>📍 I-95 N, MM 120</li>
+                    <li>📅 2023-10-27 14:30</li>
+                    <li>👥 Team Alpha</li>
+                </ul>
+                <a href="./view_report.html"><button class="view-btn">View Details →</button></a>
+            </div>
+
+            <!-- CARD 2 -->
+            <div class="case-card">
+                <h3 class="case-id">RSC-001002</h3>
+                <span class="badge medium">Medium</span>
+                <p class="case-desc">Missing hiker reported in Blackwood Forest.</p>
+                <ul class="case-details">
+                    <li>📍 Raven Peak</li>
+                    <li>📅 2023-10-26 22:15</li>
+                    <li>👥 Team Bravo</li>
+                </ul>
+                <button class="view-btn">View Details →</button>
+            </div>
+
+            <!-- CARD 3 -->
+            <div class="case-card">
+                <h3 class="case-id">RSC-001003</h3>
+                <span class="badge low">Low</span>
+                <p class="case-desc">Minor flood warning—monitoring required.</p>
+                <ul class="case-details">
+                    <li>📍 Riverbend Community</li>
+                    <li>📅 2023-10-27 08:00</li>
+                    <li>👥 Team Charlie</li>
+                </ul>
+                <button class="view-btn">View Details →</button>
+            </div>
+
+        </div>
     </div>
 
-    <footer>
-        <p>CopyRights</p>
-        <div class="footer-social">
-            <a href="#"><i class="fab fa-facebook"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fa-regular fa-user"></i></a>
+    <!-- RIGHT SIDEBAR -->
+    <aside class="right-sidebar">
+
+        <!-- NOTIFICATIONS -->
+        <div class="notif-box">
+            <h3>Notifications</h3>
+
+            <ul class="notif-list">
+                <li>🔥 New critical report: Fire at Central Park — 5 min ago</li>
+                <li>🚑 Team Alpha dispatched to incident #1001 — 15 min ago</li>
+                <li>✔ Case RSC-000998 resolved — 1 hr ago</li>
+                <li>📍 Location update for RSC-001002 — 2 hrs ago</li>
+            </ul>
         </div>
-    </footer>
+
+        <!-- FILTER PANEL -->
+        <div class="filter-panel">
+            <h3>Case Filters</h3>
+
+            <p>Status</p>
+            <label><input type="checkbox"> Active</label>
+            <label><input type="checkbox"> Pending</label>
+            <label><input type="checkbox"> Resolved</label>
+
+            <p>Priority</p>
+            <label><input type="checkbox"> High</label>
+            <label><input type="checkbox"> Medium</label>
+            <label><input type="checkbox"> Low</label>
+
+            <p>Location Type</p>
+            <select>
+                <option>Any</option>
+            </select>
+
+            <p>Date Range</p>
+            <select>
+                <option>Last 7 days</option>
+            </select>
+        </div>
+
+    </aside>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <p>© 2025 KindSteps. All rights reserved.</p>
+</footer>
+
 </body>
 </html>

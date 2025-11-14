@@ -1,0 +1,296 @@
+/* GLOBAL */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: #fff;
+  color: #1f2937;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-container,
+.main-content {
+  flex: 1;
+}
+
+footer {
+  margin-top: 0 !important;
+  padding: 25px 5%;
+}
+
+
+/* TOP NAVBAR */
+.topbar {
+  background: #0e7bf1;
+  padding: 12px 0;
+  color: #fff;
+}
+
+.navbar, 
+.navbar a, 
+.navbar .logo {
+  color: #fff !important;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-name {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.profile-img,
+.profile-mini-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.top-inner {
+  max-width: 1300px;
+  margin: auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #fff;
+  margin: 0 15px;
+  font-weight: 600;
+}
+
+
+/* LAYOUT GRID */
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  max-width: 1300px;
+  margin: 30px auto;
+  padding: 0 20px;
+  gap: 30px;
+}
+
+
+/* SIDEBAR */
+.sidebar {
+  border-right: 1px solid #e5e7eb;
+  padding-right: 20px;
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 20px;
+}
+
+.sidebar-user-img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-menu li a {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  text-decoration: none;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.side-footer-link {
+  display: block;
+  padding: 10px 0;
+  text-decoration: none;
+  color: #374151;
+}
+
+.sidebar-footer {
+  margin-top: 50px;
+}
+
+
+/* MAIN CONTENT */
+.content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.search-box input {
+  width: 360px;
+  padding: 12px 16px;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+}
+
+.stats-grid {
+  margin-top: 20px;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.stat-card {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.stat-title {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.stat-change {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+
+/* TABLE */
+.table-wrapper {
+  margin-top: 25px;
+}
+
+.report-table {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.report-table th,
+.report-table td {
+  padding: 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.report-table th {
+  background: #f9fafb;
+  font-weight: 600;
+  text-align: left;
+}
+
+
+/* STATUS BADGES */
+.badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.pending {
+  background: #fff5da;
+  color: #d18800;
+}
+
+.badge.progress {
+  background: #e0f0ff;
+  color: #2573d8;
+}
+
+.badge.resolved {
+  background: #d1f7d6;
+  color: #0f7f47;
+}
+
+.badge.rejected {
+  background: #ffd6d6;
+  color: #b32626;
+}
+
+
+/* FOOTER */
+.footer {
+  background: #0e7bf1;
+  padding: 30px 5%;
+  border-top: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.footer-logo {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.footer-links a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: white;
+  transition: 0.3s;
+}
+
+.footer-links a:hover {
+  color: black;
+}
+
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 850px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    border-right: none;
+  }
+
+  .search-box input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 650px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .report-table th,
+  .report-table td {
+    font-size: 13px;
+  }
+}

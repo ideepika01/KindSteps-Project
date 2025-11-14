@@ -1,69 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KindSteps | Small Steps, Big Change</title>
-  <link rel="stylesheet" href="../styles/main.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KindSteps</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Header -->
-  <header>
-    <div class="logo-section">
-      <img src="../assets/kindsteps_logo.png" alt="KindSteps Logo" class="logo">
-      <h1>KindSteps</h1>
-    </div>
-    <nav>
-      <ul>
-        <li><a href="#">About Us</a></li>
-        <li><a href="#">Volunteer</a></li>
-        <li><a href="#">Contact Us</a></li>
-      </ul>
-    </nav>
-  </header>
 
-  <main>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo">KindSteps</div>
+            <nav>
+                <ul class="nav-links">
+                    
+                    <li><a href="./report.html">Report</a></li>
+                    <li><a href="./about.html">About Us</a></li>
+                    <li><a href="./contact.html">Contact</a></li>
+                    <li><a href="./works.html">How it works</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
     <!-- Hero Section -->
     <section class="hero">
-      <h2>KindSteps : <span>Small Steps, Big Change</span></h2>
-      <p>Every act of kindness is a step towards a better world.<br>
-         Join our mission to connect, help, and empower communities—one step at a time.</p>
-      <button class="btn">Report Now</button>
+        <div class="hero-overlay"></div>
+        <img src="../assets/demo.jpg" class="hero-bg" alt="Hero Image">
+        <div class="hero-content">
+            <h1>A Step Towards a Kinder Future</h1>
+            <p>KindSteps is dedicated to locating and assisting vulnerable individuals, especially children, through compassionate reporting and community action. Join us in making a difference.</p>
+            <a href="./report.html" class="report-btn">Report Now</a>
+        </div>
     </section>
 
-    <!-- Cards Section -->
-    <section class="cards">
-      <div class="card">
-        <div class="card-icon"></div>
-        <h3>How it Works</h3>
-        <hr>
-        <p>Submit your kind action, and see how small steps accumulate to big impact.<br>
-        Track your contributions and inspire others in your community!</p>
-      </div>
+    <!-- How We Help -->
+    <section class="help-section">
+        <h2>How We Help</h2>
 
-      <div class="card">
-        <div class="card-icon"></div>
-        <h3>Contact Us</h3>
-        <hr>
-        <p>Reach out to our support team for any queries and feedback.<br>
-        We’re here to help you spread kindness faster and farther.</p>
-      </div>
+        <div class="help-cards">
+            <div class="help-card">
+                <div class="icon">🛡️</div>
+                <h3>Identification & Reporting</h3>
+                <p>Our platform provides an easy and confidential way for anyone to report vulnerable individuals in need. Your reports directly lead to intervention.</p>
+            </div>
 
-      <div class="card">
-        <div class="card-icon"></div>
-        <h3>Join Us</h3>
-        <hr>
-        <p>Become a KindSteps volunteer and help empower your neighborhood.<br>
-        Make new friends, learn new skills, and make a real difference.</p>
-      </div>
+            <div class="help-card">
+                <div class="icon">💙</div>
+                <h3>Rescue & Care</h3>
+                <p>Once a report is filed, our network of trained volunteers and partners swiftly mobilizes to provide immediate assistance, care, and safe placement.</p>
+            </div>
+        </div>
     </section>
-  </main>
 
-  <!-- Footer -->
-  <footer>
-    <p>© 2025 KindSteps | All Rights Reserved</p>
-    <p>Made with ❤️ to spread kindness</p>
-  </footer>
+    <!-- Impact Section -->
+    <section class="impact">
+        <h2>Our Impact So Far</h2>
+
+        <div class="impact-stats">
+
+            <div class="stat-box">
+                <div class="stat-icon">📄</div>
+                <h3>2,145+</h3>
+                <p>Reports Filed</p>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-icon">🧒</div>
+                <h3>876+</h3>
+                <p>Individuals Rescued</p>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-icon">⚖️</div>
+                <h3>120+</h3>
+                <p>Active Volunteers</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Get Involved -->
+    <section class="involved">
+        <h2>Ways to Get Involved</h2>
+
+        <div class="involved-cards">
+
+            <div class="involved-card">
+                <div class="icon">⭐</div>
+                <h3>Become a Volunteer</h3>
+                <p>Join our dedicated team and contribute your time and skills to directly impact lives. Every volunteer makes a difference.</p>
+                <a href="./volunteer.html" class="card-btn">Join Us</a>
+            </div>
+
+            <div class="involved-card">
+                <div class="icon">📘</div>
+                <h3>Learn & Educate</h3>
+                <p>Discover resources and guidance on how to kindly and safely interact with vulnerable populations in your community.</p>
+                <a href="./works.html" class="card-btn">Explore Education</a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-left">
+            <div class="footer-logo">KindSteps</div>
+            <p>© 2025 KindSteps. All rights reserved.</p>
+        </div>
+
+        <div class="footer-links">
+            <a href="./about.html">About Us</a>
+            <a href="./contact.html">Contact</a>
+            
+        </div>
+    </footer>
+
 </body>
 </html>

@@ -1,63 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KindSteps | Small Steps, Big Change</title>
-  <link rel="stylesheet" href="../styles/report.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report a Vulnerable Individual</title>
+    <link rel="stylesheet" href="../styles/report.css">
 </head>
+
 <body>
-  <!-- Header -->
-  <header>
-    <div class="logo-section">
-      <img src="../assets/kindsteps_logo.png" alt="KindSteps Logo" class="logo">
-      <h1>KindSteps</h1>
-    </div>
-    <nav>
-      <ul>
-        <li><a href="#">About Us</a></li>
-        <li><a href="#">Volunteer</a></li>
-        <li><a href="#">Contact Us</a></li>
-      </ul>
-    </nav>
-    </header>
 
-    <div class="main-section">
-        <h2>Report a Case</h2>
-        <div class="report-form-container">
-            <form class="report-form" autocomplete="off">
-                <input type="text" placeholder="Person/Child Name" required>
-                <input type="text" placeholder="Location/Address" required>
-                <input type="text" placeholder="Physical Description (e.g., age, clothes)" required>
-                <textarea placeholder="Detailed Situation/Description" rows="3" required></textarea>
-                <div class="form-row">
-                    <input type="text" placeholder="Your Name" required>
-                    <input type="text" placeholder="Contact Number" required>
-                </div>
-                <input type="text" placeholder="Relation (if any)" required>
-                <div class="image-upload-wrapper">
-                    <label for="fileElem" class="drop-area">
-                        <i class="fa-regular fa-image"></i>
-                        <span>Drag &amp; Drop Image / Click to Upload</span>
-                        <input type="file" id="fileElem" name="fileElem" accept="image/*" required>
-                    </label>
-                </div>
-                <button type="submit" class="btn submit-btn">Submit Report</button>
-            </form>
-        </div>
-        <a href="#" class="back-arrow-btn" title="Back" aria-label="Go Back">
-            <i class="fa-solid fa-arrow-left"></i>
-        </a>
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo">KindSteps</div>
+        <ul class="nav-links">
+            <li><a href="./main.html" class="active">Home</a></li>
+            
+            <li><a href="./about.html">About Us</a></li>
+            <li><a href="./works.html">Education</a></li>
+            <li><a href="./track_report.html">Report Status</a></li>
+        </ul>
     </div>
+</nav>
 
-    <footer>
-        <p>CopyRights</p>
-        <div class="footer-social">
-            <a href="#"><i class="fab fa-facebook"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fa-regular fa-user"></i></a>
+<!-- REPORT FORM -->
+<div class="report-wrapper">
+    <div class="report-card">
+        
+        <h1>Report a Vulnerable Individual</h1>
+        <p class="subtext">Your report will make a difference. Please fill all fields carefully.</p>
+
+        <!-- CONDITION -->
+        <div class="section-block">
+            <h2>What Did You See?</h2>
+            <p class="desc">Describe the individual's condition and behavior.</p>
+
+            <label class="label">Condition <span style="color:red">*</span></label>
+            <select class="input-field" required>
+                <option value="">Select condition</option>
+                <option value="child">Young Child</option>
+                <option value="mentally-challenged">Mentally Challenged Kid</option>
+                <option value="elderly">Elderly Person</option>
+                <option value="beggar">Beggar</option>
+                <option value="injured">Injured Person</option>
+                <option value="disabled">Disabled Individual</option>
+            </select>
+
+            <label class="label">Detailed Description <span style="color:red">*</span></label>
+            <textarea class="textarea-field" placeholder="Describe what you observed..." required></textarea>
         </div>
-    </footer>
+
+        <!-- LOCATION -->
+        <div class="section-block">
+            <h2>Where Did You See Them?</h2>
+            <p class="desc">Specify the location of the incident.</p>
+
+            <label class="label">Location Address or Landmark <span style="color:red">*</span></label>
+            <input type="text" class="input-field" placeholder="E.g. Near bus stand, Market road…" required>
+
+            <div class="map-box">
+                <img src="map.png" alt="Map Preview">
+                <div class="map-badge">Approximate Location</div>
+            </div>
+        </div>
+
+        <!-- UPLOAD -->
+        <div class="section-block">
+            <h2>Upload Photos</h2>
+            <p class="desc">Upload up to 3 images (JPG/PNG). Max size 5MB each.</p>
+
+            <div class="upload-box">
+                <input type="file" accept="image/*" multiple required>
+                <div class="upload-content">
+                    <div class="upload-icon">📷</div>
+                    <p>Drag & drop photos here, or click to browse</p>
+                    <span>Supported formats: JPG, PNG (max 5MB)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTACT -->
+        <div class="section-block">
+            <h2>Your Contact Information (Required)</h2>
+
+            <label class="label">Your Name <span style="color:red">*</span></label>
+            <input type="text" class="input-field" required>
+
+            <label class="label">Email Address <span style="color:red">*</span></label>
+            <input type="email" class="input-field" required>
+
+            <label class="label">Phone Number <span style="color:red">*</span></label>
+            <input type="tel" class="input-field" required>
+        </div>
+
+        <!-- SUBMIT BUTTON -->
+        <button class="submit-btn" type="submit">Submit Report</button>
+
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-logo">KindSteps</div>
+    <div class="footer-links">
+        <a href="./about.html">About Us</a>
+        <a href="./contact.html">Contact</a>
+
+    </div>
+</footer>
+
 </body>
 </html>

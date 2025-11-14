@@ -1,53 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KindSteps | Small Steps, Big Change</title>
-  <link rel="stylesheet" href="../styles/view_report.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Details</title>
+    <link rel="stylesheet" href="../styles/view_report.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-  <!-- Header -->
-  <header>
-    <div class="logo-section">
-      <img src="../assets/kindsteps_logo.png" alt="KindSteps Logo" class="logo">
-      <h1>KindSteps</h1>
-    </div>
-    <nav>
-      <ul>
-        <li><a href="#">About Us</a></li>
-        <li><a href="#">Volunteer</a></li>
-        <li><a href="#">Contact Us</a></li>
-      </ul>
-    </nav>
-  </header>
 
-    <div class="main-section">
-        <h2>Reports</h2>
-        <div class="report-details-grid">
-            <img src="https://via.placeholder.com/280x290?text=Person+Image" alt="Person Image" class="report-person-img">
-            <div class="report-info">
-                <p><strong>Name:</strong> John Doe</p>
-                <p><strong>District:</strong> Bangalore</p>
-                <p><strong>Physical Description:</strong> Male, approx. 12 yrs, blue shirt, shorts</p>
-                <p><strong>Status:</strong> Awaiting Pickup</p>
-                <p><strong>Reported By:</strong> Arjun Sharma</p>
-            </div>
+<!-- TOP BAR -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo">KindSteps</div>
+            <nav>
+                <ul class="nav-links">
+                    
+                    <li><a href="./report.html">Report</a></li>
+                    <li><a href="./about.html">About Us</a></li>
+                    <li><a href="./contact.html">Contact</a></li>
+                    <li><a href="./works.html">How it works</a></li>
+                </ul>
+            </nav>
         </div>
-        <button class="btn track-btn">Track Now</button>
-        <a href="#" class="back-arrow-btn" title="Back" aria-label="Go Back">
-            <i class="fa-solid fa-arrow-left"></i>
-        </a>
+    </header>
+
+<!-- MAIN CONTENT GRID -->
+<div class="case-container">
+
+    <!-- LEFT COLUMN -->
+    <div class="left-column">
+
+        <div class="card">
+            <h3 class="card-title">Case Overview</h3>
+            <h2 class="case-title">Injured Stray Dog</h2>
+            <p class="case-id">ID: KS-2023-08-012</p>
+            <p class="case-date">Reported: August 1, 2023, 10:30 AM</p>
+            <p class="case-status">Status: <span>Active</span></p>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">Reporter Information</h3>
+            <p class="reporter-name">Sarah Johnson</p>
+            <p class="reporter-email">📧 sarah.johnson@example.com</p>
+            <p class="reporter-phone">📞 +1 (555) 123-4567</p>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">Location</h3>
+            <p class="location-text">123 Maple Street, Willow Creek, CA 90210</p>
+            <img src="map.png" class="map-img">
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">Summary</h3>
+            <p class="summary-text">
+                A medium-sized stray dog was found limping near the community park. Appears to have a leg injury and is
+                showing signs of distress. It is currently hiding under a bush near the main path. Local residents are
+                concerned about its well-being and potential risk to children if approached incorrectly. Needs immediate
+                attention for evaluation and rescue.
+            </p>
+        </div>
+
+        <div class="dropdown-card">
+            <select class="case-status-dropdown">
+                <option>Case Status</option>
+                <option>Active</option>
+                <option>In Progress</option>
+                <option>Resolved</option>
+            </select>
+        </div>
+
+        <a href="#" class="back-btn">Back to Dashboard</a>
+
     </div>
 
-    <footer>
-        <p>CopyRights</p>
-        <div class="footer-social">
-            <a href="#"><i class="fab fa-facebook"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fa-regular fa-user"></i></a>
+    <!-- RIGHT COLUMN -->
+    <div class="right-column">
+
+        <div class="card">
+            <h3 class="card-title">Case Media</h3>
+            <img src="../assets/demo.jpg" class="media-img">
+        </div>
+
+        <div class="card updates-card">
+            <h3 class="card-title">Case Updates</h3>
+
+            <div class="update-entry">
+                <p class="update-time">August 1, 2023, 11:00 AM</p>
+                <p class="update-text">Rescue team dispatched to the location.<br><strong>Team Alpha</strong></p>
+            </div>
+
+            <div class="update-entry">
+                <p class="update-time">August 1, 2023, 11:45 AM</p>
+                <p class="update-text">Dog located. Approaching cautiously.<br><strong>Team Alpha</strong></p>
+            </div>
+
+            <div class="update-entry">
+                <p class="update-time">August 1, 2023, 12:30 PM</p>
+                <p class="update-text">Dog safely secured and transported to local veterinary clinic for assessment.<br><strong>Team Alpha</strong></p>
+            </div>
+
+            <div class="update-entry">
+                <p class="update-time">August 1, 2023, 02:00 PM</p>
+                <p class="update-text">Veterinarian confirmed a minor sprain. Prescribed rest and pain medication. Dog is recovering.<br><strong>Dr. Emily Green</strong></p>
+            </div>
+
+            <div class="update-entry">
+                <p class="update-time">August 2, 2023, 09:00 AM</p>
+                <p class="update-text">Scheduled for follow-up check-up next week. Seeking foster home placement.<br><strong>Shelter Coordinator</strong></p>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- UPDATE BUTTON -->
+<div class="update-container">
+    <button class="update-btn">Update</button>
+</div>
+
+<!-- FOOTER -->
+  <footer class="footer">
+        <div class="footer-left">
+            <div class="footer-logo">KindSteps</div>
+            <p>© 2025 KindSteps. All rights reserved.</p>
+        </div>
+
+        <div class="footer-links">
+            <a href="./about.html">About Us</a>
+            <a href="./contact.html">Contact</a>
+            
         </div>
     </footer>
+
 </body>
 </html>
