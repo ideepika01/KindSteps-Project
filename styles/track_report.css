@@ -1,4 +1,6 @@
-/* GLOBAL RESET */
+/* =========================
+   GLOBAL RESET
+========================= */
 * {
     margin: 0;
     padding: 0;
@@ -7,11 +9,18 @@
 }
 
 body {
-    background: #ffffff;
+    background: #fff;
     color: #222;
+
+    /* Push footer to bottom */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-/* NAVBAR */
+/* =========================
+   NAVBAR
+========================= */
 .navbar {
     background: #0e7bf1;
     padding: 15px 0;
@@ -43,11 +52,14 @@ body {
     font-weight: 500;
     transition: 0.3s;
 }
+
 .nav-links a:hover {
     opacity: 0.75;
 }
 
-/* MAIN WRAPPER */
+/* =========================
+   MAIN WRAPPER
+========================= */
 .track-wrapper {
     width: 80%;
     margin: 60px auto;
@@ -66,17 +78,20 @@ body {
     margin-bottom: 35px;
 }
 
-/* Search input + button */
+/* =========================
+   SEARCH INPUT + BUTTON
+========================= */
 .track-input-box {
     width: 60%;
     margin: auto;
     display: flex;
     align-items: center;
-    border: 1px solid #d6d6d6;
     padding: 10px 12px;
+
+    border: 1px solid #d6d6d6;
     border-radius: 8px;
+
     background: #fff;
-    position: relative;
 }
 
 .search-icon {
@@ -107,7 +122,9 @@ body {
     background: #0668d6;
 }
 
-/* PROGRESS BAR */
+/* =========================
+   PROGRESS BAR
+========================= */
 .progress-container {
     width: 80%;
     margin: 60px auto 40px;
@@ -117,8 +134,8 @@ body {
 }
 
 .progress-item {
-    text-align: center;
     width: 120px;
+    text-align: center;
 }
 
 .progress-icon {
@@ -139,12 +156,15 @@ body {
     border-radius: 3px;
 }
 
-/* STATUS BOX */
+/* =========================
+   STATUS BOX
+========================= */
 .status-box {
     width: 60%;
     margin: 40px auto;
-    background: #fff;
     padding: 40px;
+
+    background: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
@@ -154,15 +174,19 @@ body {
     margin-bottom: 10px;
 }
 
-/* FOOTER */
+/* =========================
+   FOOTER
+========================= */
 .footer {
-    margin-top: 80px;
+    background: #0e7bf1;
     padding: 40px 5%;
-    border-top: 1px solid #e5e5e5;
+    margin-top: auto; /* pushes it to bottom */
+
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #0e7bf1;
+
+    border-top: 1px solid #e5e5e5;
     color: white;
 }
 
@@ -179,33 +203,30 @@ body {
 }
 
 .footer-links a:hover {
-    color: white;
-}
-body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    color: #fff;
 }
 
-.footer {
-    margin-top: auto;
-}
+/* =========================
+   RESPONSIVE (TABLET + MOBILE)
+========================= */
 
-/* RESPONSIVE RULES */
+/* Tablet */
 @media (max-width: 1000px) {
-    .track-input-box {
-        width: 80%;
-    }
+    .track-input-box,
     .status-box {
         width: 80%;
     }
 }
 
+/* Mobile */
 @media (max-width: 768px) {
+
+    /* Hide desktop nav */
     .nav-links {
         display: none;
     }
 
+    /* Hamburger icon */
     .navbar::after {
         content: "☰";
         color: #fff;
@@ -222,6 +243,7 @@ body {
         width: 100%;
     }
 
+    /* Vertical progress steps */
     .progress-container {
         flex-direction: column;
         gap: 25px;
@@ -229,7 +251,7 @@ body {
 
     .progress-line {
         width: 3px;
-        height: 60px;
+        height: 60px; /* rotated line */
     }
 
     .status-box {

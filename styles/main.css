@@ -1,4 +1,6 @@
-/* Global */
+/* ========================
+   GLOBAL RESET
+======================== */
 * {
     margin: 0;
     padding: 0;
@@ -11,12 +13,12 @@ body {
     color: #222;
 }
 
-/* Navbar */
+/* ========================
+   NAVBAR
+======================== */
 .navbar {
-    width: 100%;
     background: #0e7bf1;
     padding: 15px 0;
-    
 }
 
 .nav-container {
@@ -50,10 +52,12 @@ body {
     opacity: 0.7;
 }
 
-/* Hero Section */
+/* ========================
+   HERO SECTION
+======================== */
 .hero {
     position: relative;
-    height: 600px;   /* You can change: 380px, 350px, etc. */
+    height: 600px;
     overflow: hidden;
 }
 
@@ -61,15 +65,13 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
 }
 
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.50); /* Increase opacity to darken image */
+    background: rgba(0, 0, 0, 0.50);
     z-index: 2;
-    height: 100;
 }
 
 .hero-content {
@@ -78,32 +80,29 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-    color: #fff;
     max-width: 600px;
-    z-index: 3 !important; /* forces text above overlay */
+    z-index: 3;
+    color: #fff;
 }
-
 
 .hero-content h1,
 .hero-content p {
-    color: #ffffff !important;          /* force bright white */
-    text-shadow: 0 4px 15px rgba(0,0,0,0.9); /* STRONG contrast */
+    color: #fff !important;
+    text-shadow: 0 4px 15px rgba(0,0,0,0.9);
 }
+
 .hero-content p {
     margin-bottom: 25px !important;
 }
 
-
 .report-btn {
     padding: 12px 25px;
     background: #0e7bf1;
-    border-radius: 6px;
     color: #fff;
     text-decoration: none;
-    transition: 0.3s;
+    border-radius: 6px;
     font-size: 14px;
-     position: relative;
-    z-index: 4; /* above everything */
+    transition: 0.3s;
     margin-top: 25px;
 }
 
@@ -111,34 +110,48 @@ body {
     background: #0564c8;
 }
 
-/* Section Headings */
+/* ========================
+   SECTION TITLES
+======================== */
 section h2 {
     text-align: center;
     font-size: 25px;
     margin-bottom: 30px;
 }
 
-/* How We Help */
+/* ========================
+   HELP SECTION
+======================== */
 .help-section {
     padding: 60px 0;
     background: #f8f9fb;
 }
 
-.help-cards {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
+.help-cards,
+.impact-stats,
+.involved-cards {
     width: 90%;
     margin: auto;
+    display: flex;
+    justify-content: center;
+}
+
+.help-cards {
+    gap: 40px;
+}
+
+.help-card,
+.stat-box,
+.involved-card {
+    background: #fff;
+    border-radius: 10px;
+    transition: 0.3s;
 }
 
 .help-card {
-    background: #fff;
     width: 350px;
     padding: 25px;
-    border-radius: 10px;
     box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-    transition: 0.3s;
 }
 
 .help-card:hover {
@@ -151,27 +164,23 @@ section h2 {
     margin-bottom: 15px;
 }
 
-/* Impact */
+/* ========================
+   IMPACT SECTION
+======================== */
 .impact {
     padding: 60px 0;
-    background: #fff;
 }
 
 .impact-stats {
-    display: flex;
-    justify-content: center;
     gap: 50px;
     margin-top: 30px;
 }
 
 .stat-box {
-    background: #fff;
     width: 250px;
     padding: 30px;
-    border-radius: 12px;
-    text-align: center;
     box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-    transition: 0.3s;
+    text-align: center;
 }
 
 .stat-box:hover {
@@ -188,27 +197,23 @@ section h2 {
     font-weight: 700;
 }
 
-/* Get Involved */
+/* ========================
+   GET INVOLVED
+======================== */
 .involved {
     background: #f7f8fc;
     padding: 60px 0;
 }
 
 .involved-cards {
-    width: 90%;
-    margin: auto;
-    display: flex;
     gap: 40px;
-    justify-content: center;
 }
 
 .involved-card {
-    background: #fff;
     width: 350px;
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-    transition: 0.3s;
 }
 
 .involved-card:hover {
@@ -220,8 +225,8 @@ section h2 {
     margin-top: 20px;
     padding: 10px 20px;
     border: 1px solid #0e7bf1;
-    border-radius: 6px;
     color: #0e7bf1;
+    border-radius: 6px;
     text-decoration: none;
     transition: 0.3s;
 }
@@ -231,13 +236,15 @@ section h2 {
     color: #fff;
 }
 
-/* Footer */
+/* ========================
+   FOOTER
+======================== */
 .footer {
     background: #0e7bf1;
     padding: 30px 5%;
+    color: white;
     display: flex;
     justify-content: space-between;
-    align-items: center;
     border-top: 1px solid #e5e5e5;
 }
 
@@ -254,60 +261,33 @@ section h2 {
 }
 
 .footer-links a:hover {
-    color: white;
+    color: #fff;
 }
 
-/* ============================
-   RESPONSIVE DESIGN (MOBILE + TABLET)
-   ============================ */
+/* ========================
+   RESPONSIVE
+======================== */
 
-/* Tablets & Medium Screens */
+/* Tablet */
 @media (max-width: 1024px) {
-
-    .nav-container {
-        width: 95%;
-    }
-
-    .hero-content h1 {
-        font-size: 32px;
-    }
-
-    .hero-content p {
-        font-size: 15px;
-    }
+    .nav-container { width: 95%; }
+    .hero-content h1 { font-size: 32px; }
+    .hero-content p { font-size: 15px; }
 }
 
-/* Mobile Navigation */
+/* Mobile Menu */
 @media (max-width: 768px) {
+    .nav-links { display: none; }
 
-    .nav-links {
-        display: none;
-    }
-
-    .navbar {
-        padding: 18px 0;
-    }
-
-    .logo {
-        font-size: 20px;
-    }
-
-    /* Optional: a simple mobile menu icon (hamburger) */
     .navbar::after {
         content: "☰";
-        color: white;
+        color: #fff;
         font-size: 26px;
         cursor: pointer;
         margin-right: 20px;
     }
-}
 
-/* Stacking Hero Content Better */
-@media (max-width: 768px) {
-
-    .hero {
-        height: 450px;
-    }
+    .hero { height: 450px; }
 
     .hero-content h1 {
         font-size: 28px;
@@ -324,50 +304,7 @@ section h2 {
         padding: 10px 20px;
         font-size: 13px;
     }
-}
 
-/* Help Section Cards Responsive */
-@media (max-width: 900px) {
-
-    .help-cards {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .help-card {
-        width: 90%;
-        margin-bottom: 20px;
-    }
-}
-
-/* Impact Stats Responsive */
-@media (max-width: 900px) {
-
-    .impact-stats {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .stat-box {
-        width: 90%;
-    }
-}
-
-/* Get Involved Cards Responsive */
-@media (max-width: 900px) {
-
-    .involved-cards {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .involved-card {
-        width: 90%;
-    }
-}
-
-/* Footer Responsive */
-@media (max-width: 768px) {
     .footer {
         flex-direction: column;
         text-align: center;
@@ -376,5 +313,22 @@ section h2 {
 
     .footer-links a {
         margin: 0 10px;
+    }
+}
+
+/* Cards stacking */
+@media (max-width: 900px) {
+    .help-cards,
+    .impact-stats,
+    .involved-cards {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .help-card,
+    .stat-box,
+    .involved-card {
+        width: 90%;
     }
 }

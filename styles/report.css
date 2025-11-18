@@ -1,4 +1,6 @@
-/* Global */
+/* ==========================
+   GLOBAL STYLES
+========================== */
 * {
     margin: 0;
     padding: 0;
@@ -7,11 +9,13 @@
 }
 
 body {
-    background: #ffffff;
+    background: #fff;
     color: #222;
 }
 
-/* Navbar */
+/* ==========================
+   NAVBAR
+========================== */
 .navbar {
     width: 100%;
     background: #0e7bf1;
@@ -44,7 +48,9 @@ body {
     font-weight: 500;
 }
 
-/* Report Container */
+/* ==========================
+   REPORT CARD WRAPPER
+========================== */
 .report-wrapper {
     display: flex;
     justify-content: center;
@@ -59,6 +65,7 @@ body {
     box-shadow: 0 4px 14px rgba(0,0,0,0.08);
 }
 
+/* Main Title + Subtext */
 .report-card h1 {
     text-align: center;
     font-size: 28px;
@@ -72,7 +79,11 @@ body {
     font-size: 14px;
 }
 
-/* Section Titles */
+/* ==========================
+   INPUT SECTIONS
+========================== */
+
+/* Section headings */
 .section-block h2 {
     font-size: 20px;
     margin-bottom: 6px;
@@ -84,13 +95,14 @@ body {
     margin-bottom: 15px;
 }
 
+/* Labels */
 .label {
     font-size: 14px;
     margin: 8px 0 5px;
     display: block;
 }
 
-/* Inputs */
+/* Input fields */
 .input-field,
 .textarea-field {
     width: 100%;
@@ -106,7 +118,9 @@ body {
     resize: vertical;
 }
 
-/* Map Box */
+/* ==========================
+   MAP BOX
+========================== */
 .map-box {
     width: 100%;
     height: 220px;
@@ -123,6 +137,7 @@ body {
     object-fit: cover;
 }
 
+/* "Map preview" badge */
 .map-badge {
     position: absolute;
     top: 50%;
@@ -135,7 +150,9 @@ body {
     font-size: 12px;
 }
 
-/* Upload — Fully Functional */
+/* ==========================
+   FILE UPLOAD BOX
+========================== */
 .upload-box {
     border: 2px dashed #c6c6c6;
     padding: 40px;
@@ -143,8 +160,8 @@ body {
     border-radius: 10px;
     cursor: pointer;
     transition: 0.3s;
-    position: relative;
     margin-bottom: 25px;
+    position: relative;
 }
 
 .upload-box:hover {
@@ -152,11 +169,10 @@ body {
     background: #f4f9ff;
 }
 
+/* Make the entire box clickable */
 .upload-box input[type=file] {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
     opacity: 0;
     cursor: pointer;
 }
@@ -176,7 +192,9 @@ body {
     color: #666;
 }
 
-/* Submit Button */
+/* ==========================
+   SUBMIT BUTTON
+========================== */
 .submit-btn {
     width: 100%;
     background: #0e7bf1;
@@ -193,13 +211,16 @@ body {
     background: #0668d6;
 }
 
-/* Footer */
+/* ==========================
+   FOOTER
+========================== */
 .footer {
     background: #0e7bf1;
     padding: 30px 5%;
     display: flex;
     justify-content: space-between;
     border-top: 1px solid #e5e5e5;
+    color: white;
 }
 
 .footer-logo {
@@ -214,10 +235,12 @@ body {
 }
 
 .footer-links a:hover {
-    color: white;
+    color: #fff;
 }
 
-/* Responsive */
+/* ==========================
+   RESPONSIVE
+========================== */
 @media (max-width: 900px) {
     .report-card {
         width: 90%;
