@@ -12,7 +12,7 @@ body {
 
 /* NAVBAR */
 .navbar {
-    background: #0e7bf1;
+    background: #00008B;
     padding: 15px 0;
     width: 100%;
 }
@@ -82,13 +82,13 @@ body {
     border-radius: 12px;
     border: 1px solid #e5e5e5;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: 0.3s;
 }
 
 .contact-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.10);
 }
 
 .icon {
@@ -106,6 +106,7 @@ body {
     color: #444;
     margin-bottom: 15px;
 }
+
 .contact-card p {
     margin: 6px 0;
     color: #555;
@@ -113,7 +114,7 @@ body {
 
 /* BUTTON */
 .btn-primary {
-    background: #0e7bf1;
+    background: #00008B;
     color: #fff;
     padding: 10px 18px;
     border: none;
@@ -160,7 +161,7 @@ body {
 
 .email-btn:hover {
     background: #eef2ff;
-    border-color: #0e7bf1;
+    border-color: #00008B;
 }
 
 /* FOOTER */
@@ -171,7 +172,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #0e7bf1;
+    background-color: #00008B;
     color: white;
 
 }
@@ -230,67 +231,77 @@ body {
         gap: 12px;
     }
 }
+
 /* 3-column grid and centered page width */
 .contact-card-container {
-  width: 90%;                  /* adjust to match your layout */
-  max-width: 1100px;
-  margin: 40px auto;          /* center block on page */
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;                  /* space between cards */
-  align-items: start;         /* keep grid items aligned to top */
+    width: 90%;
+    /* adjust to match your layout */
+    max-width: 1100px;
+    margin: 40px auto;
+    /* center block on page */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    /* space between cards */
+    align-items: start;
+    /* keep grid items aligned to top */
 }
 
 /* Make each card equal height and center its content */
 .contact-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 28px 22px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  display: flex;
-  flex-direction: column;
-  align-items: center;        /* center icon and headings horizontally */
-  justify-content: flex-start;/* keep content from stretching odd ways */
-  min-height: 300px;          /* forces uniform card height — adjust if needed */
-  box-sizing: border-box;
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 22px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* center icon and headings horizontally */
+    justify-content: flex-start;
+    /* keep content from stretching odd ways */
+    min-height: 300px;
+    /* forces uniform card height — adjust if needed */
+    box-sizing: border-box;
 }
 
 /* Icon sizing and spacing */
 .contact-card .contact-icon {
-  width: 72px;
-  height: 72px;
-  object-fit: contain;
-  margin-bottom: 18px;
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    margin-bottom: 18px;
 }
 
 /* Title and description */
 .contact-card h3 {
-  font-size: 20px;
-  margin: 0 0 8px;
-  text-align: center;
+    font-size: 20px;
+    margin: 0 0 8px;
+    text-align: center;
 }
 
 .contact-card p {
-  margin: 6px 0;
-  color: #555;
-  text-align: center;
-  line-height: 1.3;
+    margin: 6px 0;
+    color: #555;
+    text-align: center;
+    line-height: 1.3;
 }
 
 /* Make sure phone/email lines stand out but remain centered */
 .contact-card p strong {
-  color: #222;
-  display: block;
-  margin-top: 6px;
-  font-weight: 700;
+    color: #222;
+    display: block;
+    margin-top: 6px;
+    font-weight: 700;
 }
 
 /* On narrow screens stack the cards */
 @media (max-width: 980px) {
-  .contact-card-container {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-  .contact-card { min-height: auto; }
-}
+    .contact-card-container {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
 
+    .contact-card {
+        min-height: auto;
+    }
+}

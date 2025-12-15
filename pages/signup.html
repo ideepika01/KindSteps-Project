@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="../styles/signup.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
     <!-- NAVBAR -->
@@ -14,7 +16,7 @@
         <div class="nav-container">
             <ul class="nav-links">
                 <li>KindSteps</li>
-                
+
             </ul>
     </header>
 
@@ -26,25 +28,32 @@
             <p class="subtext">Join Visionary Solutions to make an impact.</p>
 
             <label>Full Name</label>
-            <input type="text" placeholder="John Doe" class="input-field">
+            <input type="text" id="signup-name" placeholder="John Doe" class="input-field">
 
             <label>Email Address</label>
-            <input type="email" placeholder="john.doe@example.com" class="input-field">
+            <input type="email" id="signup-email" placeholder="john.doe@example.com" class="input-field">
 
             <label>Phone Number</label>
-            <input type="text" placeholder="+1 (555) 123-4567" class="input-field">
+            <input type="text" id="signup-phone" placeholder="+1 (555) 123-4567" class="input-field">
 
             <label>Password</label>
-            <input type="password" placeholder="********" class="input-field">
+            <input type="password" id="signup-password" placeholder="********" class="input-field">
 
             <label>Your Role</label>
             <div class="role-selector">
-                <label><input type="radio" name="role" checked> RescueTeam</label>
-                <label><input type="radio" name="role"> Volunteer</label>
-                <label><input type="radio" name="role"> User</label>
+                <label><input type="radio" name="role" value="rescue_team" checked> RescueTeam</label>
+                <label><input type="radio" name="role" value="user"> Volunteer</label>
+                <!-- Assuming volunteer is a user role or we need to check backend role definitions. Let's stick to user/rescue_team/admin as per backend -->
+                <!-- Backend has: user, rescue_team, admin. Front end has Volunteer. Let's map Volunteer -> user for now or rescue_team? The backend has rescue_team. Let's assume volunteer is rescue_team or user? -->
+                <!-- Let's map: RescueTeam -> rescue_team, Volunteer -> user (or maybe rescue_team?), User -> user -->
+                <!-- Wait, looking at backend model: user, rescue_team, admin. -->
+                <!-- Let's use value="rescue_team" for RescueTeam. -->
+                <!-- value="user" for User. -->
+                <!-- What is Volunteer? Maybe just user? -->
+                <label><input type="radio" name="role" value="user"> User</label>
             </div>
 
-            <a href="./main.html"><button class="signup-submit">Sign Up</button></a>
+            <button id="signup-btn" class="signup-submit">Sign Up</button>
 
             <p class="login-text">Already have an account? <a href="../index.html">Login</a>.</p>
 
@@ -52,14 +61,19 @@
     </section>
 
     <!-- FOOTER -->
-   <footer class="footer">
+    <footer class="footer">
         <div class="footer-left">
             <p>© 2025 KindSteps. All rights reserved.</p>
         </div>
 
-       
+
     </footer>
 
 
+    <!-- Scripts -->
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
 </body>
+
 </html>

@@ -17,7 +17,7 @@ body {
    NAVBAR
 ======================== */
 .navbar {
-    background: #0e7bf1;
+    background: #00008B;
     padding: 15px 0;
 }
 
@@ -88,7 +88,7 @@ body {
 .hero-content h1,
 .hero-content p {
     color: #fff !important;
-    text-shadow: 0 4px 15px rgba(0,0,0,0.9);
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.9);
 }
 
 .hero-content p {
@@ -97,7 +97,7 @@ body {
 
 .report-btn {
     padding: 12px 25px;
-    background: #0e7bf1;
+    background: #00008B;
     color: #fff;
     text-decoration: none;
     border-radius: 6px;
@@ -151,12 +151,12 @@ section h2 {
 .help-card {
     width: 350px;
     padding: 25px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
 }
 
 .help-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
 }
 
 .help-card .icon {
@@ -179,7 +179,7 @@ section h2 {
 .stat-box {
     width: 250px;
     padding: 30px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
     text-align: center;
 }
 
@@ -213,7 +213,7 @@ section h2 {
     width: 350px;
     padding: 25px;
     border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
 }
 
 .involved-card:hover {
@@ -224,15 +224,15 @@ section h2 {
     display: inline-block;
     margin-top: 20px;
     padding: 10px 20px;
-    border: 1px solid #0e7bf1;
-    color: #0e7bf1;
+    border: 1px solid #00008B;
+    color: #00008B;
     border-radius: 6px;
     text-decoration: none;
     transition: 0.3s;
 }
 
 .card-btn:hover {
-    background: #0e7bf1;
+    background: #00008B;
     color: #fff;
 }
 
@@ -240,7 +240,7 @@ section h2 {
    FOOTER
 ======================== */
 .footer {
-    background: #0e7bf1;
+    background: #00008B;
     padding: 30px 5%;
     color: white;
     display: flex;
@@ -270,14 +270,24 @@ section h2 {
 
 /* Tablet */
 @media (max-width: 1024px) {
-    .nav-container { width: 95%; }
-    .hero-content h1 { font-size: 32px; }
-    .hero-content p { font-size: 15px; }
+    .nav-container {
+        width: 95%;
+    }
+
+    .hero-content h1 {
+        font-size: 32px;
+    }
+
+    .hero-content p {
+        font-size: 15px;
+    }
 }
 
 /* Mobile Menu */
 @media (max-width: 768px) {
-    .nav-links { display: none; }
+    .nav-links {
+        display: none;
+    }
 
     .navbar::after {
         content: "☰";
@@ -287,7 +297,9 @@ section h2 {
         margin-right: 20px;
     }
 
-    .hero { height: 450px; }
+    .hero {
+        height: 450px;
+    }
 
     .hero-content h1 {
         font-size: 28px;
@@ -318,6 +330,7 @@ section h2 {
 
 /* Cards stacking */
 @media (max-width: 900px) {
+
     .help-cards,
     .impact-stats,
     .involved-cards {

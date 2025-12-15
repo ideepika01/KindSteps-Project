@@ -31,17 +31,17 @@
             <h1>Login to your account</h1>
 
             <label>Email</label>
-            <input type="email" placeholder="your.email@example.com" class="input-field">
+            <input type="email" id="login-email" placeholder="your.email@example.com" class="input-field">
 
             <label>Password</label>
             <div class="password-box">
-                <input type="password" placeholder="••••••••" class="input-field password">
+                <input type="password" id="login-password" placeholder="••••••••" class="input-field password">
                 
             </div>
 
             <a href="#" class="forgot">Forgot password?</a>
 
-            <button class="login-submit">Login</button>
+            <button id="login-btn" class="login-submit">Login</button>
 
             <p class="signup-text">Don't have an account? <a href="./pages/signup.html">Sign Up</a></p>
 
@@ -64,5 +64,9 @@
        
     </footer>
 
+    <!-- Scripts -->
+    <script src="./js/config.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/auth.js"></script>
 </body>
 </html>

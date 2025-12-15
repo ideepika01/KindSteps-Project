@@ -3,7 +3,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -31,13 +32,13 @@ footer {
 
 /* TOP NAVBAR */
 .topbar {
-  background: #0e7bf1;
+  background: #00008B;
   padding: 12px 0;
   color: #fff;
 }
 
-.navbar, 
-.navbar a, 
+.navbar,
+.navbar a,
 .navbar .logo {
   color: #fff !important;
 }
@@ -238,7 +239,7 @@ footer {
 
 /* FOOTER */
 .footer {
-  background: #0e7bf1;
+  background: #00008B;
   padding: 30px 5%;
   border-top: 1px solid #e5e5e5;
   display: flex;

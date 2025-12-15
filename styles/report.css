@@ -18,7 +18,7 @@ body {
 ========================== */
 .navbar {
     width: 100%;
-    background: #0e7bf1;
+    background: #00008B;
     padding: 15px 0;
 }
 
@@ -62,7 +62,7 @@ body {
     background: #fff;
     padding: 40px;
     border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
 /* Main Title + Subtext */
@@ -140,7 +140,7 @@ body {
 }
 
 .upload-box:hover {
-    border-color: #0e7bf1;
+    border-color: #00008B;
     background: #f4f9ff;
 }
 
@@ -172,7 +172,7 @@ body {
 ========================== */
 .submit-btn {
     width: 100%;
-    background: #0e7bf1;
+    background: #00008B;
     color: #fff;
     padding: 14px;
     border: none;
@@ -190,7 +190,7 @@ body {
    FOOTER
 ========================== */
 .footer {
-    background: #0e7bf1;
+    background: #00008B;
     padding: 30px 5%;
     display: flex;
     justify-content: space-between;

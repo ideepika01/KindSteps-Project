@@ -15,7 +15,7 @@ body {
 
 /* NAVBAR */
 .navbar {
-    background: #0e7bf1;
+    background: #00008B;
     padding: 15px 0;
     width: 100%;
     color: white;
@@ -62,7 +62,7 @@ body {
 
 .signup-btn {
     background: #ffffff;
-    color: #0e7bf1;
+    color: #00008B;
     padding: 7px 16px;
     border-radius: 6px;
     font-size: 14px;
@@ -86,12 +86,12 @@ body {
 
 .signup-card {
     width: 430px;
-    background: #0e7bf1;
+    background: #00008B;
     padding: 40px;
     border-radius: 10px;
     color: #fff;
     text-align: center;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
 }
 
 .signup-card h1 {
@@ -171,7 +171,7 @@ body {
 
 /* FOOTER */
 .footer {
-    background: #0e7bf1;
+    background: #00008B;
     color: #fff;
     padding: 25px 5%;
     display: flex;
@@ -190,8 +190,10 @@ body {
 .footer-links a:hover {
     opacity: 0.8;
 }
+
 footer {
-    margin-top: auto; /* forces footer to bottom */
+    margin-top: auto;
+    /* forces footer to bottom */
 }
 
 

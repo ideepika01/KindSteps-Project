@@ -14,7 +14,7 @@ body {
 /* NAVBAR */
 .navbar {
   width: 100%;
-  background: #0e7bf1;
+  background: #00008B;
   padding: 15px 0;
 }
 
@@ -138,7 +138,7 @@ body {
 
 .principle-card h3 {
   font-size: 18px;
-  color: #0e7bf1;
+  color: #00008B;
   margin-bottom: 10px;
 }
 
@@ -175,7 +175,7 @@ body {
 
 .stat-card h3 {
   font-size: 28px;
-  color: #0e7bf1;
+  color: #00008B;
   font-weight: 700;
 }
 
@@ -247,7 +247,7 @@ body {
 }
 
 .cta-primary {
-  background: #0e7bf1;
+  background: #00008B;
   color: #fff;
 }
 
@@ -256,8 +256,8 @@ body {
 }
 
 .cta-secondary {
-  border: 1px solid #0e7bf1;
-  color: #0e7bf1;
+  border: 1px solid #00008B;
+  color: #00008B;
 }
 
 .cta-secondary:hover {
@@ -266,7 +266,7 @@ body {
 
 /* FOOTER */
 .footer {
-  background: #0e7bf1;
+  background: #00008B;
   padding: 30px 5%;
   display: flex;
   justify-content: space-between;

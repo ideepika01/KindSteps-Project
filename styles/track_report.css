@@ -22,7 +22,7 @@ body {
    NAVBAR
 ========================= */
 .navbar {
-    background: #0e7bf1;
+    background: #00008B;
     padding: 15px 0;
 }
 
@@ -108,7 +108,7 @@ body {
 }
 
 .track-btn {
-    background: #0e7bf1;
+    background: #00008B;
     color: #fff;
     padding: 10px 18px;
     border-radius: 6px;
@@ -166,7 +166,7 @@ body {
 
     background: #fff;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .status-box h2 {
@@ -178,9 +178,10 @@ body {
    FOOTER
 ========================= */
 .footer {
-    background: #0e7bf1;
+    background: #00008B;
     padding: 40px 5%;
-    margin-top: auto; /* pushes it to bottom */
+    margin-top: auto;
+    /* pushes it to bottom */
 
     display: flex;
     justify-content: space-between;
@@ -212,6 +213,7 @@ body {
 
 /* Tablet */
 @media (max-width: 1000px) {
+
     .track-input-box,
     .status-box {
         width: 80%;
@@ -251,7 +253,8 @@ body {
 
     .progress-line {
         width: 3px;
-        height: 60px; /* rotated line */
+        height: 60px;
+        /* rotated line */
     }
 
     .status-box {

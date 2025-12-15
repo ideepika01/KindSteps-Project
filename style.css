@@ -10,7 +10,8 @@ body {
     background: #ffffff;
 }
 
-html, body {
+html,
+body {
     height: 100%;
 }
 
@@ -19,11 +20,53 @@ body {
     flex-direction: column;
 }
 
-.page-wrapper {
-    flex: 1;     /* pushes footer down */
+/* CONTAINER FOR CENTERED CONTENT */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
+
+/* UPDATE PAGE WRAPPER TO USE CONTAINER */
+.page-wrapper {
+    flex: 1;
+    /* pushes footer down */
+    width: 100%;
+    padding: 0 20px;
+}
+
+/* CENTER LOGIN CARD WITH MAX WIDTH */
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    background: #00008B;
+    padding: 40px;
+    border-radius: 10px;
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    margin: 0 auto;
+}
+
+/* ENSURE FOOTER CONTENT IS CENTERED */
+.footer {
+    background: #00008B;
+    color: #fff;
+    text-align: center;
+    padding: 20px 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+flex: 1;
+/* pushes footer down */
+}
+
 .login-page {
-    min-height: calc(100vh - 80px); /* subtract navbar + footer height if needed */
+    min-height: calc(100vh - 80px);
+    /* subtract navbar + footer height if needed */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -31,18 +74,19 @@ body {
 }
 
 footer {
-    margin-top: auto; /* forces footer to bottom */
+    margin-top: auto;
+    /* forces footer to bottom */
 }
 
 
 /* NAVBAR */
 .navbar {
-    background: #0e7bf1;;
+    background: #00008B;
     padding: 15px 0;
     width: 100%;
     color: white;
-    size: 2em;
 }
+
 
 .nav-container {
     width: 90%;
@@ -85,7 +129,7 @@ footer {
 
 .signup-btn {
     background: #ffffff;
-    color: #0e7bf1;
+    color: #00008B;
     padding: 7px 16px;
     border-radius: 6px;
     text-decoration: none;
@@ -108,12 +152,12 @@ footer {
 
 .login-card {
     width: 430px;
-    background: #0e7bf1;
+    background: #00008B;
     padding: 40px;
     border-radius: 10px;
     color: #fff;
     text-align: center;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
 }
 
 .login-card h1 {
@@ -196,7 +240,7 @@ footer {
 
 /* FOOTER */
 .footer {
-    background: #0e7bf1;
+    background: #00008B;
     color: #fff;
     margin-top: 100px;
     padding: 20px 5%;

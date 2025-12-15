@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,102 +10,109 @@
 
 <body>
 
-<!-- NAVBAR -->
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="logo">KindSteps</div>
-        <ul class="nav-links">
-            <li><a href="./main.html" class="active">Home</a></li>
-            
-            <li><a href="./about.html">About Us</a></li>
-            <li><a href="./works.html">Education</a></li>
-            <li><a href="./track_report.html">Report Status</a></li>
-        </ul>
-    </div>
-</nav>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">KindSteps</div>
+            <ul class="nav-links">
+                <li><a href="./main.html" class="active">Home</a></li>
 
-<!-- REPORT FORM -->
-<div class="report-wrapper">
-    <div class="report-card">
-        
-        <h1>Report a Vulnerable Individual</h1>
-        <p class="subtext">Your report will make a difference. Please fill all fields carefully.</p>
-
-        <!-- CONDITION -->
-        <div class="section-block">
-            <h2>What Did You See?</h2>
-            <p class="desc">Describe the individual's condition and behavior.</p>
-
-            <label class="label">Condition <span style="color:red">*</span></label>
-            <select class="input-field" required>
-                <option value="">Select condition</option>
-                <option value="child">Young Child</option>
-                <option value="mentally-challenged">Mentally Challenged Kid</option>
-                <option value="elderly">Elderly Person</option>
-                <option value="beggar">Beggar</option>
-                <option value="injured">Injured Person</option>
-                <option value="disabled">Disabled Individual</option>
-            </select>
-
-            <label class="label">Detailed Description <span style="color:red">*</span></label>
-            <textarea class="textarea-field" placeholder="Describe what you observed..." required></textarea>
+                <li><a href="./about.html">About Us</a></li>
+                <li><a href="./works.html">Education</a></li>
+                <li><a href="./track_report.html">Report Status</a></li>
+            </ul>
         </div>
+    </nav>
 
-        <!-- LOCATION -->
-        <div class="section-block">
-            <h2>Where Did You See Them?</h2>
-            <p class="desc">Specify the location of the incident.</p>
+    <!-- REPORT FORM -->
+    <div class="report-wrapper">
+        <div class="report-card">
 
-            <label class="label">Location Address or Landmark <span style="color:red">*</span></label>
-            <input type="text" class="input-field" placeholder="E.g. Near bus stand, Market road…" required>
+            <h1>Report a Vulnerable Individual</h1>
+            <p class="subtext">Your report will make a difference. Please fill all fields carefully.</p>
 
-            
-        </div>
+            <!-- CONDITION -->
+            <div class="section-block">
+                <h2>What Did You See?</h2>
+                <p class="desc">Describe the individual's condition and behavior.</p>
 
-        <!-- UPLOAD -->
-        <div class="section-block">
-            <h2>Upload Photos</h2>
-            <p class="desc">Upload up to 3 images (JPG/PNG). Max size 5MB each.</p>
+                <label class="label">Condition <span style="color:red">*</span></label>
+                <select id="report-condition" class="input-field" required>
+                    <option value="">Select condition</option>
+                    <option value="child">Young Child</option>
+                    <option value="mentally-challenged">Mentally Challenged Kid</option>
+                    <option value="elderly">Elderly Person</option>
+                    <option value="beggar">Beggar</option>
+                    <option value="injured">Injured Person</option>
+                    <option value="disabled">Disabled Individual</option>
+                </select>
 
-            <div class="upload-box">
-                <input type="file" accept="image/*" multiple required>
-                <div class="upload-content">
-                    <div class="upload-icon">📷</div>
-                    <p>Drag & drop photos here, or click to browse</p>
-                    <span>Supported formats: JPG, PNG (max 5MB)</span>
+                <label class="label">Detailed Description <span style="color:red">*</span></label>
+                <textarea id="report-description" class="textarea-field" placeholder="Describe what you observed..."
+                    required></textarea>
+            </div>
+
+            <!-- LOCATION -->
+            <div class="section-block">
+                <h2>Where Did You See Them?</h2>
+                <p class="desc">Specify the location of the incident.</p>
+
+                <label class="label">Location Address or Landmark <span style="color:red">*</span></label>
+                <input id="report-location" type="text" class="input-field"
+                    placeholder="E.g. Near bus stand, Market road…" required>
+
+
+            </div>
+
+            <!-- UPLOAD -->
+            <div class="section-block">
+                <h2>Upload Photo</h2>
+                <p class="desc">Upload an image (JPG/PNG). Max size 5MB.</p>
+
+                <div class="upload-box">
+                    <input id="report-photo" type="file" accept="image/*" required>
+                    <div class="upload-content">
+                        <div class="upload-icon">📷</div>
+                        <p>Drag & drop photo here, or click to browse</p>
+                        <span>Supported formats: JPG, PNG (max 5MB)</span>
+                    </div>
                 </div>
             </div>
+
+            <!-- CONTACT -->
+            <div class="section-block">
+                <h2>Your Contact Information (Required)</h2>
+
+                <label class="label">Your Name <span style="color:red">*</span></label>
+                <input id="contact-name" type="text" class="input-field" required>
+
+                <label class="label">Email Address <span style="color:red">*</span></label>
+                <input id="contact-email" type="email" class="input-field" required>
+
+                <label class="label">Phone Number <span style="color:red">*</span></label>
+                <input id="contact-phone" type="tel" class="input-field" required>
+            </div>
+
+            <!-- SUBMIT BUTTON -->
+            <button id="submit-report-btn" class="submit-btn" type="submit">Submit Report</button>
+
         </div>
+    </div>
 
-        <!-- CONTACT -->
-        <div class="section-block">
-            <h2>Your Contact Information (Required)</h2>
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-logo">KindSteps</div>
+        <div class="footer-links">
+            <a href="./about.html">About Us</a>
+            <a href="./contact.html">Contact</a>
 
-            <label class="label">Your Name <span style="color:red">*</span></label>
-            <input type="text" class="input-field" required>
-
-            <label class="label">Email Address <span style="color:red">*</span></label>
-            <input type="email" class="input-field" required>
-
-            <label class="label">Phone Number <span style="color:red">*</span></label>
-            <input type="tel" class="input-field" required>
         </div>
+    </footer>
 
-        <!-- SUBMIT BUTTON -->
-        <button class="submit-btn" type="submit">Submit Report</button>
-
-    </div>
-</div>
-
-<!-- FOOTER -->
-<footer class="footer">
-    <div class="footer-logo">KindSteps</div>
-    <div class="footer-links">
-        <a href="./about.html">About Us</a>
-        <a href="./contact.html">Contact</a>
-
-    </div>
-</footer>
-
+    <!-- Scripts -->
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/report.js"></script>
 </body>
+
 </html>

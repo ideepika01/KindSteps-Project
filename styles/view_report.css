@@ -8,9 +8,9 @@ body {
 /* TOP BAR */
 .navbar {
     width: 100%;
-    background: #0e7bf1;
+    background: #00008B;
     padding: 15px 0;
-    
+
 }
 
 .nav-container {
@@ -43,6 +43,7 @@ body {
 .nav-links a:hover {
     opacity: 0.7;
 }
+
 /* MAIN GRID */
 .case-container {
     display: grid;
@@ -75,7 +76,8 @@ body {
 .case-status span {
     font-weight: 600;
 }
-.left-column > div {
+
+.left-column>div {
     margin-bottom: 25px !important;
 }
 
@@ -141,7 +143,7 @@ body {
 }
 
 .update-btn {
-    background: #0e7bf1;
+    background: #00008B;
     color: #fff;
     padding: 12px 40px;
     border: none;
@@ -153,7 +155,7 @@ body {
 
 /* FOOTER */
 .footer {
-    background: #0e7bf1;
+    background: #00008B;
     padding: 30px 5%;
     display: flex;
     justify-content: space-between;
@@ -183,7 +185,8 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .right-column, .left-column {
+    .right-column,
+    .left-column {
         width: 100%;
     }
 }
