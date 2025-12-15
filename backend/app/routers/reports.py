@@ -1,3 +1,9 @@
+"""Routes for creating and managing reports.
+
+This module keeps the handlers small and readable. File upload handling is
+encapsulated in a helper to make the endpoints easier to follow.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -10,10 +16,27 @@ import shutil
 import os
 import uuid
 
-router = APIRouter()
-
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+router = APIRouter()
+
+
+def _save_upload(file: UploadFile | None) -> Optional[str]:
+    """Save an uploaded file to disk and return its URL, or None.
+
+    Keeps file-handling logic centralized and easy to test.
+    """
+    if not file:
+        return None
+
+    file_extension = file.filename.split(".")[-1]
+    file_name = f"{uuid.uuid4()}.{file_extension}"
+    file_path = os.path.join(UPLOAD_DIR, file_name)
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    return f"/uploads/{file_name}"
 
 @router.post("/", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)
 async def create_report(
@@ -27,16 +50,8 @@ async def create_report(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    photo_url = None
-    if photo:
-        file_extension = photo.filename.split(".")[-1]
-        file_name = f"{uuid.uuid4()}.{file_extension}"
-        file_path = os.path.join(UPLOAD_DIR, file_name)
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(photo.file, buffer)
-        # In a real app, you'd upload to S3. Here we save locally.
-        # Ensure 'uploads' is served statically in main.py
-        photo_url = f"/uploads/{file_name}"
+    # Save uploaded photo (if present) and get a URL for it.
+    photo_url = _save_upload(photo)
 
     new_report = Report(
         reporter_id=current_user.id,

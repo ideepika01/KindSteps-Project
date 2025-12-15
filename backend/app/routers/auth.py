@@ -1,27 +1,40 @@
+"""Authentication routes: signup, login and current user.
+
+Endpoints are intentionally lightweight and delegate hashing and token
+creation to `app.core.security` to keep behavior consistent and testable.
+"""
+
+from datetime import timedelta
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+
 from app.db.session import get_db
 from app.core import security
 from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse, UserLogin
+from app.schemas.user import UserCreate, UserResponse
 from app.schemas.token import Token
-from datetime import timedelta
 from app.core.config import settings
 from app.dependencies import get_current_user
 
 router = APIRouter()
 
 @router.post("/signup", response_model=UserResponse)
-def signup(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == user.email).first()
-    if db_user:
+def signup(user: UserCreate, db: Session = Depends(get_db)) -> User:
+    """Create a new user.
+
+    This checks for an existing email and stores the hashed password only.
+    """
+    existing = db.query(User).filter(User.email == user.email).first()
+    if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
-    
+
     hashed_password = security.get_password_hash(user.password)
     # Exclude password from the dictionary passed to the model
-    user_data = user.model_dump(exclude={"password"}) 
-    
+    user_data = user.model_dump(exclude={"password"})
+
     new_user = User(**user_data, hashed_password=hashed_password)
     db.add(new_user)
     db.commit()
@@ -29,7 +42,7 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @router.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)) -> Token:
     # Note: OAuth2PasswordRequestForm expects 'username' and 'password' fields. 
     # Use email as username on frontend or map it here.
     user = db.query(User).filter(User.email == form_data.username).first()
@@ -46,5 +59,6 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/me", response_model=UserResponse)
-def read_users_me(current_user: User = Depends(get_current_user)):
+def read_users_me(current_user: User = Depends(get_current_user)) -> User:
+    """Return the current authenticated user."""
     return current_user
