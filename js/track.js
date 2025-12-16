@@ -1,71 +1,113 @@
+/*
+ * TRACKING LOGIC
+ * This file allows anyone to check the status of a report using its ID.
+ * It does NOT require a login token (it is public).
+ */
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // 1. TRACK BUTTON Click Event
     const trackBtn = document.getElementById('track-btn');
+
     if (trackBtn) {
         trackBtn.addEventListener('click', async () => {
-            const idInput = document.getElementById('tracking-id-input');
-            const id = idInput.value.trim();
 
+            // Get the ID typed by the user
+            const idInput = document.getElementById('tracking-id-input');
+            const id = idInput.value.trim(); // .trim() removes spaces around the text
+
+            // Validation: Ensure ID is not empty
             if (!id) {
                 alert("Please enter a tracking ID.");
                 return;
             }
 
-            // Simple loading state
-            document.getElementById('status-message').innerText = "Searching...";
+            // Show a "Searching..." message so user knows something is happening
+            const messageBox = document.getElementById('status-message');
+            messageBox.innerText = "Searching...";
+            messageBox.style.color = "blue";
 
             try {
+                // Fetch status from backend (No token needed here)
                 const response = await fetch(`${API_BASE_URL}/reports/track/${id}`);
 
                 if (response.ok) {
+                    // SUCCESS: Found the report
                     const data = await response.json();
-                    updateUI(data.status);
+
+                    // Call our helper function to update the screen
+                    updateTrackingUI(data.status);
                 } else {
+                    // FAILURE: Report not found usually
+                    // Hide the progress bar circles
                     document.getElementById('progress-container').style.display = 'none';
-                    document.getElementById('status-message').innerText = "Report not found. Please check the ID.";
-                    document.getElementById('status-message').style.color = "red";
+                    messageBox.innerText = "Report not found. Please check the ID.";
+                    messageBox.style.color = "red";
                 }
+
             } catch (error) {
+                // NETWORK ERROR
                 console.error("Tracking error:", error);
-                document.getElementById('status-message').innerText = "An error occurred while connecting to the server.";
+                messageBox.innerText = "Error connecting to the server.";
+                messageBox.style.color = "red";
             }
         });
     }
 
-    function updateUI(status) {
+    /**
+     * HELPER: Update the Tracking UI
+     * This function highlights the correct circle (Received, In Progress, Resolved)
+     * based on the status we got from the backend.
+     */
+    function updateTrackingUI(status) {
+        // Show the circles container
         const container = document.getElementById('progress-container');
         container.style.display = 'flex';
 
+        // Get the 3 status elements
         const received = document.getElementById('status-received');
         const inprogress = document.getElementById('status-inprogress');
         const resolved = document.getElementById('status-resolved');
 
-        // Reset styles (using opacity for inactive state visual)
-        [received, inprogress, resolved].forEach(el => {
-            el.style.opacity = '0.3';
-            el.style.fontWeight = 'normal';
-        });
+        // Reset all to "dim/inactive" first
+        resetStyle(received);
+        resetStyle(inprogress);
+        resetStyle(resolved);
 
-        document.getElementById('status-message').style.color = "#333";
+        const messageBox = document.getElementById('status-message');
+        messageBox.style.color = "#333"; // Reset text color to black
 
-        // Logic to highlight progress
+        // Highlight based on status
         if (status === 'received') {
-            received.style.opacity = '1';
-            received.style.fontWeight = 'bold';
-            document.getElementById('status-message').innerText = "Report Received. We are reviewing the details.";
+            highlightStyle(received);
+            messageBox.innerText = "Report Received. We are reviewing the details.";
+
         } else if (status === 'in_progress' || status === 'active') {
-            received.style.opacity = '1';
-            inprogress.style.opacity = '1';
-            inprogress.style.fontWeight = 'bold';
-            document.getElementById('status-message').innerText = "Rescue in Progress. Help is on the way/Active.";
+            highlightStyle(received);
+            highlightStyle(inprogress);
+            messageBox.innerText = "Rescue in Progress. Help is on the way!";
+
         } else if (status === 'resolved') {
-            received.style.opacity = '1';
-            inprogress.style.opacity = '1';
-            resolved.style.opacity = '1';
-            resolved.style.fontWeight = 'bold';
-            document.getElementById('status-message').innerText = "Resolved. The individual has been rescued or the case is closed.";
+            highlightStyle(received);
+            highlightStyle(inprogress);
+            highlightStyle(resolved);
+            messageBox.innerText = "Resolved. The individual has been rescued or the case is closed.";
+
         } else {
-            document.getElementById('status-message').innerText = `Current Status: ${status}`;
+            // Unknown status
+            messageBox.innerText = `Current Status: ${status}`;
         }
+    }
+
+    // Helper: Make an element look "inactive" (faded)
+    function resetStyle(element) {
+        element.style.opacity = '0.3';
+        element.style.fontWeight = 'normal';
+    }
+
+    // Helper: Make an element look "active" (bright and bold)
+    function highlightStyle(element) {
+        element.style.opacity = '1';
+        element.style.fontWeight = 'bold';
     }
 });

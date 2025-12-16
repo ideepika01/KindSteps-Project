@@ -1,110 +1,124 @@
+/*
+ * VIEW SINGLE REPORT LOGIC
+ * This page shows all details for ONE specific report.
+ * It reads the ID from the URL (e.g., ?id=5).
+ */
 
-document.addEventListener('DOMContentLoaded', async () => {
-    const token = checkAuth(); // Ensure logged in
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth(); // Verify login
 
-    // Get ID from URL
+    // 1. GET REPORT ID FROM URL
+    // The URL looks like: .../view_report.html?id=15
     const urlParams = new URLSearchParams(window.location.search);
     const reportId = urlParams.get('id');
 
     if (!reportId) {
-        alert("No report ID provided.");
-        window.location.href = './report_list.html'; // Default back to list
+        alert("No Report ID specified.");
+        window.location.href = './admin_dashboard.html';
         return;
     }
 
-    try {
-        const response = await authFetch(`${API_BASE_URL}/reports/${reportId}`);
-        if (response.ok) {
-            const report = await response.json();
-            populateReportDetails(report);
-            setupUpdateLogic(report.id);
-        } else {
-            alert("Report not found.");
-            // window.location.href = './report_list.html'; 
+    // Start loading data
+    loadReportDetails(reportId);
+
+    // 2. FETCH AND SHOW DETAILS
+    async function loadReportDetails(id) {
+        try {
+            // Fetch one report from backend
+            const response = await authFetch(`${API_BASE_URL}/reports/${id}`);
+
+            if (response.ok) {
+                const report = await response.json();
+
+                // Fill the HTML elements with data
+                setText('detail-id', report.id);
+                setText('detail-status', report.status);
+                setText('detail-condition', report.condition);
+                setText('detail-desc', report.description);
+                setText('detail-location', report.location);
+
+                // Contact info
+                setText('detail-contact-name', report.contact_name);
+                setText('detail-contact-phone', report.contact_phone);
+
+                // Date formatting
+                const date = new Date(report.created_at).toLocaleString();
+                setText('detail-date', date);
+
+                // Handle Photo (if it exists)
+                const img = document.getElementById('detail-photo');
+                if (img) {
+                    if (report.photo_url) {
+                        // Handle potential path formats
+                        img.src = report.photo_url.startsWith('http')
+                            ? report.photo_url
+                            : `${API_BASE_URL}/${report.photo_url}`;
+                        img.style.display = 'block';
+                    } else {
+                        img.style.display = 'none'; // Hide if no photo
+                    }
+                }
+
+                // Setup Action Buttons (Assign, Resolve, etc.)
+                setupActionButtons(report);
+
+            } else {
+                alert("Report not found.");
+            }
+        } catch (error) {
+            console.error("Error loading details:", error);
         }
-    } catch (error) {
-        console.error("Error loading report:", error);
+    }
+
+    // 3. SETUP BUTTONS
+    function setupActionButtons(report) {
+        const actionsDiv = document.getElementById('action-buttons');
+        if (!actionsDiv) return;
+
+        actionsDiv.innerHTML = ''; // Clear old buttons
+
+        // Button: UPDATE STATUS
+        // We create a dropdown to pick a status
+        const statusSelect = document.createElement('select');
+        statusSelect.innerHTML = `
+            <option value="received">Received</option>
+            <option value="in_progress">In Progress</option>
+            <option value="resolved">Resolved</option>
+        `;
+        statusSelect.value = report.status; // Selected current status
+
+        const updateBtn = document.createElement('button');
+        updateBtn.innerText = "Update Status";
+        updateBtn.onclick = () => updateReportStatus(report.id, statusSelect.value);
+
+        // Add them to the page
+        actionsDiv.appendChild(statusSelect);
+        actionsDiv.appendChild(updateBtn);
+    }
+
+    // 4. SEND UPDATE TO BACKEND
+    async function updateReportStatus(id, newStatus) {
+        try {
+            const response = await authFetch(`${API_BASE_URL}/reports/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus }) // Only sending status update
+            });
+
+            if (response.ok) {
+                alert("Status updated successfully!");
+                location.reload(); // Reload page to see changes
+            } else {
+                alert("Failed to update status.");
+            }
+        } catch (error) {
+            console.error("Update error:", error);
+        }
+    }
+
+    // HELPER: Safely set text content
+    function setText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = text;
     }
 });
-
-function populateReportDetails(report) {
-    // Basic Details
-    setText('case-id', `ID: ${report.id}`);
-    setText('case-title', report.description.substring(0, 50) + (report.description.length > 50 ? "..." : ""));
-    setText('case-date', `Reported: ${new Date(report.created_at).toLocaleString()}`);
-
-    // Status (Handle formatting)
-    const statusEl = document.getElementById('case-status-text');
-    if (statusEl) statusEl.innerHTML = `Status: <span>${report.status}</span>`;
-
-    // Reporter (In real app, fetch user details if report has reporter_id, 
-    // or display the contact info provided in report)
-    setText('reporter-name', report.contact_name);
-    // setText('reporter-email', report.reporter ? report.reporter.email : 'N/A'); // If backend provides this
-    setText('reporter-phone', `📞 ${report.contact_phone}`);
-
-    // Location
-    setText('location-text', report.location);
-    // setText('map-img-src', ...); // If we had a map API
-
-    // Summary/Description
-    setText('summary-text', report.description);
-
-    // Photo
-    if (report.photo_url) {
-        const img = document.getElementById('case-image');
-        if (img) {
-            // Check if photo_url starts with http or /
-            if (report.photo_url.startsWith('http')) {
-                img.src = report.photo_url;
-            } else {
-                img.src = `${API_BASE_URL}${report.photo_url}`;
-            }
-        }
-    }
-
-    // Set dropdown value
-    const dropdown = document.getElementById('status-dropdown');
-    if (dropdown) dropdown.value = report.status;
-}
-
-function setupUpdateLogic(id) {
-    const updateBtn = document.getElementById('update-btn');
-    if (updateBtn) {
-        updateBtn.addEventListener('click', async () => {
-            const dropdown = document.getElementById('status-dropdown');
-            const newStatus = dropdown.value;
-
-            if (!newStatus || newStatus === 'Case Status') {
-                alert("Please select a status.");
-                return;
-            }
-
-            // Backend expects "received", "in_progress", "active", "resolved"
-            // Ensure dropdown values match enums
-
-            try {
-                const response = await authFetch(`${API_BASE_URL}/reports/${id}/status`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: newStatus })
-                });
-
-                if (response.ok) {
-                    alert("Status updated successfully!");
-                    window.location.reload();
-                } else {
-                    const err = await response.json();
-                    alert(`Update failed: ${err.detail}`);
-                }
-            } catch (error) {
-                console.error("Update error:", error);
-            }
-        });
-    }
-}
-
-function setText(id, text) {
-    const el = document.getElementById(id);
-    if (el) el.innerText = text;
-}

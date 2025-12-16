@@ -1,47 +1,54 @@
-"""Security helpers: password hashing and JWT helpers.
-
-These are intentionally small, well-typed utilities to make authentication
-logic easy to understand and test.
-"""
+# =========================================================
+# SECURITY UTILITIES
+# This file handles:
+# 1. Hashing passwords (turning "secret123" into scrambled text)
+# 2. Creating Access Tokens (digital ID cards for logged-in users)
+# =========================================================
 
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
-
 from jose import jwt
 from passlib.context import CryptContext
-
 from app.core import config
 
+# PREPARING THE HASHER
+# We use "bcrypt", which is the industry standard for secure password hashing.
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-pwd_context = CryptContext(schemes=["sha256_crypt", "bcrypt"], deprecated="auto")
-
+# 1. PASSWORD HASHING
+# We NEVER store passwords as plain text (e.g., "password123").
+# If a hacker stole the database, they would see that.
+# instead, we "hash" it into something like "$2b$12$Kix..."
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Return True if the plain password matches the hashed password."""
+    """Checks if the typed password matches the saved hash."""
     return pwd_context.verify(plain_password, hashed_password)
 
-
 def get_password_hash(password: str) -> str:
-    """Hash a plaintext password using the configured algorithm."""
+    """Turns a plain password into a secure hash."""
     return pwd_context.hash(password)
 
 
-def _default_expiry() -> timedelta:
-    """Return the default access token expiry from settings as a timedelta."""
-    return timedelta(minutes=getattr(config.settings, "ACCESS_TOKEN_EXPIRE_MINUTES", 15))
-
+# 2. TOKEN CREATION
+# An "Access Token" (JWT) is like a temporary ID card.
+# The user sends it with every request so we know who they are.
 
 def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
-    """Create a JWT access token containing `data` and an expiry claim.
-
-    `data` should include identifying information (for example, a `sub` or
-    `email` claim). The token is signed with the app's `SECRET_KEY` and uses
-    the algorithm from settings.
-    """
+    """Creates a digital ID card (JWT token)"""
     to_encode = data.copy()
-    expiry = expires_delta or _default_expiry()
-    to_encode.update({"exp": datetime.utcnow() + expiry})
+    
+    # Set expiration time (default is 15 minutes if not provided)
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+        
+    to_encode.update({"exp": expire})
+    
+    # "Sign" the token using our secret key so it can't be faked
     encoded_jwt = jwt.encode(
-        to_encode, config.settings.SECRET_KEY, algorithm=config.settings.ALGORITHM
+        to_encode, 
+        config.settings.SECRET_KEY, 
+        algorithm=config.settings.ALGORITHM
     )
     return encoded_jwt

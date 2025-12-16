@@ -1,110 +1,90 @@
+/*
+ * ADMIN DASHBOARD LOGIC
+ * This file handles the Admin's main page.
+ * It fetches statistics (counts of reports) and a list of all reports.
+ */
 
-document.addEventListener('DOMContentLoaded', async () => {
-    const token = checkAuth();
+document.addEventListener('DOMContentLoaded', () => {
 
-    // Check if user is actually admin
-    try {
-        const userResponse = await authFetch(`${API_BASE_URL}/auth/me`);
-        if (userResponse.ok) {
-            const user = await userResponse.json();
-            if (user.role !== 'admin') {
-                alert("Unauthorized access. Redirecting...");
-                window.location.href = '../index.html';
-                return;
-            }
-            // Update profile name
-            const profileEls = document.querySelectorAll('.profile span, .sidebar-user-name, .user-name');
-            profileEls.forEach(el => el.innerText = user.full_name);
+    // 1. CHECK LOGIN
+    // Admins must be logged in!
+    checkAuth();
 
-            // Update Welcome message
-            const welcomeEl = document.querySelector('.welcome h1');
-            if (welcomeEl) welcomeEl.innerText = `Welcome, ${user.full_name}!`;
-
-        }
-    } catch (e) {
-        console.error("Auth check failed", e);
+    // 2. LOGOUT BUTTON
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout); // logout() is in utils.js
     }
 
-    // Load Stats
-    loadStats();
-    // Load Recent Cases
-    loadRecentCases();
+    // 3. LOAD DASHBOARD DATA
+    // We want to load data as soon as the page opens.
+    loadDashboardData();
+
+    async function loadDashboardData() {
+        try {
+            // --- A. Get Statistics (Counts) ---
+            // The backend has a special endpoint just for counting reports.
+            const statsResponse = await authFetch(`${API_BASE_URL}/admin/stats`);
+
+            if (statsResponse.ok) {
+                const stats = await statsResponse.json();
+
+                // Update the numbers on the screen
+                setText('total-reports', stats.total_reports);
+                setText('pending-reports', stats.pending_reports);
+                setText('resolved-reports', stats.resolved_reports);
+            }
+
+            // --- B. Get All Reports ---
+            const reportsResponse = await authFetch(`${API_BASE_URL}/admin/reports`);
+
+            if (reportsResponse.ok) {
+                const reports = await reportsResponse.json();
+                renderReportsTable(reports); // Helper function to draw the table
+            }
+
+        } catch (error) {
+            console.error("Error loading dashboard:", error);
+        }
+    }
+
+    // 4. HELPER: Draw the Table of Reports
+    function renderReportsTable(reports) {
+        const tableBody = document.querySelector('#reports-table tbody');
+        if (!tableBody) return; // specific safety check
+
+        tableBody.innerHTML = ''; // Clear any existing rows first
+
+        reports.forEach(report => {
+            // Create a new row (<tr>)
+            const row = document.createElement('tr');
+
+            // Fill the row with columns (<td>)
+            row.innerHTML = `
+                <td>${report.id}</td>
+                <td>${report.condition}</td>
+                <td>${report.location}</td>
+                <td>${report.status}</td>
+                <td>
+                    <!-- A button to view full details -->
+                    <button class="action-btn" onclick="viewReportDetails(${report.id})">View</button>
+                </td>
+            `;
+
+            // Add this new row to the table
+            tableBody.appendChild(row);
+        });
+    }
+
+    // 5. HELPER: Go to Details Page
+    // This function is called when you click "View".
+    window.viewReportDetails = (id) => {
+        window.location.href = `./view_report.html?id=${id}`;
+    };
+
+    // Helper to safely set text if element exists
+    function setText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = text;
+    }
 });
-
-async function loadStats() {
-    try {
-        const response = await authFetch(`${API_BASE_URL}/admin/stats`);
-        if (response.ok) {
-            const data = await response.json();
-
-            // Update UI elements
-            // Note: I need to add IDs to HTML to target these effectively, 
-            // but for now I will try to target by class or update HTML in next step.
-            // Let's assume I will add IDs: stat-total, stat-progress, stat-completed, stat-pending
-
-            setText('stat-total', data.reports.total);
-            setText('stat-progress', data.reports.active);
-            setText('stat-completed', data.reports.completed);
-            setText('stat-pending', data.reports.pending);
-        }
-    } catch (error) {
-        console.error("Error loading stats:", error);
-    }
-}
-
-async function loadRecentCases() {
-    try {
-        // Fetch all reports (admin can see all)
-        // Ideally backend should support ?limit=5
-        const response = await authFetch(`${API_BASE_URL}/reports/`);
-
-        if (response.ok) {
-            const reports = await response.json();
-            const container = document.querySelector('.cases-grid');
-            if (container) {
-                container.innerHTML = ''; // Clear placeholder
-
-                // Show last 5
-                const recent = reports.slice(-5).reverse();
-
-                recent.forEach(report => {
-                    const card = createCaseCard(report);
-                    container.appendChild(card);
-                });
-            }
-        }
-    } catch (error) {
-        console.error("Error loading cases:", error);
-    }
-}
-
-function createCaseCard(report) {
-    const article = document.createElement('article');
-    article.className = 'case-card card';
-
-    // Priority Class
-    const priorityClass = report.priority ? report.priority.toLowerCase() : 'medium';
-
-    article.innerHTML = `
-        <div class="case-top">
-          <div class="case-id">ID: ${report.id}</div>
-          <span class="pill ${priorityClass}">${report.priority || 'Medium'}</span>
-        </div>
-        <h3 class="case-title">${report.description.substring(0, 50)}...</h3>
-
-        <ul class="case-meta">
-          <li>📍 ${report.location}</li>
-          <li>🕒 ${new Date(report.created_at).toLocaleDateString()}</li>
-          <li>📱 ${report.contact_phone}</li>
-        </ul>
-
-        <div class="case-tags"><span class="tag ${report.status}">${report.status}</span></div>
-        <a href="./view_report.html?id=${report.id}" class="btn-primary small">View Details →</a>
-    `;
-    return article;
-}
-
-function setText(id, text) {
-    const el = document.getElementById(id);
-    if (el) el.innerText = text;
-}
