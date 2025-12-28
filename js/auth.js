@@ -1,38 +1,25 @@
-/*
- * AUTHENTICATION LOGIC
- * This file handles user Login and Signup (Registration).
- * It listens for button clicks, sends data to the backend, and handles the response.
- */
-
 document.addEventListener('DOMContentLoaded', () => {
+    const loginButton = document.getElementById('login-btn');
 
-    // 1. LOGIN HANDLING
-    const loginBtn = document.getElementById('login-btn');
-
-    // Only run this if the Login Button exists on the page
-    if (loginBtn) {
-        loginBtn.addEventListener('click', async (event) => {
-            // Prevent the form from refreshing the page
+    if (loginButton) {
+        loginButton.addEventListener('click', async (event) => {
+            // STOP the page from reloading (default form behavior)
             event.preventDefault();
 
-            // Get user input
+            // Get what the user typed
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
-            // Simple validation: Ensure fields are not empty
             if (!email || !password) {
                 alert("Please fill in all fields");
-                return; // Stop here
+                return;
             }
 
             try {
-                // Prepare data for the backend
-                // The backend expects data in a specific "form" format for login
                 const formData = new URLSearchParams();
-                formData.append('username', email); // Backend expects 'username', but we use email
+                formData.append('username', email);
                 formData.append('password', password);
 
-                // Send Login Request
                 const response = await fetch(`${API_BASE_URL}/auth/login`, {
                     method: 'POST',
                     headers: {
@@ -42,60 +29,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (response.ok) {
-                    // SUCCESS: Login worked!
                     const data = await response.json();
-
-                    // Save the token so we stay logged in
-                    setAuthToken(data.access_token);
-
-                    // Now check who we are (User, Admin, or Rescue Team?)
-                    checkUserRoleAndRedirect();
+                    saveToken(data.access_token);
+                    redirectUserBasedOnRole();
 
                 } else {
-                    // FAILURE: Login rejected
+                    // FAILURE: Wrong password or email
                     const errorData = await response.json();
                     alert(`Login failed: ${errorData.detail}`);
                 }
 
             } catch (error) {
-                // NETWORK ERROR: Server down or internet issue
                 console.error("Login error:", error);
-                alert("An error occurred during login. Please try again.");
+                alert("An error occurred. Please try again.");
             }
         });
     }
 
-    // 2. SIGNUP HANDLING
-    const signupBtn = document.getElementById('signup-btn');
+    const signupButton = document.getElementById('signup-btn');
 
-    // Only run this if the Signup Button exists
-    if (signupBtn) {
-        signupBtn.addEventListener('click', async (event) => {
-            event.preventDefault();
+    if (signupButton) {
+        signupButton.addEventListener('click', async (event) => {
+            event.preventDefault(); // Stop reload
 
-            // Get user input
+            // Get all inputs
             const fullName = document.getElementById('signup-name').value;
             const email = document.getElementById('signup-email').value;
             const phone = document.getElementById('signup-phone').value;
             const password = document.getElementById('signup-password').value;
 
-            // Find which role is selected (User vs Rescue Team)
-            // If none selected, default to 'user'
+            // Check which role they chose
             const roleInput = document.querySelector('input[name="role"]:checked');
             const role = roleInput ? roleInput.value : 'user';
 
-            // Validation
             if (!fullName || !email || !password || !phone) {
                 alert("Please fill in all fields");
                 return;
             }
 
             try {
-                // Send Signup Request
                 const response = await fetch(`${API_BASE_URL}/auth/signup`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json', // We are sending JSON data
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         full_name: fullName,
@@ -107,12 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (response.ok) {
-                    // SUCCESS: Account created
-                    alert("Account created successfully! Please login.");
+                    alert("Account created! Please login.");
                     window.location.href = '../index.html'; // Go to login page
                 } else {
-                    // FAILURE
                     const errorData = await response.json();
+                    // .detail often contains the specific error message from the server
                     alert(`Signup failed: ${errorData.detail}`);
                 }
             } catch (error) {
@@ -123,18 +98,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-/**
- * HELPER: Check User Role & Redirect
- * This helper fetches user details using the new token and sends them to the right dashboard.
- */
-async function checkUserRoleAndRedirect() {
-    // We use 'authFetch' because this request needs the token!
-    const response = await authFetch(`${API_BASE_URL}/auth/me`);
+async function redirectUserBasedOnRole() {
+    // We use 'fetchWithAuth' because we need to show our new token
+    const response = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
 
     if (response.ok) {
         const user = await response.json();
 
-        // Decide where to go based on role
         if (user.role === 'admin') {
             window.location.href = './pages/admin_dashboard.html';
         } else if (user.role === 'rescue_team') {
@@ -144,7 +114,7 @@ async function checkUserRoleAndRedirect() {
             window.location.href = './pages/main.html';
         }
     } else {
-        // If something went wrong, just go to the main user page
+        // Fallback if something weird happens
         window.location.href = './pages/main.html';
     }
 }

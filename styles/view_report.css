@@ -56,10 +56,12 @@ body {
 
 /* CARDS */
 .card {
-    background: #32a7ff;
-    padding: 18px;
-    border-radius: 8px;
-    color: #ffffff;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    color: #1f2937;
+    border: 1px solid #ececec;
+    box-shadow: 0 6px 18px rgba(19, 23, 30, 0.06);
 }
 
 .card-title {
@@ -98,18 +100,23 @@ body {
 
 /* DROPDOWN */
 .dropdown-card {
-    background: #32a7ff;
+    background: #ffffff;
     padding: 12px;
     border-radius: 8px;
+    border: 1px solid #ececec;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .case-status-dropdown {
     width: 100%;
     padding: 12px;
     border-radius: 6px;
-    border: none;
+    border: 1px solid #d1d5db;
+    /* Added gray border */
     font-size: 16px;
     outline: none;
+    background: #f9fafb;
+    /* Slight gray bg */
 }
 
 /* BACK BUTTON */

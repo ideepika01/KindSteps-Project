@@ -38,14 +38,14 @@ class User(Base):
     # These allow us to easily get all reports made by a user using "user.reports"
     
     # 1. Reports created BY this user
-    reports: Mapped[List["Report"]] = relationship(
+    reports = relationship(
         "Report", 
         back_populates="reporter", 
         foreign_keys="Report.reporter_id"
     )
 
     # 2. Reports assigned TO this user (if they are rescue team)
-    assigned_reports: Mapped[List["Report"]] = relationship(
+    assigned_reports = relationship(
         "Report", 
         back_populates="assigned_team", 
         foreign_keys="Report.assigned_team_id"
