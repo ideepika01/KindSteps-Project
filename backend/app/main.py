@@ -6,7 +6,7 @@ from app.routers import auth, reports, admin
 from app.db.init_db import init_db
 import os
 
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 # Seed database with initial users
 db = SessionLocal()

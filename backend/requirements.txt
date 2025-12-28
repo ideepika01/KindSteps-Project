@@ -13,3 +13,4 @@ python-dotenv
 email-validator
 httpx
 pytest
+gunicorn
