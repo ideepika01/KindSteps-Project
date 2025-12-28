@@ -1,11 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.db.session import engine, Base
+from app.db.session import engine, Base, SessionLocal
 from app.routers import auth, reports, admin
+from app.db.init_db import init_db
 import os
 
 Base.metadata.create_all(bind=engine)
+
+# Seed database with initial users
+db = SessionLocal()
+try:
+    init_db(db)
+finally:
+    db.close()
 
 app = FastAPI(title="KindSteps Support API")
 
