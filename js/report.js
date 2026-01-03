@@ -8,6 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
         submitReportButton.addEventListener('click', async (event) => {
             event.preventDefault(); // Stop page reload
 
+            const condition = document.getElementById('report-condition').value;
+            const description = document.getElementById('report-description').value;
+            const location = document.getElementById('report-location').value;
+            const contactName = document.getElementById('contact-name').value;
+            const contactPhone = document.getElementById('contact-phone').value;
+            const photoInput = document.getElementById('report-photo');
+
             if (!condition || !description || !location || !contactName || !contactPhone) {
                 alert("Please fill all required fields.");
                 return;

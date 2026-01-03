@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     redirectUserBasedOnRole();
 
                 } else {
-                } else {
                     // FAILURE: Wrong password or email
                     let errorMessage = "Unknown error";
                     try {
