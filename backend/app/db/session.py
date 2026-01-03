@@ -11,7 +11,7 @@ from app.core.config import settings
 # The "engine" is the core connection to the database.
 # We get the connection URL from our settings (which comes from .env file).
 engine = create_engine(
-    settings.DATABASE_URL, 
+    settings.SQLALCHEMY_DATABASE_URI, 
     pool_pre_ping=True # Helps prevent connection timeout errors
 )
 

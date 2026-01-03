@@ -19,5 +19,10 @@ class Settings(BaseSettings):
         # If a local `.env` file exists, pydantic will read it during dev.
         env_file = ".env"
 
+    @property
+    def SQLALCHEMY_DATABASE_URI(self) -> str:
+        if self.DATABASE_URL and self.DATABASE_URL.startswith("postgres://"):
+            return self.DATABASE_URL.replace("postgres://", "postgresql://", 1)
+        return self.DATABASE_URL or "sqlite:///./test.db"
 
 settings: Settings = Settings()

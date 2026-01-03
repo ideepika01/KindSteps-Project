@@ -28,6 +28,18 @@ app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(reports.router, prefix="/reports", tags=["Reports"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
 
+@app.on_event("startup")
+def on_startup():
+    # 1. Create Tables
+    Base.metadata.create_all(bind=engine)
+    
+    # 2. Seed Users
+    db = SessionLocal()
+    try:
+        init_db(db)
+    finally:
+        db.close()
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the KindSteps API! The server is running."}
