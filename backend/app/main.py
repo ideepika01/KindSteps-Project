@@ -8,12 +8,8 @@ import os
 
 # Base.metadata.create_all(bind=engine)
 
-# Seed database with initial users
-db = SessionLocal()
-try:
-    init_db(db)
-finally:
-    db.close()
+# Database is initialized via app.initial_setup script now
+
 
 app = FastAPI(title="KindSteps Support API")
 
