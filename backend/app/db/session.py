@@ -20,25 +20,47 @@ DEBUG_DNS_LOG = []
 
 def resolve_to_ipv4(url_str):
     """
-    Supabase/Vercel often fail with IPv6. This attempts to force IPv4.
+    Supabase Direct Connection is often IPv6 only, which Vercel fails to route.
+    We rewrite the URL to use the Supabase Connection Pooler (IPv4 compatible).
     """
     try:
         parsed = urlparse(url_str)
-        if parsed.hostname and "postgres" in parsed.scheme:
-            DEBUG_DNS_LOG.append(f"Attempting to resolve {parsed.hostname} to IPv4...")
-            # AF_INET = IPv4
-            # This might block, but we are in startup so it's okay-ish.
-            info = socket.getaddrinfo(parsed.hostname, parsed.port or 5432, family=socket.AF_INET)
-            if info:
-                # info[0][4][0] is the IP address
-                ip = info[0][4][0]
-                DEBUG_DNS_LOG.append(f"Resolved to {ip}")
-                new_netloc = parsed.netloc.replace(parsed.hostname, ip)
-                return urlunparse(parsed._replace(netloc=new_netloc))
-            else:
-                DEBUG_DNS_LOG.append("No IPv4 address found via getaddrinfo.")
+        # Check if it looks like a Supabase Direct URL
+        if parsed.hostname and parsed.hostname.endswith(".supabase.co") and parsed.hostname.startswith("db."):
+            DEBUG_DNS_LOG.append(f"Detected Supabase Direct URL: {parsed.hostname}")
+            
+            # Extract Project Ref
+            # hostname is usually db.<ref>.supabase.co
+            parts = parsed.hostname.split('.')
+            if len(parts) >= 2:
+                project_ref = parts[1]
+                
+                # Construct Pooler URL (assuming ap-south-1 based on user location)
+                # If this is wrong, the connection will fail, but it's worth a try given IPv6 failure.
+                pooler_host = "aws-0-ap-south-1.pooler.supabase.com"
+                pooler_port = 6543
+                
+                DEBUG_DNS_LOG.append(f"Rewriting to Pooler: {pooler_host}:{pooler_port}")
+                
+                # Fix Username: Must be user.ref
+                current_user = parsed.username
+                new_user = current_user
+                if project_ref not in current_user:
+                    new_user = f"{current_user}.{project_ref}"
+                    DEBUG_DNS_LOG.append(f"Updated username to: {new_user}")
+                
+                # Rebuild URL
+                # urlparse is immutable, so we hack the netloc string replacement or rebuild manually
+                # manually is safer for auth
+                
+                # netloc format: user:pass@host:port
+                new_netloc = f"{new_user}:{parsed.password}@{pooler_host}:{pooler_port}"
+                
+                parsed = parsed._replace(netloc=new_netloc)
+                return urlunparse(parsed)
+                
     except Exception as e:
-        DEBUG_DNS_LOG.append(f"DNS Resolution Logic Failed: {e}")
+        DEBUG_DNS_LOG.append(f"URL Rewrite Failed: {e}")
     
     return url_str
 
@@ -46,7 +68,7 @@ engine = None
 SessionLocal = None
 
 try:
-    # 1. Prepare URL (Fix protocol + Fix IPv6)
+    # 1. Prepare URL (Fix protocol + Fix IPv6/Pooler)
     final_db_url = settings.SQLALCHEMY_DATABASE_URI
     final_db_url = resolve_to_ipv4(final_db_url)
     
