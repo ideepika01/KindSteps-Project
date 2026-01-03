@@ -15,22 +15,35 @@ from urllib.parse import urlparse, urlunparse
 # logging.basicConfig()
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
-db_url = settings.SQLALCHEMY_DATABASE_URI
-
 # FIX FOR VERCEL + SUPABASE IPV6 ISSUE
 # If we are using postgres, we assume it's Supabase or similar.
 # We force resolving the hostname to an IPv4 address to avoid 'Cannot assign requested address'.
+
+DEBUG_DNS_LOG = []
+
 try:
     parsed = urlparse(db_url)
     if parsed.hostname and "postgres" in parsed.scheme:
-        # Resolve to IPv4
-        ipv4 = socket.gethostbyname(parsed.hostname)
-        # Replace hostname with IP in the URL
-        new_netloc = parsed.netloc.replace(parsed.hostname, ipv4)
-        parsed = parsed._replace(netloc=new_netloc)
-        db_url = urlunparse(parsed)
-        print(f"Resolved DB Host {parsed.hostname} to {ipv4}")
+        DEBUG_DNS_LOG.append(f"Resolving {parsed.hostname}...")
+        # Force IPv4 resolution
+        # getaddrinfo returns a list of tuples (family, type, proto, canonname, sockaddr)
+        # sockaddr is (ip, port)
+        infos = socket.getaddrinfo(parsed.hostname, parsed.port or 5432, socket.AF_INET, socket.SOCK_STREAM)
+        
+        if infos:
+            # Take the first IPv4 address
+            ipv4 = infos[0][4][0]
+            DEBUG_DNS_LOG.append(f"Success! Resolved to {ipv4}")
+            
+            # Replace hostname with IP in the URL
+            # We need to be careful with the password part in netloc but urlparse handles attributes well
+            new_netloc = parsed.netloc.replace(parsed.hostname, ipv4)
+            parsed = parsed._replace(netloc=new_netloc)
+            db_url = urlunparse(parsed)
+        else:
+            DEBUG_DNS_LOG.append("getaddrinfo returned empty list")
 except Exception as e:
+    DEBUG_DNS_LOG.append(f"Resolution failed: {e}")
     print(f"DNS Resolution failed: {e}")
 
 engine = create_engine(

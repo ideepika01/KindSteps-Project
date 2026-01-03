@@ -48,12 +48,13 @@ def on_startup():
 @app.get("/health")
 def health_check():
     """Diagnostic endpoint to check DB connection."""
+    from app.db.session import DEBUG_DNS_LOG
     try:
         # Try to connect to DB
         with engine.connect() as connection:
-            return {"status": "ok", "db": "connected"}
+            return {"status": "ok", "db": "connected", "dns_log": DEBUG_DNS_LOG}
     except Exception as e:
-        return {"status": "error", "db": str(e)}
+        return {"status": "error", "db": str(e), "dns_log": DEBUG_DNS_LOG}
 
 @app.get("/")
 def read_root():
