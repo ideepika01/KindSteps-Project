@@ -17,44 +17,22 @@ from urllib.parse import urlparse, urlunparse
 
 # FIX FOR VERCEL + SUPABASE IPV6 ISSUE
 # If we are using postgres, we assume it's Supabase or similar.
-# We force resolving the hostname to an IPv4 address to avoid 'Cannot assign requested address'.
+# The DNS fix caused crashes, so we are reverting to standard connection.
+DEBUG_DNS_LOG = ["DNS resolution skipped to allow boot"]
 
-DEBUG_DNS_LOG = []
+engine = None
+SessionLocal = None
 
 try:
-    parsed = urlparse(db_url)
-    if parsed.hostname and "postgres" in parsed.scheme:
-        DEBUG_DNS_LOG.append(f"Resolving {parsed.hostname}...")
-        # Force IPv4 resolution
-        # getaddrinfo returns a list of tuples (family, type, proto, canonname, sockaddr)
-        # sockaddr is (ip, port)
-        infos = socket.getaddrinfo(parsed.hostname, parsed.port or 5432, socket.AF_INET, socket.SOCK_STREAM)
-        
-        if infos:
-            # Take the first IPv4 address
-            ipv4 = infos[0][4][0]
-            DEBUG_DNS_LOG.append(f"Success! Resolved to {ipv4}")
-            
-            # Replace hostname with IP in the URL
-            # We need to be careful with the password part in netloc but urlparse handles attributes well
-            new_netloc = parsed.netloc.replace(parsed.hostname, ipv4)
-            parsed = parsed._replace(netloc=new_netloc)
-            db_url = urlunparse(parsed)
-        else:
-            DEBUG_DNS_LOG.append("getaddrinfo returned empty list")
+    # Just use the URL from settings (which already fixes postgres->postgresql)
+    engine = create_engine(
+        settings.SQLALCHEMY_DATABASE_URI, 
+        pool_pre_ping=True
+    )
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 except Exception as e:
-    DEBUG_DNS_LOG.append(f"Resolution failed: {e}")
-    print(f"DNS Resolution failed: {e}")
-
-engine = create_engine(
-    db_url, 
-    pool_pre_ping=True # Helps prevent connection timeout errors
-)
-
-# 2. CREATE A SESSION FACTORY
-# A "Session" is a temporary workspace for database operations.
-# "autocommit=False" means we must explicitly say "save" (db.commit()) to save changes.
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    DEBUG_DNS_LOG.append(f"Engine creation failed: {e}")
+    print(f"Engine creation failed: {e}")
 
 # 3. BASE MODEL
 # All our database models (User, Report) will inherit from this "Base".
@@ -64,6 +42,9 @@ Base = declarative_base()
 # This function is used by API "routers" to get a database session.
 # It ensures the session is closed after the request is finished.
 def get_db():
+    if SessionLocal is None:
+        raise HTTPException(status_code=500, detail="Database not initialized")
+    
     db = SessionLocal() # Open a session
     try:
         yield db # Give the session to the requester

@@ -31,6 +31,10 @@ app.include_router(admin.router, prefix="/admin", tags=["Admin"])
 @app.on_event("startup")
 def on_startup():
     try:
+        if engine is None:
+            print("Database engine is None. Skipping startup table creation.")
+            return
+
         # 1. Create Tables
         Base.metadata.create_all(bind=engine)
         
@@ -49,6 +53,10 @@ def on_startup():
 def health_check():
     """Diagnostic endpoint to check DB connection."""
     from app.db.session import DEBUG_DNS_LOG
+    
+    if engine is None:
+         return {"status": "error", "db": "Engine initialization failed", "dns_log": DEBUG_DNS_LOG}
+
     try:
         # Try to connect to DB
         with engine.connect() as connection:
