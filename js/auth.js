@@ -35,13 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 } else {
                     // FAILURE: Wrong password or email
-                    const errorData = await response.json();
-                    alert(`Login failed: ${errorData.detail}`);
+                    let errorMessage = "Unknown error";
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.detail || JSON.stringify(errorData);
+                    } catch (e) {
+                        errorMessage = await response.text();
+                    }
+                    alert(`Login failed (${response.status}): ${errorMessage}`);
                 }
 
             } catch (error) {
                 console.error("Login error:", error);
-                alert("An error occurred. Please try again.");
+                alert(`Network or Server Error: ${error.message}`);
             }
         });
     }
