@@ -16,17 +16,43 @@ from urllib.parse import urlparse, urlunparse
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 # FIX FOR VERCEL + SUPABASE IPV6 ISSUE
-# If we are using postgres, we assume it's Supabase or similar.
-# The DNS fix caused crashes, so we are reverting to standard connection.
-DEBUG_DNS_LOG = ["DNS resolution skipped to allow boot"]
+DEBUG_DNS_LOG = []
+
+def resolve_to_ipv4(url_str):
+    """
+    Supabase/Vercel often fail with IPv6. This attempts to force IPv4.
+    """
+    try:
+        parsed = urlparse(url_str)
+        if parsed.hostname and "postgres" in parsed.scheme:
+            DEBUG_DNS_LOG.append(f"Attempting to resolve {parsed.hostname} to IPv4...")
+            # AF_INET = IPv4
+            # This might block, but we are in startup so it's okay-ish.
+            info = socket.getaddrinfo(parsed.hostname, parsed.port or 5432, family=socket.AF_INET)
+            if info:
+                # info[0][4][0] is the IP address
+                ip = info[0][4][0]
+                DEBUG_DNS_LOG.append(f"Resolved to {ip}")
+                new_netloc = parsed.netloc.replace(parsed.hostname, ip)
+                return urlunparse(parsed._replace(netloc=new_netloc))
+            else:
+                DEBUG_DNS_LOG.append("No IPv4 address found via getaddrinfo.")
+    except Exception as e:
+        DEBUG_DNS_LOG.append(f"DNS Resolution Logic Failed: {e}")
+    
+    return url_str
 
 engine = None
 SessionLocal = None
 
 try:
-    # Just use the URL from settings (which already fixes postgres->postgresql)
+    # 1. Prepare URL (Fix protocol + Fix IPv6)
+    final_db_url = settings.SQLALCHEMY_DATABASE_URI
+    final_db_url = resolve_to_ipv4(final_db_url)
+    
+    # 2. Create Engine
     engine = create_engine(
-        settings.SQLALCHEMY_DATABASE_URI, 
+        final_db_url, 
         pool_pre_ping=True
     )
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
