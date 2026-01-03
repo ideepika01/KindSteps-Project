@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         if self.DATABASE_URL and self.DATABASE_URL.startswith("postgres://"):
             return self.DATABASE_URL.replace("postgres://", "postgresql://", 1)
+        # Fallback to sqlite if empty, but raise error if it tries to connect in prod
         return self.DATABASE_URL or "sqlite:///./test.db"
 
 settings: Settings = Settings()

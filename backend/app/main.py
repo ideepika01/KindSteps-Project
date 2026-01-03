@@ -30,15 +30,30 @@ app.include_router(admin.router, prefix="/admin", tags=["Admin"])
 
 @app.on_event("startup")
 def on_startup():
-    # 1. Create Tables
-    Base.metadata.create_all(bind=engine)
-    
-    # 2. Seed Users
-    db = SessionLocal()
     try:
-        init_db(db)
-    finally:
-        db.close()
+        # 1. Create Tables
+        Base.metadata.create_all(bind=engine)
+        
+        # 2. Seed Users
+        db = SessionLocal()
+        try:
+            init_db(db)
+        finally:
+            db.close()
+    except Exception as e:
+        # Log the error but DO NOT crash the app, so we can at least reach /health
+        print(f"STARTUP ERROR: {e}")
+        pass
+
+@app.get("/health")
+def health_check():
+    """Diagnostic endpoint to check DB connection."""
+    try:
+        # Try to connect to DB
+        with engine.connect() as connection:
+            return {"status": "ok", "db": "connected"}
+    except Exception as e:
+        return {"status": "error", "db": str(e)}
 
 @app.get("/")
 def read_root():
