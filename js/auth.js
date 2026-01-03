@@ -34,13 +34,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     redirectUserBasedOnRole();
 
                 } else {
+                } else {
                     // FAILURE: Wrong password or email
                     let errorMessage = "Unknown error";
                     try {
-                        const errorData = await response.json();
-                        errorMessage = errorData.detail || JSON.stringify(errorData);
-                    } catch (e) {
-                        errorMessage = await response.text();
+                        // Read text ONCE to avoid "stream already read"
+                        const rawText = await response.text();
+                        try {
+                            const errorData = JSON.parse(rawText);
+                            errorMessage = errorData.detail || JSON.stringify(errorData);
+                        } catch (parseError) {
+                            // If not JSON, just use the text (likely HTML error from Vercel)
+                            errorMessage = rawText;
+                        }
+                    } catch (readError) {
+                        errorMessage = "Could not read error details";
                     }
                     alert(`Login failed (${response.status}): ${errorMessage}`);
                 }
