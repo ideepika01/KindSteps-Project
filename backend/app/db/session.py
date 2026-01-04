@@ -25,7 +25,29 @@ try:
     # 1. Prepare URL
     # settings.SQLALCHEMY_DATABASE_URI already handles the postgres:// -> postgresql:// fix
     final_db_url = settings.SQLALCHEMY_DATABASE_URI
-    
+
+    # FIX: Explicitly resolve hostname to IPv4 to bypass Vercel/Supabase IPv6 issues
+    # psycopg2 often bypasses socket monkey-patches, so we inject the IP directly.
+    try:
+        from urllib.parse import urlparse, urlunparse
+        
+        parsed = urlparse(final_db_url)
+        hostname = parsed.hostname
+        if hostname:
+            # Resolve to IPv4
+            ipv4_addr = socket.gethostbyname(hostname)
+            print(f"Resolved {hostname} to {ipv4_addr}")
+            
+            # Replace hostname with IP in the URL
+            # We must keep the port if present
+            netloc = parsed.netloc.replace(hostname, ipv4_addr)
+            
+            # Reconstruct URL
+            parsed = parsed._replace(netloc=netloc)
+            final_db_url = urlunparse(parsed)
+    except Exception as dns_err:
+        print(f"DNS Resolution failed: {dns_err}")
+
     # 2. Create Engine
     engine = create_engine(
         final_db_url, 
