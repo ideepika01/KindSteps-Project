@@ -63,7 +63,10 @@ def on_startup():
 @app.get("/health")
 def health_check():
     """Diagnostic endpoint to check DB connection."""
-    from app.db.session import DEBUG_DNS_LOG
+    try:
+        from app.db.session import DEBUG_DNS_LOG
+    except ImportError:
+        DEBUG_DNS_LOG = "ImportError: could not import DEBUG_DNS_LOG"
     
     if engine is None:
          return {"status": "error", "db": "Engine initialization failed", "dns_log": DEBUG_DNS_LOG}

@@ -28,6 +28,7 @@ try:
 
     # FIX: Explicitly resolve hostname to IPv4 to bypass Vercel/Supabase IPv6 issues
     # psycopg2 often bypasses socket monkey-patches, so we inject the IP directly.
+    DEBUG_DNS_LOG = "Not run"
     try:
         from urllib.parse import urlparse, urlunparse
         
@@ -37,6 +38,7 @@ try:
             # Resolve to IPv4
             ipv4_addr = socket.gethostbyname(hostname)
             print(f"Resolved {hostname} to {ipv4_addr}")
+            DEBUG_DNS_LOG = f"Resolved {hostname} to {ipv4_addr}"
             
             # Replace hostname with IP in the URL
             # We must keep the port if present
@@ -47,6 +49,7 @@ try:
             final_db_url = urlunparse(parsed)
     except Exception as dns_err:
         print(f"DNS Resolution failed: {dns_err}")
+        DEBUG_DNS_LOG = f"DNS Resolution failed: {dns_err}"
 
     # 2. Create Engine
     engine = create_engine(
