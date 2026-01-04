@@ -50,8 +50,9 @@ try:
 
     regional_engine = None
     last_error = None
+    debug_log_buffer = []
 
-    from urllib.parse import urlparse, urlunparse
+    from urllib.parse import urlparse, urlunparse, quote_plus
 
     parsed = urlparse(final_db_url)
     hostname = parsed.hostname
@@ -61,25 +62,26 @@ try:
         parts = hostname.split('.')
         if len(parts) >= 3 and parts[0] == "db":
             project_ref = parts[1]
-            
-            # Fix Username for Pooler: Must be [user].[project_ref]
-            current_user = parsed.username
-            if project_ref not in current_user:
-                new_user = f"{current_user}.{project_ref}"
-                parsed = parsed._replace(netloc=f"{new_user}:{parsed.password}@{parsed.hostname}:{parsed.port or 6543}")
+            debug_log_buffer.append(f"Detected project: {project_ref}")
             
             # Iterate through regions to find the correct one
             for region_name, region_ip in REGIONS:
                 try:
-                    print(f"Trying region: {region_name} ({region_ip})...")
-                    
                     # Rewrite URL for this region
                     # netloc format: user:pass@host:port
+                    # CRITICAL: Must URL-encode user and password to handle special chars like '@'
                     port = parsed.port or 6543
-                    password = parsed.password
-                    user = parsed.username # Updated user from above
+                    password = parsed.password or ""
+                    user = parsed.username or "postgres"
                     
-                    new_netloc = f"{user}:{password}@{region_ip}:{port}"
+                    # Fix Username for Pooler: Must be [user].[project_ref] if not already
+                    if project_ref not in user:
+                        user = f"{user}.{project_ref}"
+                        
+                    encoded_user = quote_plus(user)
+                    encoded_password = quote_plus(password)
+                    
+                    new_netloc = f"{encoded_user}:{encoded_password}@{region_ip}:{port}"
                     region_url = urlunparse(parsed._replace(netloc=new_netloc))
                     
                     # Create temporary engine
@@ -88,11 +90,13 @@ try:
                     # TEST CONNECTION immediately
                     with temp_engine.connect() as conn:
                         print(f"SUCCESS: Connected to {region_name}!")
-                        DEBUG_DNS_LOG = f"Connected to {region_name} ({region_ip})"
+                        debug_log_buffer.append(f"SUCCESS: Connected to {region_name} ({region_ip})")
                         regional_engine = temp_engine
                         break # Found it!
                 except Exception as e:
-                    print(f"Failed region {region_name}: {e}")
+                    # Simplify error message for log
+                    err_str = str(e).split('\n')[0]
+                    debug_log_buffer.append(f"Failed {region_name}: {err_str}")
                     last_error = e
                     # Continue to next region
         
@@ -102,14 +106,17 @@ try:
     else:
         # Fallback if loop failed (or wasn't entered): try creating engine with original url
         print("Regional fallback failed or skipped, using original URL.")
+        debug_log_buffer.append("Regional fallback failed or skipped.")
         if last_error:
-             DEBUG_DNS_LOG = f"Regional fallback failed. Last error: {last_error}"
+             # Capture detailed last error
+             debug_log_buffer.append(f"Last Error: {last_error}")
         engine = create_engine(final_db_url, pool_pre_ping=True, pool_recycle=300)
 
+    DEBUG_DNS_LOG = " | ".join(debug_log_buffer)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 except Exception as e:
     print(f"Engine creation failed: {e}")
-    DEBUG_DNS_LOG = f"Engine creation failed: {e}"
+    DEBUG_DNS_LOG = f"Crash: {e}"
 
 # 3. BASE MODEL
 # All our database models (User, Report) will inherit from this "Base".
