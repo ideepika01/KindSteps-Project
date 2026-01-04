@@ -31,51 +31,74 @@ try:
     # SUPABASE-SPECIFIC FIX FOR VERCEL
     # Reference: https://supabase.com/docs/guides/database/connecting-to-postgres#connecting-with-ipv4
     # The direct hostname is often IPv6 only. We must use the regional IPv4 pooler.
-    try:
-        from urllib.parse import urlparse, urlunparse
+    # "Tenant or user not found" means we hit the wrong region. We must try others.
+    
+    REGIONS = [
+         # Name, IP
+        ("Singapore (ap-southeast-1)", "52.74.252.201"),
+        ("US East (us-east-1)", "52.45.94.125"),
+        ("EU Central (eu-central-1)", "18.198.30.239"),
+        ("Mumbai (ap-south-1)", "3.111.105.85"), # Likely failed here
+    ]
 
-        parsed = urlparse(final_db_url)
-        hostname = parsed.hostname
-        
-        # Check if we are using the default project hostname
-        if hostname and "supabase.co" in hostname and "pooler" not in hostname:
-            parts = hostname.split('.')
-            if len(parts) >= 3 and parts[0] == "db":
-                project_ref = parts[1]
-                
-                # 1. Switch to Regional Pooler (IPv4)
-                # Assumed region ap-south-1 based on user locale. 
-                # Ideally we'd use the IP directly but AWS pooler DNS is stable.
-                # using IP: 3.111.105.85 to be 100% sure we avoid DNS issues.
-                regional_host = "3.111.105.85" 
-                
-                # 2. Fix Username for Pooler
-                # Must be [user].[project_ref]
-                current_user = parsed.username
-                if project_ref not in current_user:
-                    new_user = f"{current_user}.{project_ref}"
-                    # Rebuild URL with new user and host
-                    # Note: parsed.netloc includes user:pass@host:port
-                    # We need to reconstruct it carefully
+    regional_engine = None
+    last_error = None
+
+    from urllib.parse import urlparse, urlunparse
+
+    parsed = urlparse(final_db_url)
+    hostname = parsed.hostname
+    
+    # Check if we are using the default project hostname
+    if hostname and "supabase.co" in hostname and "pooler" not in hostname:
+        parts = hostname.split('.')
+        if len(parts) >= 3 and parts[0] == "db":
+            project_ref = parts[1]
+            
+            # Fix Username for Pooler: Must be [user].[project_ref]
+            current_user = parsed.username
+            if project_ref not in current_user:
+                new_user = f"{current_user}.{project_ref}"
+                parsed = parsed._replace(netloc=f"{new_user}:{parsed.password}@{parsed.hostname}:{parsed.port or 6543}")
+            
+            # Iterate through regions to find the correct one
+            for region_name, region_ip in REGIONS:
+                try:
+                    print(f"Trying region: {region_name} ({region_ip})...")
+                    
+                    # Rewrite URL for this region
+                    # netloc format: user:pass@host:port
                     port = parsed.port or 6543
                     password = parsed.password
+                    user = parsed.username # Updated user from above
                     
-                    new_netloc = f"{new_user}:{password}@{regional_host}:{port}"
-                    parsed = parsed._replace(netloc=new_netloc)
+                    new_netloc = f"{user}:{password}@{region_ip}:{port}"
+                    region_url = urlunparse(parsed._replace(netloc=new_netloc))
                     
-                    final_db_url = urlunparse(parsed)
-                    print(f"Rewrote DB URL to use Regional IPv4 Pooler: {regional_host}")
-                    DEBUG_DNS_LOG = f"Rewrote to IPv4 Pooler: {regional_host}"
-    except Exception as e:
-        print(f"URL Rewrite failed: {e}")
-        DEBUG_DNS_LOG = f"URL Rewrite failed: {e}"
+                    # Create temporary engine
+                    temp_engine = create_engine(region_url, pool_pre_ping=True, pool_recycle=300)
+                    
+                    # TEST CONNECTION immediately
+                    with temp_engine.connect() as conn:
+                        print(f"SUCCESS: Connected to {region_name}!")
+                        DEBUG_DNS_LOG = f"Connected to {region_name} ({region_ip})"
+                        regional_engine = temp_engine
+                        break # Found it!
+                except Exception as e:
+                    print(f"Failed region {region_name}: {e}")
+                    last_error = e
+                    # Continue to next region
+        
+    # 2. Assign the winning engine (or fall back to default if logic skipped)
+    if regional_engine:
+        engine = regional_engine
+    else:
+        # Fallback if loop failed (or wasn't entered): try creating engine with original url
+        print("Regional fallback failed or skipped, using original URL.")
+        if last_error:
+             DEBUG_DNS_LOG = f"Regional fallback failed. Last error: {last_error}"
+        engine = create_engine(final_db_url, pool_pre_ping=True, pool_recycle=300)
 
-    # 2. Create Engine
-    engine = create_engine(
-        final_db_url, 
-        pool_pre_ping=True,
-        pool_recycle=300
-    )
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 except Exception as e:
     print(f"Engine creation failed: {e}")
