@@ -35,18 +35,23 @@ try:
         parsed = urlparse(final_db_url)
         hostname = parsed.hostname
         if hostname:
-            # Resolve to IPv4
-            ipv4_addr = socket.gethostbyname(hostname)
-            print(f"Resolved {hostname} to {ipv4_addr}")
-            DEBUG_DNS_LOG = f"Resolved {hostname} to {ipv4_addr}"
-            
-            # Replace hostname with IP in the URL
-            # We must keep the port if present
-            netloc = parsed.netloc.replace(hostname, ipv4_addr)
-            
-            # Reconstruct URL
-            parsed = parsed._replace(netloc=netloc)
-            final_db_url = urlunparse(parsed)
+            # Resolve to IPv4 using getaddrinfo (more robust than gethostbyname)
+            # We specifically ask for AF_INET (IPv4)
+            dns_results = socket.getaddrinfo(hostname, None, socket.AF_INET, socket.SOCK_STREAM)
+            if dns_results:
+                # Pick the first IPv4 address found
+                # result structure: (family, type, proto, canonname, sockaddr)
+                # sockaddr is (ip, port) for IPv4
+                ipv4_addr = dns_results[0][4][0]
+                print(f"Resolved {hostname} to {ipv4_addr}")
+                DEBUG_DNS_LOG = f"Resolved {hostname} to {ipv4_addr}"
+                
+                # Replace hostname with IP in the URL
+                netloc = parsed.netloc.replace(hostname, ipv4_addr)
+                parsed = parsed._replace(netloc=netloc)
+                final_db_url = urlunparse(parsed)
+            else:
+                 DEBUG_DNS_LOG = f"DNS Resolution returned no IPv4 addresses for {hostname}"
     except Exception as dns_err:
         print(f"DNS Resolution failed: {dns_err}")
         DEBUG_DNS_LOG = f"DNS Resolution failed: {dns_err}"
