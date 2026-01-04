@@ -71,6 +71,11 @@ try:
         DEBUG_DNS_LOG = f"URL Rewrite failed: {e}"
 
     # 2. Create Engine
+    engine = create_engine(
+        final_db_url, 
+        pool_pre_ping=True,
+        pool_recycle=300
+    )
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 except Exception as e:
     print(f"Engine creation failed: {e}")
