@@ -8,6 +8,16 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from app.core.config import settings
 from fastapi import HTTPException # Added missing import
 
+import socket
+
+# Force IPv4 to avoid "Cannot assign requested address" on Vercel IPv6
+# This filters out IPv6 addresses from DNS resolution
+old_getaddrinfo = socket.getaddrinfo
+def new_getaddrinfo(*args, **kwargs):
+    responses = old_getaddrinfo(*args, **kwargs)
+    return [response for response in responses if response[0] == socket.AF_INET]
+socket.getaddrinfo = new_getaddrinfo
+
 engine = None
 SessionLocal = None
 
@@ -25,7 +35,8 @@ try:
             "keepalives": 1,
             "keepalives_idle": 30,
             "keepalives_interval": 10,
-            "keepalives_count": 5
+            "keepalives_count": 5,
+            "prepare_threshold": None
         }
     )
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
