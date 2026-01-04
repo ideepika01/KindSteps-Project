@@ -38,7 +38,14 @@ try:
         ("Singapore (ap-southeast-1)", "52.74.252.201"),
         ("US East (us-east-1)", "52.45.94.125"),
         ("EU Central (eu-central-1)", "18.198.30.239"),
-        ("Mumbai (ap-south-1)", "3.111.105.85"), # Likely failed here
+        ("Mumbai (ap-south-1)", "3.111.105.85"), 
+        ("US West (us-west-1)", "52.8.172.168"),
+        ("Tokyo (ap-northeast-1)", "35.79.125.133"),
+        ("Ireland (eu-west-1)", "108.128.216.176"),
+        ("London (eu-west-2)", "18.135.253.94"),
+        ("Sydney (ap-southeast-2)", "13.238.183.126"),
+        ("São Paulo (sa-east-1)", "15.229.214.120"), # Hardcoded
+        ("Canada (ca-central-1)", "35.182.25.176"),  # Hardcoded
     ]
 
     regional_engine = None
