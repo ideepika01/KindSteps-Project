@@ -11,8 +11,14 @@ import os
 import uuid
 
 # Setup upload folder
-UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+# Setup upload folder: Use /tmp on Vercel because root is read-only
+# We check for 'VERCEL' env var or just default to /tmp if 'uploads' fails
+UPLOAD_DIR = "/tmp/uploads" if os.environ.get("VERCEL") or os.access("/", os.W_OK) is False else "uploads"
+
+try:
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+except Exception as e:
+    print(f"Warning: Could not create upload dir {UPLOAD_DIR}: {e}")
 
 router = APIRouter()
 

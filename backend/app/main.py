@@ -27,8 +27,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-os.makedirs("uploads", exist_ok=True)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+# Ensure upload directory exists (use /tmp on Vercel)
+UPLOAD_DIR = "/tmp/uploads" if os.environ.get("VERCEL") or os.access("/", os.W_OK) is False else "uploads"
+try:
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+except Exception as e:
+    print(f"Warning: Could not mount /uploads: {e}")
 
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(reports.router, prefix="/reports", tags=["Reports"])
