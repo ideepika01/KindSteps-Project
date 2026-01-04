@@ -10,68 +10,36 @@ from fastapi import HTTPException # Added missing import
 
 import socket
 
-# Force IPv4 to avoid "Cannot assign requested address" on Vercel IPv6
-# This filters out IPv6 addresses from DNS resolution
-old_getaddrinfo = socket.getaddrinfo
-def new_getaddrinfo(*args, **kwargs):
-    responses = old_getaddrinfo(*args, **kwargs)
-    return [response for response in responses if response[0] == socket.AF_INET]
-socket.getaddrinfo = new_getaddrinfo
-
+# Clean session.py - using pg8000 driver for Vercel compatibility
 engine = None
 SessionLocal = None
 
 try:
     # 1. Prepare URL
     # settings.SQLALCHEMY_DATABASE_URI already handles the postgres:// -> postgresql:// fix
+    # We explicitly switch to the pg8000 driver which handles Vercel networking better
     final_db_url = settings.SQLALCHEMY_DATABASE_URI
+    
+    if final_db_url.startswith("postgresql://"):
+        final_db_url = final_db_url.replace("postgresql://", "postgresql+pg8000://")
+    elif final_db_url.startswith("postgres://"):
+        final_db_url = final_db_url.replace("postgres://", "postgresql+pg8000://")
 
-    # FIX: Explicitly resolve hostname to IPv4 to bypass Vercel/Supabase IPv6 issues
-    # psycopg2 often bypasses socket monkey-patches, so we inject the IP directly.
-    DEBUG_DNS_LOG = "Not run"
-    try:
-        from urllib.parse import urlparse, urlunparse
-        
-        parsed = urlparse(final_db_url)
-        hostname = parsed.hostname
-        if hostname:
-            # Resolve to IPv4 using getaddrinfo (more robust than gethostbyname)
-            # We specifically ask for AF_INET (IPv4)
-            dns_results = socket.getaddrinfo(hostname, None, socket.AF_INET, socket.SOCK_STREAM)
-            if dns_results:
-                # Pick the first IPv4 address found
-                # result structure: (family, type, proto, canonname, sockaddr)
-                # sockaddr is (ip, port) for IPv4
-                ipv4_addr = dns_results[0][4][0]
-                print(f"Resolved {hostname} to {ipv4_addr}")
-                DEBUG_DNS_LOG = f"Resolved {hostname} to {ipv4_addr}"
-                
-                # Replace hostname with IP in the URL
-                netloc = parsed.netloc.replace(hostname, ipv4_addr)
-                parsed = parsed._replace(netloc=netloc)
-                final_db_url = urlunparse(parsed)
-            else:
-                 DEBUG_DNS_LOG = f"DNS Resolution returned no IPv4 addresses for {hostname}"
-    except Exception as dns_err:
-        print(f"DNS Resolution failed: {dns_err}")
-        DEBUG_DNS_LOG = f"DNS Resolution failed: {dns_err}"
+    print(f"Connecting with driver: pg8000")
+    DEBUG_DNS_LOG = "Using pg8000 driver (no manual DNS resolution needed)"
 
     # 2. Create Engine
+    # pg8000 doesn't support 'keepalives' connect_args in the same way, nor prepare_threshold
+    # It is a pure python driver that works well with standard settings.
     engine = create_engine(
         final_db_url, 
         pool_pre_ping=True,
-        pool_recycle=300,
-        connect_args={
-            "keepalives": 1,
-            "keepalives_idle": 30,
-            "keepalives_interval": 10,
-            "keepalives_count": 5,
-            "prepare_threshold": None
-        }
+        pool_recycle=300
     )
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 except Exception as e:
     print(f"Engine creation failed: {e}")
+    DEBUG_DNS_LOG = f"Engine creation failed: {e}"
 
 # 3. BASE MODEL
 # All our database models (User, Report) will inherit from this "Base".
