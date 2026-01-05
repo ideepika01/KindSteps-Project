@@ -21,6 +21,17 @@ try:
     # 1. Get URL from settings
     final_db_url = settings.SQLALCHEMY_DATABASE_URI
 
+    # --- DNS HOTFIX: Use Connection Pooler if Direct Connection is failing ---
+    # The direct 'db.jnyzqjet...' URL is failing to resolve on this local network.
+    # We automatically switch to the 'aws-0-ap-south-1.pooler.supabase.com' host which works.
+    if "db.jnyzqjetppcjrmhrtubk.supabase.co" in final_db_url:
+        print("NOTE: Applying DNS Hotfix -> Switching to Supabase Connection Pooler")
+        final_db_url = final_db_url.replace(
+            "db.jnyzqjetppcjrmhrtubk.supabase.co:5432", 
+            "aws-0-ap-south-1.pooler.supabase.com:6543"
+        )
+    # -----------------------------------------------------------------------
+
     # 2. Ensure we use pg8000 driver
     if final_db_url.startswith("postgresql://"):
         final_db_url = final_db_url.replace("postgresql://", "postgresql+pg8000://")
