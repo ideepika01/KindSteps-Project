@@ -1,25 +1,34 @@
+// This script handles Login and Signup functionality.
+// It listens for clicks on the login/signup buttons, sends data to the backend,
+// and saves the received access token to keep the user logged in.
+
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- LOGIN LOGIC ---
     const loginButton = document.getElementById('login-btn');
 
     if (loginButton) {
         loginButton.addEventListener('click', async (event) => {
-            // STOP the page from reloading (default form behavior)
+            // Prevent the form from submitting normally (reloading the page)
             event.preventDefault();
 
-            // Get what the user typed
+            // 1. Get the values the user typed in
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
+            // 2. Simple validation: Ensure fields aren't empty
             if (!email || !password) {
                 alert("Please fill in all fields");
                 return;
             }
 
             try {
+                // 3. Prepare the data to send (OAuth2 expects form data, not JSON)
                 const formData = new URLSearchParams();
-                formData.append('username', email);
+                formData.append('username', email); // The backend expects 'username' for the email field
                 formData.append('password', password);
 
+                // 4. Send the POST request to the Login API
                 const response = await fetch(`${API_BASE_URL}/auth/login`, {
                     method: 'POST',
                     headers: {
@@ -28,28 +37,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: formData
                 });
 
+                // 5. Check if login was successful
                 if (response.ok) {
                     const data = await response.json();
+
+                    // Save the "Access Token" so the browser remembers the user
                     saveToken(data.access_token);
+
+                    // Send the user to the correct page (Admin vs. User vs. Rescue Team)
                     redirectUserBasedOnRole();
 
                 } else {
-                    // FAILURE: Wrong password or email
+                    // Login failed (e.g., wrong password)
+                    const errorText = await response.text();
                     let errorMessage = "Unknown error";
                     try {
-                        // Read text ONCE to avoid "stream already read"
-                        const rawText = await response.text();
-                        try {
-                            const errorData = JSON.parse(rawText);
-                            errorMessage = errorData.detail || JSON.stringify(errorData);
-                        } catch (parseError) {
-                            // If not JSON, just use the text (likely HTML error from Vercel)
-                            errorMessage = rawText;
-                        }
-                    } catch (readError) {
-                        errorMessage = "Could not read error details";
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.detail || errorText;
+                    } catch (e) {
+                        errorMessage = errorText; // Use raw text if not JSON
                     }
-                    alert(`Login failed (${response.status}): ${errorMessage}`);
+                    alert(`Login failed: ${errorMessage}`);
                 }
 
             } catch (error) {
@@ -59,32 +67,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- SIGNUP LOGIC ---
     const signupButton = document.getElementById('signup-btn');
 
     if (signupButton) {
         signupButton.addEventListener('click', async (event) => {
-            event.preventDefault(); // Stop reload
+            event.preventDefault(); // Stop page reload
 
-            // Get all inputs
+            // 1. Get input values
             const fullName = document.getElementById('signup-name').value;
             const email = document.getElementById('signup-email').value;
             const phone = document.getElementById('signup-phone').value;
             const password = document.getElementById('signup-password').value;
 
-            // Check which role they chose
+            // Get selected role (User, Rescue Team, etc.)
             const roleInput = document.querySelector('input[name="role"]:checked');
             const role = roleInput ? roleInput.value : 'user';
 
+            // 2. Validate inputs
             if (!fullName || !email || !password || !phone) {
                 alert("Please fill in all fields");
                 return;
             }
 
             try {
+                // 3. Send POST request to Signup API
                 const response = await fetch(`${API_BASE_URL}/auth/signup`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json', // We send JSON for signup
                     },
                     body: JSON.stringify({
                         full_name: fullName,
@@ -95,12 +106,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                 });
 
+                // 4. Handle success or failure
                 if (response.ok) {
                     alert("Account created! Please login.");
-                    window.location.href = '../index.html'; // Go to login page
+                    window.location.href = '../index.html'; // Redirect to login page
                 } else {
                     const errorData = await response.json();
-                    // .detail often contains the specific error message from the server
                     alert(`Signup failed: ${errorData.detail}`);
                 }
             } catch (error) {
@@ -111,23 +122,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+/**
+ * Checks the user's role (Admin, Rescue Team, or User) and redirects them
+ * to their specific dashboard.
+ */
 async function redirectUserBasedOnRole() {
-    // We use 'fetchWithAuth' because we need to show our new token
+    // We use 'fetchWithAuth' helper to send the token with the request
     const response = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
 
     if (response.ok) {
         const user = await response.json();
 
+        // Redirect based on the 'role' field from the database
         if (user.role === 'admin') {
             window.location.href = './pages/admin_dashboard.html';
         } else if (user.role === 'rescue_team') {
             window.location.href = './pages/report_list.html';
         } else {
-            // Regular user
+            // Standard user
             window.location.href = './pages/main.html';
         }
     } else {
-        // Fallback if something weird happens
+        // If getting user info fails, default to main page
         window.location.href = './pages/main.html';
     }
 }

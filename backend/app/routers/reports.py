@@ -9,11 +9,11 @@ from app.dependencies import get_current_user
 import shutil
 import os
 import uuid
+import pathlib
 
 # Setup upload folder
-# Setup upload folder: Use /tmp on Vercel because root is read-only
-# We check for 'VERCEL' env var or just default to /tmp if 'uploads' fails
-UPLOAD_DIR = "/tmp/uploads" if os.environ.get("VERCEL") or os.access("/", os.W_OK) is False else "uploads"
+# Use /tmp/uploads on Vercel (read-only root), otherwise 'uploads' locally
+UPLOAD_DIR = "/tmp/uploads" if os.environ.get("VERCEL") or not os.access("/", os.W_OK) else "uploads"
 
 try:
     os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -23,14 +23,20 @@ except Exception as e:
 router = APIRouter()
 
 def _save_upload(file: UploadFile | None) -> Optional[str]:
-    """saves the file to 'uploads/' and returns the URL path."""
+    """
+    Saves an uploaded file to the disk and returns its URL path.
+    Generates a unique name to prevent overwriting.
+    """
     if not file:
         return None
 
-    file_extension = file.filename.split(".")[-1]
-    unique_name = f"{uuid.uuid4()}.{file_extension}"
+    # Get the file extension (e.g., .jpg, .png)
+    file_extension = pathlib.Path(file.filename).suffix
+    # Create a unique filename using UUID
+    unique_name = f"{uuid.uuid4()}{file_extension}"
     file_path = os.path.join(UPLOAD_DIR, unique_name)
     
+    # Write the file to the disk
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
@@ -45,10 +51,14 @@ async def create_report(
     contact_name: str = Form(...),
     contact_phone: str = Form(...),
     priority: ReportPriority = Form(ReportPriority.medium),
-    photo: UploadFile = File(None), # Optional
+    photo: UploadFile = File(None), # Optional photo upload
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """
+    Create a new report of an injured animal.
+    Anyone logged in can create a report.
+    """
     photo_url = _save_upload(photo)
 
     new_report = Report(
@@ -74,6 +84,11 @@ def list_reports(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    """
+    List reports.
+    - Regular users: See only their own reports.
+    - Admin/Rescue Team: See all reports (optionally filtered by status).
+    """
     if current_user.role == UserRole.user:
          return db.query(Report).filter(Report.reporter_id == current_user.id).all()
     
@@ -86,13 +101,22 @@ def list_reports(
 
 @router.get("/my-assignments", response_model=List[ReportResponse])
 def get_my_assignments(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """
+    Get reports relevant to the Rescue Team (Received, Active, In Progress).
+    Only accessible by Rescue Team members.
+    """
     if current_user.role != UserRole.rescue_team:
          return [] 
 
-    return db.query(Report).filter(Report.status.in_([ReportStatus.received, ReportStatus.active, ReportStatus.in_progress])).all()
+    # Filter for active statuses
+    active_statuses = [ReportStatus.received, ReportStatus.active, ReportStatus.in_progress]
+    return db.query(Report).filter(Report.status.in_(active_statuses)).all()
 
 @router.get("/{id}", response_model=ReportResponse)
 def get_report(id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """
+    Get details of a specific report by ID.
+    """
     report = db.query(Report).filter(Report.id == id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
@@ -101,6 +125,10 @@ def get_report(id: int, db: Session = Depends(get_db), current_user: User = Depe
 
 @router.get("/track/{id}")
 def track_report_status(id: int, db: Session = Depends(get_db)):
+    """
+    Public endpoint to track the status of a report by ID.
+    No login required.
+    """
     report = db.query(Report).filter(Report.id == id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
@@ -114,6 +142,10 @@ def update_report_status(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    """
+    Update the status of a report.
+    Only Admin and Rescue Team can perform this action.
+    """
     if current_user.role not in [UserRole.rescue_team, UserRole.admin]:
         raise HTTPException(status_code=403, detail="Not authorized to update status")
         

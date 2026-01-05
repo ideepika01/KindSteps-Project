@@ -1,3 +1,6 @@
+// This script handles the "Track Report" public page.
+// Users enter an ID, and we fetch the current status (Received, In Progress, Resolved).
+
 document.addEventListener('DOMContentLoaded', () => {
 
     const trackButton = document.getElementById('track-btn');
@@ -5,77 +8,71 @@ document.addEventListener('DOMContentLoaded', () => {
     if (trackButton) {
         trackButton.addEventListener('click', async () => {
 
-            // Get the text input box where the user typed the ID
+            // 1. Get the Report ID from the input box
             const trackingIdInput = document.getElementById('tracking-id-input');
+            const reportId = trackingIdInput.value.trim(); // .trim() removes extra spaces
 
-            // Get the value (text) from inside the input box
-            // .trim() is a helper that removes empty spaces from the start and end
-            const reportId = trackingIdInput.value.trim();
-
-            // CHECK: Did the user leave it empty?
             if (!reportId) {
                 alert("Please enter a tracking ID.");
-                return; // Stop the function here
+                return;
             }
 
+            // Show "Searching..." to give feedback
             const statusMessageElement = document.getElementById('status-message');
             statusMessageElement.innerText = "Searching...";
             statusMessageElement.style.color = "blue";
 
             try {
+                // 2. Fetch Report Status from Backend
                 const response = await fetch(`${API_BASE_URL}/reports/track/${reportId}`);
 
                 if (response.ok) {
-                    // Convert the server's answer (JSON text) into a JavaScript object
                     const data = await response.json();
 
-                    // Update the screen with the status we got
+                    // 3. Update the UI with the result
                     updateTrackingUI(data.status);
 
                 } else {
-                    // FAILURE: The server said "404 Not Found" or another error
-
-                    // Hide the progress bar circles because we didn't find a report
+                    // FAILURE (e.g. ID not found)
                     document.getElementById('progress-container').style.display = 'none';
-
-                    // Show an error message
                     statusMessageElement.innerText = "Report not found. Please check the ID.";
                     statusMessageElement.style.color = "red";
                 }
 
             } catch (error) {
-                // NETWORK ERROR: The internet is down or the server is offline
                 console.error("Tracking error:", error);
-
                 statusMessageElement.innerText = "Error connecting to the server.";
                 statusMessageElement.style.color = "red";
             }
         });
     }
 
+    // --- HELPER FUNCTIONS ---
+
+    /*
+     * Updates the status circles (progressBar) based on the report status.
+     * Statuses: 'received' -> 'active/in_progress' -> 'resolved'
+     */
     function updateTrackingUI(currentStatus) {
 
-        // Find the container that holds the progress circles and show it
+        // Show the progress bar container
         const progressContainer = document.getElementById('progress-container');
-        progressContainer.style.display = 'flex'; // 'flex' makes it visible
+        progressContainer.style.display = 'flex';
 
-        // Find the 3 specific status circles
+        // Get the 3 status circle elements
         const receivedCircle = document.getElementById('status-received');
         const inProgressCircle = document.getElementById('status-inprogress');
         const resolvedCircle = document.getElementById('status-resolved');
 
-        // First, make all circles look "inactive" (dim/faded)
-        // We do this to clear any old highlights
+        // Reset all to dim first
         resetStyle(receivedCircle);
         resetStyle(inProgressCircle);
         resetStyle(resolvedCircle);
 
-        // Get the message box to update the text explanation
         const statusMessageElement = document.getElementById('status-message');
-        statusMessageElement.style.color = "#333"; // Set text color to dark grey
+        statusMessageElement.style.color = "#333";
 
-        // Now, highlight the correct circles based on the status
-
+        // Highlight the circles progressively
         if (currentStatus === 'received') {
             highlightStyle(receivedCircle);
             statusMessageElement.innerText = "Report Received. We are reviewing the details.";
@@ -102,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function highlightStyle(element) {
-        element.style.opacity = '1';         // 100% visible (fully solid)
+        element.style.opacity = '1';         // Fully visible
         element.style.fontWeight = 'bold';   // Bold text
     }
 });

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.core import security
 from app.models.user import User, UserRole
+from app.models.report import Report, ReportStatus, ReportPriority
 from app.core.config import settings
 
 def init_db(db: Session) -> None:
@@ -37,3 +38,6 @@ def init_db(db: Session) -> None:
         print("Rescue team user created")
     else:
         print("Rescue team user already exists")
+
+    # 3. Create Sample Report (if none exists)
+    # Sample report creation removed for production cleanup
