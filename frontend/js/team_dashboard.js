@@ -26,9 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (reportsResponse.ok) {
                 const reports = await reportsResponse.json();
+                console.log(`Team Dashboard: Loaded ${reports.length} reports.`);
                 renderCasesGrid(reports);
             } else {
-                console.error("Failed to load reports");
+                console.error("Failed to load reports:", reportsResponse.status, reportsResponse.statusText);
+                const container = document.querySelector('.cases-grid');
+                if (container) container.innerHTML = `<p style="color:red">Error loading reports: ${reportsResponse.status}</p>`;
             }
 
         } catch (error) {

@@ -178,9 +178,9 @@ body {
   font-size: 12px;
   color: #fff;
 }
-.pill.red, .pill.High { background: #ff4d57; color: white;}
-.pill.orange, .pill.Medium { background: #ffb86b; color: #553400; }
-.pill.gray, .pill.Low { background: #cfd4db; color: #333; }
+.pill.red, .pill.High, .pill.high { background: #ff4d57; color: white;}
+.pill.orange, .pill.Medium, .pill.medium { background: #ffb86b; color: #553400; }
+.pill.gray, .pill.Low, .pill.low { background: #cfd4db; color: #333; }
 
 /* TAGS (Status) */
 .case-tags {
