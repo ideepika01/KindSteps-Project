@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 setText('stat-pending', stats.reports.pending);
             }
 
-            const reportsResponse = await fetchWithAuth(`${API_BASE_URL}/reports`);
+            const reportsResponse = await fetchWithAuth(`${API_BASE_URL}/reports/`);
 
             if (reportsResponse.ok) {
                 const reports = await reportsResponse.json();
