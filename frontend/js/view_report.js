@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // If it starts with "http", use it as is. Otherwise add our base URL.
                         const fullUrl = report.photo_url.startsWith('http')
                             ? report.photo_url
-                            : `${API_BASE_URL}${report.photo_url}`;
+                            : `${API_BASE_URL}${report.photo_url.startsWith('/') ? '' : '/'}${report.photo_url}`;
 
                         img.src = fullUrl;
                         img.style.display = 'block';
