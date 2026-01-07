@@ -56,10 +56,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const img = document.getElementById('case-image');
         if (img) {
             if (report.photo_url) {
-                // Ensure full URL if needed
-                const fullUrl = report.photo_url.startsWith('http')
-                    ? report.photo_url
-                    : `${API_BASE_URL}${report.photo_url}`;
+                let fullUrl = report.photo_url;
+                if (!report.photo_url.startsWith('data:') && !report.photo_url.startsWith('http')) {
+                    fullUrl = `${API_BASE_URL}${report.photo_url.startsWith('/') ? '' : '/'}${report.photo_url}`;
+                }
 
                 img.src = fullUrl;
                 img.style.display = 'block';

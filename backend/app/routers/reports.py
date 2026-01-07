@@ -10,37 +10,40 @@ import shutil
 import os
 import uuid
 import pathlib
+import base64
 
-# Setup upload folder
-# Use /tmp/uploads on Vercel (read-only root), otherwise 'uploads' locally
+# Setup upload folder (Kept for compatibility, though we use Base64 now)
 UPLOAD_DIR = "/tmp/uploads" if os.environ.get("VERCEL") or not os.access("/", os.W_OK) else "uploads"
-
 try:
     os.makedirs(UPLOAD_DIR, exist_ok=True)
-except Exception as e:
-    print(f"Warning: Could not create upload dir {UPLOAD_DIR}: {e}")
+except Exception:
+    pass
 
 router = APIRouter()
 
-def _save_upload(file: UploadFile | None) -> Optional[str]:
+def _file_to_base64(file: UploadFile) -> Optional[str]:
     """
-    Saves an uploaded file to the disk and returns its URL path.
-    Generates a unique name to prevent overwriting.
+    Converts an uploaded file to a Base64 string for database storage.
+    This avoids filesystem issues on Vercel.
     """
     if not file:
         return None
-
-    # Get the file extension (e.g., .jpg, .png)
-    file_extension = pathlib.Path(file.filename).suffix
-    # Create a unique filename using UUID
-    unique_name = f"{uuid.uuid4()}{file_extension}"
-    file_path = os.path.join(UPLOAD_DIR, unique_name)
     
-    # Write the file to the disk
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
-    return f"/uploads/{unique_name}"
+    try:
+        # Read file content
+        content = file.file.read()
+        
+        # Convert to base64
+        encoded_string = base64.b64encode(content).decode("utf-8")
+        
+        # Determine mime type (default to jpeg if unknown)
+        mime_type = file.content_type or "image/jpeg"
+        
+        # Return full data URI
+        return f"data:{mime_type};base64,{encoded_string}"
+    except Exception as e:
+        print(f"Error processing image: {e}")
+        return None
 
 
 @router.post("/", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)
@@ -51,7 +54,7 @@ async def create_report(
     contact_name: str = Form(...),
     contact_phone: str = Form(...),
     priority: ReportPriority = Form(ReportPriority.medium),
-    photo: UploadFile = File(None), # Optional photo upload
+    photo: UploadFile = File(None), 
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -59,7 +62,8 @@ async def create_report(
     Create a new report of an injured animal.
     Anyone logged in can create a report.
     """
-    photo_url = _save_upload(photo)
+    # Convert photo to Base64 string directly
+    photo_url = _file_to_base64(photo) if photo else None
 
     new_report = Report(
         reporter_id=current_user.id,
