@@ -3,7 +3,6 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-
 from app.db.session import get_db
 from app.core import security
 from app.models.user import User
@@ -16,17 +15,11 @@ router = APIRouter()
 
 @router.post("/signup", response_model=UserResponse)
 def signup(user: UserCreate, db: Session = Depends(get_db)):
-    """
-    Register a new user (User, Rescue Team, or Admin).
-    Checks if email already exists before creating.
-    """
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
 
     hashed_password = security.get_password_hash(user.password)
-    
-    # Exclude password from the initial dump to avoid passing plain text
     user_data = user.model_dump(exclude={"password"}) 
     new_user = User(**user_data, hashed_password=hashed_password)
     
@@ -38,13 +31,8 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)):
-    """
-    Authenticate a user and return an access token.
-    The token is valid for the duration specified in settings.
-    """
     user = db.query(User).filter(User.email == form_data.username).first()
     
-    # Verify user exists and password is correct
     if not user or not security.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -62,7 +50,4 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Sessio
 
 @router.get("/me", response_model=UserResponse)
 def read_users_me(current_user: User = Depends(get_current_user)):
-    """
-    Get the current logged-in user's profile.
-    """
     return current_user

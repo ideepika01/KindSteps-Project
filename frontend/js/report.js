@@ -1,9 +1,8 @@
-// This script handles the "Create New Report" form.
-// It collects user input, including photos, and sends it to the backend.
+// Handles the "Create New Report" form.
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    checkLogin(); // Ensure user is logged in
+    checkLogin();
 
     const submitReportButton = document.getElementById('submit-report-btn');
     const photoInput = document.getElementById('report-photo');
@@ -26,9 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (submitReportButton) {
         submitReportButton.addEventListener('click', async (event) => {
-            event.preventDefault(); // Stop page reload
+            event.preventDefault();
 
-            // 1. Get Values from Form
+            // Get Values
             const condition = document.getElementById('report-condition').value;
             const description = document.getElementById('report-description').value;
             const location = document.getElementById('report-location').value;
@@ -36,13 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const contactPhone = document.getElementById('contact-phone').value;
             const photoInput = document.getElementById('report-photo');
 
-            // 2. Simple Validation
             if (!condition || !description || !location || !contactName || !contactPhone) {
                 alert("Please fill all required fields.");
                 return;
             }
 
-            // 3. Prepare Data (Using FormData to handle file uploads)
+            // Prepare Data
             const formData = new FormData();
             formData.append('condition', condition);
             formData.append('description', description);
@@ -50,27 +48,21 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('contact_name', contactName);
             formData.append('contact_phone', contactPhone);
 
-            // If a photo was chosen, append it to the form
             if (photoInput.files.length > 0) {
                 formData.append('photo', photoInput.files[0]);
             }
 
             try {
-                // 4. Send POST request to create report
                 const response = await fetchWithAuth(`${API_BASE_URL}/reports/`, {
                     method: 'POST',
                     body: formData
                 });
 
                 if (response.ok) {
-                    // SUCCESS
                     const data = await response.json();
                     alert(`Report submitted! ID: ${data.id}`);
-
-                    // Redirect to the tracking page so they can see their new report
                     window.location.href = './track_report.html';
                 } else {
-                    // FAILURE
                     const error = await response.json();
                     alert("Failed to submit report. Please try again.");
                 }
