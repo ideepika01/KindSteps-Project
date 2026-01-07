@@ -1,11 +1,9 @@
 from sqlalchemy.orm import Session
 from app.core import security
 from app.models.user import User, UserRole
-from app.models.report import Report, ReportStatus, ReportPriority
 from app.core.config import settings
 
 def init_db(db: Session) -> None:
-    # 1. Create ADMIN User
     admin = db.query(User).filter(User.email == "admin@kindsteps.com").first()
     if not admin:
         admin_in = User(
@@ -18,11 +16,7 @@ def init_db(db: Session) -> None:
         db.add(admin_in)
         db.commit()
         db.refresh(admin_in)
-        print("Admin user created")
-    else:
-        print("Admin user already exists")
 
-    # 2. Create RESCUE TEAM User
     team = db.query(User).filter(User.email == "team@kindsteps.com").first()
     if not team:
         team_in = User(
@@ -35,9 +29,3 @@ def init_db(db: Session) -> None:
         db.add(team_in)
         db.commit()
         db.refresh(team_in)
-        print("Rescue team user created")
-    else:
-        print("Rescue team user already exists")
-
-    # 3. Create Sample Report (if none exists)
-    # Sample report creation removed for production cleanup

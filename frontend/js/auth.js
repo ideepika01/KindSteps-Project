@@ -1,8 +1,5 @@
-// Handles Login and Signup functionality
-
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- LOGIN ---
     const loginButton = document.getElementById('login-btn');
     if (loginButton) {
         loginButton.addEventListener('click', async (event) => {
@@ -17,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // Prepare form data for OAuth2
                 const formData = new URLSearchParams();
                 formData.append('username', email);
                 formData.append('password', password);
@@ -34,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     await redirectUserBasedOnRole();
                 } else {
                     const errorText = await response.text();
-                    // Try to parse JSON error, fall back to text
                     let msg = errorText;
                     try { msg = JSON.parse(errorText).detail || msg; } catch (e) { }
                     alert(`Login failed: ${msg}`);
@@ -47,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- SIGNUP ---
     const signupButton = document.getElementById('signup-btn');
     if (signupButton) {
         signupButton.addEventListener('click', async (event) => {
@@ -58,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const phone = document.getElementById('signup-phone').value;
             const password = document.getElementById('signup-password').value;
 
-            // Get selected role
             const roleInput = document.querySelector('input[name="role"]:checked');
             const role = roleInput ? roleInput.value : 'user';
 

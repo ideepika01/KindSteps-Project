@@ -1,5 +1,3 @@
-// Handles the "Create New Report" form.
-
 document.addEventListener('DOMContentLoaded', () => {
 
     checkLogin();
@@ -7,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitReportButton = document.getElementById('submit-report-btn');
     const photoInput = document.getElementById('report-photo');
 
-    // Show filename when file is selected
     if (photoInput) {
         photoInput.addEventListener('change', () => {
             const uploadContent = document.querySelector('.upload-content');
@@ -27,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
         submitReportButton.addEventListener('click', async (event) => {
             event.preventDefault();
 
-            // Get Values
             const condition = document.getElementById('report-condition').value;
             const description = document.getElementById('report-description').value;
             const location = document.getElementById('report-location').value;
@@ -40,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Prepare Data
             const formData = new FormData();
             formData.append('condition', condition);
             formData.append('description', description);

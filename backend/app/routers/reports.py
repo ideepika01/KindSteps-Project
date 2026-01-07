@@ -6,45 +6,22 @@ from app.models.report import Report, ReportStatus, ReportPriority
 from app.models.user import User, UserRole
 from app.schemas.report import ReportResponse, ReportStatusUpdate
 from app.dependencies import get_current_user
-import shutil
-import os
-import uuid
-import pathlib
 import base64
-
-# Setup upload folder (Kept for compatibility, though we use Base64 now)
-UPLOAD_DIR = "/tmp/uploads" if os.environ.get("VERCEL") or not os.access("/", os.W_OK) else "uploads"
-try:
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
-except Exception:
-    pass
 
 router = APIRouter()
 
 def _file_to_base64(file: UploadFile) -> Optional[str]:
-    """
-    Converts an uploaded file to a Base64 string for database storage.
-    This avoids filesystem issues on Vercel.
-    """
     if not file:
         return None
     
     try:
-        # Read file content
         content = file.file.read()
-        
-        # Convert to base64
         encoded_string = base64.b64encode(content).decode("utf-8")
-        
-        # Determine mime type (default to jpeg if unknown)
         mime_type = file.content_type or "image/jpeg"
-        
-        # Return full data URI
         return f"data:{mime_type};base64,{encoded_string}"
     except Exception as e:
         print(f"Error processing image: {e}")
         return None
-
 
 @router.post("/", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)
 async def create_report(

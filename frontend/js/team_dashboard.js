@@ -26,10 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (reportsResponse.ok) {
                 const reports = await reportsResponse.json();
-                console.log(`Team Dashboard: Loaded ${reports.length} reports.`);
                 renderCasesGrid(reports);
             } else {
-                console.error("Failed to load reports:", reportsResponse.status, reportsResponse.statusText);
                 const container = document.querySelector('.cases-grid');
                 if (container) container.innerHTML = `<p style="color:red">Error loading reports: ${reportsResponse.status}</p>`;
             }
@@ -41,26 +39,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderCasesGrid(reports) {
         const container = document.querySelector('.cases-grid');
-        if (!container) return; // If this page doesn't have a grid, stop.
+        if (!container) return;
 
-        container.innerHTML = ''; // Clear old content
+        container.innerHTML = '';
 
-        // Check if list is empty
         if (reports.length === 0) {
             container.innerHTML = '<p>No reports found.</p>';
             return;
         }
 
-        // Loop through each report
         reports.forEach(report => {
-            // Create a new card element <article>
             const card = document.createElement('article');
-            card.className = 'case-card card'; // styling classes
+            card.className = 'case-card card';
 
-            // Make a nice readable date
             const dateStr = new Date(report.created_at).toLocaleString();
 
-            // Fill the card with HTML
             card.innerHTML = `
                     <div class="case-top">
                         <div class="case-id">RSC-${String(report.id).padStart(6, '0')}</div>
@@ -81,20 +74,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="card-actions" style="margin-top:15px; display:flex; gap:10px;">
                         <a href="./view_report.html?id=${report.id}" class="btn-primary small">View</a>
                         
-                        <!-- Quick Action: If not resolved, show a "Resolve" button -->
                         ${(report.status !== 'resolved') ?
                     `<button class="btn-outline small" onclick="updateStatus(${report.id}, 'resolved')">Resolve</button>`
                     : ''}
                     </div>
                 `;
 
-            // Add the card to the container
             container.appendChild(card);
         });
     }
 
     window.updateStatus = async (reportId, newStatus) => {
-        // Ask for confirmation
         if (!confirm(`Mark Report #${reportId} as ${newStatus}?`)) {
             return;
         }
@@ -108,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 alert("Status updated!");
-                loadDashboardData(); // Refresh list
+                loadDashboardData();
             } else {
                 alert("Failed to update status.");
             }

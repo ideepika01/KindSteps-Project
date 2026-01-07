@@ -1,9 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
 
-    // 1. CHECK LOGIN
     checkLogin();
 
-    // 2. GET REPORT ID
     const urlParams = new URLSearchParams(window.location.search);
     const reportId = urlParams.get('id');
 
@@ -13,10 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // 3. LOAD DATA
     await loadReportDetails(reportId);
-
-    // --- HELPER FUNCTIONS ---
 
     async function loadReportDetails(id) {
         try {
@@ -46,13 +41,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         setText('reporter-name', report.contact_name);
         setText('reporter-phone', report.contact_phone);
 
-        // Status Badge
         const statusEl = document.getElementById('case-status-text');
         if (statusEl) {
             statusEl.innerHTML = `Status: <span class="tag ${report.status}">${report.status}</span>`;
         }
 
-        // Photo
         const img = document.getElementById('case-image');
         if (img) {
             if (report.photo_url) {
