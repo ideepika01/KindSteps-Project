@@ -1,50 +1,51 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from app.core.config import settings
 from fastapi import HTTPException
-from urllib.parse import urlparse, urlunparse, quote_plus
+from app.core.config import settings
 
-def _configure_db_url(url):
-    if "db.jnyzqjetppcjrmhrtubk.supabase.co" in url:
-        url = url.replace(
-            "db.jnyzqjetppcjrmhrtubk.supabase.co:5432", 
-            "aws-0-ap-south-1.pooler.supabase.com:6543"
-        )
 
-    if url.startswith("postgresql://"):
-        url = url.replace("postgresql://", "postgresql+pg8000://")
-    elif url.startswith("postgres://"):
-        url = url.replace("postgres://", "postgresql+pg8000://")
+# ===== DATABASE ENGINE =====
 
-    try:
-        parsed = urlparse(url)
-        if parsed.password:
-            encoded_pwd = quote_plus(parsed.password)
-            encoded_user = quote_plus(parsed.username or "postgres")
-            netloc = f"{encoded_user}:{encoded_pwd}@{parsed.hostname}:{parsed.port or 5432}"
-            url = urlunparse((parsed.scheme, netloc, parsed.path.lstrip('/'), '', '', ''))
-    except Exception:
-        pass
+DATABASE_URL = settings.SQLALCHEMY_DATABASE_URI
 
-    return url
+# 1. Supabase Connection Strategy (Redirect to Pooler for Vercel)
+if "db.jnyzqjetppcjrmhrtubk.supabase.co" in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace(
+        "db.jnyzqjetppcjrmhrtubk.supabase.co:5432", 
+        "aws-0-ap-south-1.pooler.supabase.com:6543"
+    )
 
-engine = None
-SessionLocal = None
+# 2. Driver Selection (Use pg8000 for pure-Python support)
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+pg8000://", 1)
+elif DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+pg8000://", 1)
 
-try:
-    db_url = _configure_db_url(settings.SQLALCHEMY_DATABASE_URI)
-    engine = create_engine(db_url, pool_pre_ping=True, pool_recycle=300)
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-except Exception as e:
-    print(f"DB Error: {e}")
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True
+)
+
+
+# ===== SESSION =====
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+
+# ===== BASE MODEL =====
 
 Base = declarative_base()
 
+
+# ===== FASTAPI DEPENDENCY =====
+
 def get_db():
-    if SessionLocal is None:
-        raise HTTPException(status_code=500, detail="Database not initialized")
-    db = SessionLocal() 
+    db = SessionLocal()
     try:
-        yield db 
+        yield db
     finally:
         db.close()

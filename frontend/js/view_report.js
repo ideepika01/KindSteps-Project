@@ -1,102 +1,127 @@
 document.addEventListener('DOMContentLoaded', async () => {
-
+    // Block access if not logged in
     checkLogin();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const reportId = urlParams.get('id');
+    // Get report ID from URL (?id=123)
+    const reportId = new URLSearchParams(window.location.search).get('id');
 
     if (!reportId) {
-        alert("No Report ID found.");
+        alert('No Report ID found.');
         window.location.href = './admin_dashboard.html';
         return;
     }
 
-    await loadReportDetails(reportId);
+    loadReport(reportId);
+});
 
-    async function loadReportDetails(id) {
-        try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/reports/${id}`);
 
-            if (!response.ok) {
-                alert("Report not found.");
-                return;
-            }
+// ---------------- LOAD REPORT ----------------
 
-            const report = await response.json();
-            displayReport(report);
-            setupStatusUpdate(report.id, report.status);
+async function loadReport(reportId) {
+    try {
+        const response = await fetchWithAuth(`${API_BASE_URL}/reports/${reportId}`);
 
-        } catch (error) {
-            console.error("Error loading details:", error);
+        if (!response.ok) {
+            alert('Report not found.');
+            return;
         }
+
+        const report = await response.json();
+
+        showReportDetails(report);
+        setupStatusUpdate(report.id, report.status);
+
+    } catch (err) {
+        console.error('Error loading report:', err);
+    }
+}
+
+
+// ---------------- DISPLAY REPORT ----------------
+
+function showReportDetails(report) {
+    setText('case-title', report.condition);
+    setText('case-id', `ID: RSC-${String(report.id).padStart(6, '0')}`);
+    setText('case-date', `Reported: ${new Date(report.created_at).toLocaleString()}`);
+
+    setText('location-text', report.location);
+    setText('summary-text', report.description);
+    setText('reporter-name', report.contact_name);
+    setText('reporter-phone', report.contact_phone);
+
+    showStatus(report.status);
+    showImage(report.photo_url);
+}
+
+function showStatus(status) {
+    const statusEl = document.getElementById('case-status-text');
+    if (!statusEl) return;
+
+    statusEl.innerHTML = `Status: <span class="tag ${status}">${status}</span>`;
+}
+
+function showImage(photoUrl) {
+    const img = document.getElementById('case-image');
+    if (!img) return;
+
+    if (!photoUrl) {
+        img.style.display = 'none';
+        return;
     }
 
-    function displayReport(report) {
-        setText('case-title', report.condition);
-        setText('case-id', `ID: RSC-${String(report.id).padStart(6, '0')}`);
-        setText('case-date', `Reported: ${new Date(report.created_at).toLocaleString()}`);
+    const fullUrl =
+        photoUrl.startsWith('data:') || photoUrl.startsWith('http')
+            ? photoUrl
+            : `${API_BASE_URL}${photoUrl.startsWith('/') ? '' : '/'}${photoUrl}`;
 
-        setText('location-text', report.location);
-        setText('summary-text', report.description);
-        setText('reporter-name', report.contact_name);
-        setText('reporter-phone', report.contact_phone);
+    img.src = fullUrl;
+    img.style.display = 'block';
+}
 
-        const statusEl = document.getElementById('case-status-text');
-        if (statusEl) {
-            statusEl.innerHTML = `Status: <span class="tag ${report.status}">${report.status}</span>`;
-        }
 
-        const img = document.getElementById('case-image');
-        if (img) {
-            if (report.photo_url) {
-                let fullUrl = report.photo_url;
-                if (!report.photo_url.startsWith('data:') && !report.photo_url.startsWith('http')) {
-                    fullUrl = `${API_BASE_URL}${report.photo_url.startsWith('/') ? '' : '/'}${report.photo_url}`;
-                }
+// ---------------- STATUS UPDATE ----------------
 
-                img.src = fullUrl;
-                img.style.display = 'block';
-            } else {
-                img.style.display = 'none';
-            }
-        }
-    }
+function setupStatusUpdate(reportId, currentStatus) {
+    const dropdown = document.getElementById('status-dropdown');
+    const button = document.getElementById('update-btn');
 
-    function setupStatusUpdate(id, currentStatus) {
-        const statusDropdown = document.getElementById('status-dropdown');
-        const updateBtn = document.getElementById('update-btn');
+    if (!dropdown || !button) return;
 
-        if (statusDropdown && updateBtn) {
-            statusDropdown.value = currentStatus;
+    dropdown.value = currentStatus;
 
-            updateBtn.onclick = async () => {
-                const newStatus = statusDropdown.value;
-                await sendStatusUpdate(id, newStatus);
-            };
-        }
-    }
+    button.onclick = () => {
+        updateStatus(reportId, dropdown.value);
+    };
+}
 
-    async function sendStatusUpdate(id, newStatus) {
-        try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/reports/${id}/status`, {
+async function updateStatus(reportId, newStatus) {
+    try {
+        const response = await fetchWithAuth(
+            `${API_BASE_URL}/reports/${reportId}/status`,
+            {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })
-            });
-
-            if (response.ok) {
-                alert("Status updated successfully!");
-                location.reload();
-            } else {
-                alert("Failed to update status.");
             }
-        } catch (error) {
-            console.error("Update error:", error);
-        }
-    }
+        );
 
-    function setText(id, text) {
-        const el = document.getElementById(id);
-        if (el) el.innerText = text;
+        if (!response.ok) {
+            alert('Failed to update status.');
+            return;
+        }
+
+        alert('Status updated successfully!');
+        location.reload();
+
+    } catch (err) {
+        console.error('Status update error:', err);
     }
-});
+}
+
+
+// ---------------- UTIL ----------------
+
+function setText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = text;
+}

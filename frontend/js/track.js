@@ -1,85 +1,131 @@
-document.addEventListener('DOMContentLoaded', () => {
-
-    const trackButton = document.getElementById('track-btn');
-
-    if (trackButton) {
-        trackButton.addEventListener('click', async () => {
-
-            const trackingIdInput = document.getElementById('tracking-id-input');
-            const reportId = trackingIdInput.value.trim();
-
-            if (!reportId) {
-                alert("Please enter a tracking ID.");
-                return;
-            }
-
-            const statusMessageElement = document.getElementById('status-message');
-            statusMessageElement.innerText = "Searching...";
-            statusMessageElement.style.color = "blue";
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/reports/track/${reportId}`);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    updateTrackingUI(data.status);
-                } else {
-                    document.getElementById('progress-container').style.display = 'none';
-                    statusMessageElement.innerText = "Report not found. Please check the ID.";
-                    statusMessageElement.style.color = "red";
-                }
-
-            } catch (error) {
-                console.error("Tracking error:", error);
-                statusMessageElement.innerText = "Error connecting to the server.";
-                statusMessageElement.style.color = "red";
-            }
-        });
-    }
-
-    function updateTrackingUI(currentStatus) {
-
-        const progressContainer = document.getElementById('progress-container');
-        progressContainer.style.display = 'flex';
-
-        const receivedCircle = document.getElementById('status-received');
-        const inProgressCircle = document.getElementById('status-inprogress');
-        const resolvedCircle = document.getElementById('status-resolved');
-
-        resetStyle(receivedCircle);
-        resetStyle(inProgressCircle);
-        resetStyle(resolvedCircle);
-
-        const statusMessageElement = document.getElementById('status-message');
-        statusMessageElement.style.color = "#333";
-
-        if (currentStatus === 'received') {
-            highlightStyle(receivedCircle);
-            statusMessageElement.innerText = "Report Received. We are reviewing the details.";
-
-        } else if (currentStatus === 'in_progress' || currentStatus === 'active') {
-            highlightStyle(receivedCircle);
-            highlightStyle(inProgressCircle);
-            statusMessageElement.innerText = "Rescue in Progress. Help is on the way!";
-
-        } else if (currentStatus === 'resolved') {
-            highlightStyle(receivedCircle);
-            highlightStyle(inProgressCircle);
-            highlightStyle(resolvedCircle);
-            statusMessageElement.innerText = "Resolved. The individual has been rescued or the case is closed.";
-
-        } else {
-            statusMessageElement.innerText = `Current Status: ${currentStatus}`;
-        }
-    }
-
-    function resetStyle(element) {
-        element.style.opacity = '0.3';
-        element.style.fontWeight = 'normal';
-    }
-
-    function highlightStyle(element) {
-        element.style.opacity = '1';
-        element.style.fontWeight = 'bold';
-    }
+// Run after page loads
+document.addEventListener('DOMContentLoaded', function () {
+    setupTracking();
 });
+
+
+// ---------------- SETUP ----------------
+
+function setupTracking() {
+    const trackBtn = document.getElementById('track-btn');
+    if (!trackBtn) return;
+
+    trackBtn.addEventListener('click', handleTracking);
+}
+
+
+// ---------------- TRACKING ----------------
+
+async function handleTracking() {
+    const reportId = getTrackingId();
+    if (!reportId) return;
+
+    showSearching();
+
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/reports/track/${reportId}`
+        );
+
+        if (response.ok) {
+            const data = await response.json();
+            updateTrackingUI(data.status);
+        } else {
+            showNotFound();
+        }
+
+    } catch (error) {
+        console.error(error);
+        showServerError();
+    }
+}
+
+function getTrackingId() {
+    const input = document.getElementById('tracking-id-input');
+    const reportId = input.value.trim();
+
+    if (!reportId) {
+        alert('Please enter a tracking ID.');
+        return null;
+    }
+
+    return reportId;
+}
+
+
+// ---------------- UI STATES ----------------
+
+function showSearching() {
+    const message = document.getElementById('status-message');
+    message.innerText = 'Searching...';
+    message.style.color = 'blue';
+}
+
+function showNotFound() {
+    document.getElementById('progress-container').style.display = 'none';
+    const message = document.getElementById('status-message');
+    message.innerText = 'Report not found. Please check the ID.';
+    message.style.color = 'red';
+}
+
+function showServerError() {
+    const message = document.getElementById('status-message');
+    message.innerText = 'Error connecting to the server.';
+    message.style.color = 'red';
+}
+
+
+// ---------------- STATUS UI ----------------
+
+function updateTrackingUI(status) {
+    showProgress();
+
+    resetAllStatuses();
+
+    const message = document.getElementById('status-message');
+    message.style.color = '#333';
+
+    if (status === 'received') {
+        highlight('status-received');
+        message.innerText =
+            'Report Received. We are reviewing the details.';
+
+    } else if (status === 'in_progress' || status === 'active') {
+        highlight('status-received');
+        highlight('status-inprogress');
+        message.innerText =
+            'Rescue in Progress. Help is on the way!';
+
+    } else if (status === 'resolved') {
+        highlight('status-received');
+        highlight('status-inprogress');
+        highlight('status-resolved');
+        message.innerText =
+            'Resolved. The individual has been rescued or the case is closed.';
+
+    } else {
+        message.innerText = `Current Status: ${status}`;
+    }
+}
+
+function showProgress() {
+    document.getElementById('progress-container').style.display = 'flex';
+}
+
+function resetAllStatuses() {
+    resetStyle('status-received');
+    resetStyle('status-inprogress');
+    resetStyle('status-resolved');
+}
+
+function resetStyle(id) {
+    const el = document.getElementById(id);
+    el.style.opacity = '0.3';
+    el.style.fontWeight = 'normal';
+}
+
+function highlight(id) {
+    const el = document.getElementById(id);
+    el.style.opacity = '1';
+    el.style.fontWeight = 'bold';
+}

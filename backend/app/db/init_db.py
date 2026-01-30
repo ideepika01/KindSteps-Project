@@ -9,7 +9,7 @@ def init_db(db: Session) -> None:
         admin_in = User(
             full_name="KindSteps Admin",
             email="admin@kindsteps.com",
-            hashed_password=security.get_password_hash("admin123"),
+            hashed_password=security.hash_password("admin123"),
             role=UserRole.admin.value,
             phone="1234567890"
         )
@@ -22,7 +22,7 @@ def init_db(db: Session) -> None:
         team_in = User(
             full_name="KindSteps Rescue Team",
             email="team@kindsteps.com",
-            hashed_password=security.get_password_hash("team123"),
+            hashed_password=security.hash_password("team123"),
             role=UserRole.rescue_team.value,
             phone="0987654321"
         )
