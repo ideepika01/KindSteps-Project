@@ -36,11 +36,13 @@ def get_dashboard_stats(
     return {
         "reports": {
             "total": db.query(Report).count(),
-            "completed": db.query(Report)
+            "resolved": db.query(Report)
                 .filter(Report.status == ReportStatus.resolved).count(),
             "active": db.query(Report)
                 .filter(Report.status == ReportStatus.active).count(),
-            "pending": db.query(Report)
+            "in_progress": db.query(Report)
+                .filter(Report.status == ReportStatus.in_progress).count(),
+            "received": db.query(Report)
                 .filter(Report.status == ReportStatus.received).count(),
         },
         "users": {

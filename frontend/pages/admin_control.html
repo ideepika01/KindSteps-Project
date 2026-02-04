@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,170 +12,141 @@
 
 
 <!-- LAYOUT: SIDEBAR + MAIN CONTENT -->
+
 <body>
 
-<!-- wrapper START -->
-<div class="page-wrapper">
+  <!-- wrapper START -->
+  <div class="page-wrapper">
 
-<!-- TOP NAVBAR -->
-<header class="topbar">
-  <div class="top-inner">
+    <!-- TOP NAVBAR -->
+    <header class="topbar">
+      <div class="top-inner">
 
-    <div class="brand">
-      <span class="brand-text">KindSteps</span>
-    </div>
+        <div class="brand">
+          <span class="brand-text">KindSteps</span>
+        </div>
 
-    <div class="nav-right">
-        <span class="user-name">Deepika</span>
-        <img src="../assets/user.png" alt="Profile" class="profile-img">
+        <div class="nav-right">
+          <span class="user-name">Deepika</span>
+          <img src="../assets/user.png" alt="Profile" class="profile-img">
+        </div>
+
+      </div>
+    </header>
+
+    <!-- LAYOUT: SIDEBAR + MAIN CONTENT -->
+    <div class="layout">
+
+      <!-- LEFT SIDEBAR -->
+      <aside class="sidebar">
+
+        <div class="sidebar-user">
+          <img src="../assets/user.png" class="sidebar-user-img">
+          <span class="sidebar-user-name">Deepika</span>
+        </div>
+
+        <ul class="sidebar-menu">
+          <li><a href="./admin_dashboard.html"><span>🛡️</span> Admin access</a></li>
+          <li><a href="./admin_control.html"><span>🌐</span> RescueNet</a></li>
+          <li><a href="./admin_control.html"><span>🎒</span> RescueTeam</a></li>
+          <li><a href="./admin_dashboard.html"><span>👥</span> Users</a></li>
+          <li><a href="./admin_control.html"><span>👤</span> Profile</a></li>
+        </ul>
+
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="content">
+
+        <div class="content-header">
+          <h1>Admin Control Panel</h1>
+          <div class="search-box">
+            <input type="text" placeholder="Search reports, users, or cases…">
+          </div>
+        </div>
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+            <div class="stat-title"><span>🧑‍🤝‍🧑</span> Total Users</div>
+            <div id="stat-total-users" class="stat-number">...</div>
+            <div class="stat-change" id="stat-users-change">Loading...</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-title"><span>👨‍🚒</span> Active Volunteers</div>
+            <div id="stat-volunteers" class="stat-number">...</div>
+            <div class="stat-change">Direct impact</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-title"><span>📄</span> Open Reports</div>
+            <div id="stat-open-reports" class="stat-number">...</div>
+            <div class="stat-change">Active cases</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-title"><span>🗂️</span> Resolved Cases</div>
+            <div id="stat-resolved-cases" class="stat-number">...</div>
+            <div class="stat-change">Total success</div>
+          </div>
+
+        </div>
+
+        <h2 class="section-title">Recent Reports Overview</h2>
+
+        <div class="table-wrapper">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Report ID</th>
+                <th>User</th>
+                <th>Status</th>
+                <th>Assigned Team</th>
+                <th>Last Updated</th>
+              </tr>
+            </thead>
+
+            <tbody id="report-table-body">
+              <!-- Real reports will be loaded here -->
+              <tr>
+                <td colspan="5" style="text-align:center;">Loading reports...</td>
+              </tr>
+            </tbody>
+
+          </table>
+        </div>
+
+      </main>
+
     </div>
 
   </div>
-</header>
+  <!-- wrapper END -->
 
-<!-- LAYOUT: SIDEBAR + MAIN CONTENT -->
-<div class="layout">
 
-  <!-- LEFT SIDEBAR -->
-  <aside class="sidebar">
 
-    <div class="sidebar-user">
-      <img src="../assets/user.png" class="sidebar-user-img">
-      <span class="sidebar-user-name">Deepika</span>
+
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-left">
+      <div class="footer-logo">KindSteps</div>
+      <p>© 2025 KindSteps. All rights reserved.</p>
     </div>
 
-    <ul class="sidebar-menu">
-      <li><a href="./admin_dashboard.html"><span>🛡️</span> Admin access</a></li>
-      <li><a href="./admin_control.html"><span>🌐</span> RescueNet</a></li>
-      <li><a href="./admin_control.html"><span>🎒</span> RescueTeam</a></li>
-      <li><a href="./admin_dashboard.html"><span>👥</span> Users</a></li>
-      <li><a href="./admin_control.html"><span>👤</span> Profile</a></li>
-    </ul>
-
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <main class="content">
-
-    <div class="content-header">
-      <h1>Admin Control Panel</h1>
-      <div class="search-box">
-        <input type="text" placeholder="Search reports, users, or cases…">
-      </div>
-    </div>
-
-    <div class="stats-grid">
-
-      <div class="stat-card">
-        <div class="stat-title"><span>🧑‍🤝‍🧑</span> Total Users</div>
-        <div class="stat-number">2,530</div>
-        <div class="stat-change">+15% from last month</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-title"><span>👨‍🚒</span> Active Volunteers</div>
-        <div class="stat-number">847</div>
-        <div class="stat-change">+8% from last month</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-title"><span>📄</span> Open Reports</div>
-        <div class="stat-number">124</div>
-        <div class="stat-change">-5% from last week</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-title"><span>🗂️</span> Pending Cases</div>
-        <div class="stat-number">32</div>
-        <div class="stat-change">+2 new this week</div>
-      </div>
+    <div class="footer-links">
+      <a href="./about.html">About Us</a>
+      <a href="./contact.html">Contact</a>
 
     </div>
-
-    <h2 class="section-title">Recent Reports Overview</h2>
-
-    <div class="table-wrapper">
-      <table class="report-table">
-        <thead>
-          <tr>
-            <th>Report ID</th>
-            <th>User</th>
-            <th>Status</th>
-            <th>Assigned Team</th>
-            <th>Last Updated</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr>
-            <td>RPT-00123</td>
-            <td>John Doe</td>
-            <td><span class="badge pending">Pending</span></td>
-            <td>Rescue Team Alpha</td>
-            <td>2023-11-20 10:30 AM</td>
-          </tr>
-
-          <tr>
-            <td>RPT-00122</td>
-            <td>Jane Smith</td>
-            <td><span class="badge progress">In Progress</span></td>
-            <td>Logistics</td>
-            <td>2023-11-19 03:00 PM</td>
-          </tr>
-
-          <tr>
-            <td>RPT-00121</td>
-            <td>Robert Johnson</td>
-            <td><span class="badge resolved">Resolved</span></td>
-            <td>Medical Support</td>
-            <td>2023-11-18 11:45 AM</td>
-          </tr>
-
-          <tr>
-            <td>RPT-00120</td>
-            <td>Emily White</td>
-            <td><span class="badge rejected">Rejected</span></td>
-            <td>N/A</td>
-            <td>2023-11-17 09:00 AM</td>
-          </tr>
-
-          <tr>
-            <td>RPT-00119</td>
-            <td>Michael Green</td>
-            <td><span class="badge pending">Pending</span></td>
-            <td>Search & Rescue</td>
-            <td>2023-11-16 01:15 PM</td>
-          </tr>
-        </tbody>
-
-      </table>
-    </div>
-
-  </main>
-
-</div>
-
-</div>
-<!-- wrapper END -->
+  </footer>
 
 
-
-
-
-<!-- FOOTER -->
- <footer class="footer">
-        <div class="footer-left">
-            <div class="footer-logo">KindSteps</div>
-            <p>© 2025 KindSteps. All rights reserved.</p>
-        </div>
-
-        <div class="footer-links">
-            <a href="./about.html">About Us</a>
-            <a href="./contact.html">Contact</a>
-            
-        </div>
-    </footer>
-
-
+  <!-- Scripts -->
+  <script src="../js/config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/admin_control.js"></script>
 </body>
+
 </html>

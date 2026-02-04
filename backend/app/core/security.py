@@ -5,7 +5,7 @@ from app.core.config import settings
 
 # Password hashing configuration
 pwd_context = CryptContext(
-    schemes=["pbkdf2_sha256"],
+    schemes=["pbkdf2_sha256", "bcrypt"],
     deprecated="auto"
 )
 

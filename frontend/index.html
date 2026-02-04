@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,14 +8,14 @@
     <link rel="stylesheet" href="./style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-<div class="page-wrapper">
-    <!-- ALL your login page content goes here -->
-     <header class="navbar">
+    <header class="navbar">
         <div class="nav-container">
+            <div class="logo">KindSteps</div>
             <ul class="nav-links">
-                <li>KindSteps</li>
-                
+                <li><a href="./pages/about.html">About Us</a></li>
+                <li><a href="./pages/works.html">How it Works</a></li>
             </ul>
 
             <div class="nav-auth">
@@ -22,46 +23,48 @@
             </div>
         </div>
     </header>
-<div class="login-page">
-    
-        <!-- ALL form content -->
-          <section class="login-wrapper">
-        <div class="login-card">
+    <div class="page-wrapper">
+        <!-- ALL your login page content goes here -->
+        <div class="login-page">
 
-            <h1>Login to your account</h1>
+            <!-- ALL form content -->
+            <section class="login-wrapper">
+                <div class="login-card">
 
-            <label>Email</label>
-            <input type="email" id="login-email" placeholder="your.email@example.com" class="input-field">
+                    <h1>Login to your account</h1>
 
-            <label>Password</label>
-            <div class="password-box">
-                <input type="password" id="login-password" placeholder="••••••••" class="input-field password">
-                
-            </div>
+                    <label>Email</label>
+                    <input type="email" id="login-email" placeholder="your.email@example.com" class="input-field">
 
-            <a href="#" class="forgot">Forgot password?</a>
+                    <label>Password</label>
+                    <div class="password-box">
+                        <input type="password" id="login-password" placeholder="••••••••" class="input-field password">
 
-            <button id="login-btn" class="login-submit">Login</button>
+                    </div>
 
-            <p class="signup-text">Don't have an account? <a href="./pages/signup.html">Sign Up</a></p>
+                    <a href="#" class="forgot">Forgot password?</a>
 
-        
-    </section>
+                    <button id="login-btn" class="login-submit">Login</button>
+
+                    <p class="signup-text">Don't have an account? <a href="./pages/signup.html">Sign Up</a></p>
+
+
+            </section>
+        </div>
     </div>
-</div>
     <!-- MAIN LOGIN CARD -->
-   
 
-</div>
+
+    </div>
     <!-- NAVBAR -->
-    
+
     <!-- FOOTER -->
     <footer class="footer">
         <div class="footer-left">
             <p>© 2025 KindSteps. All rights reserved.</p>
         </div>
 
-       
+
     </footer>
 
     <!-- Scripts -->
@@ -69,4 +72,5 @@
     <script src="./js/utils.js"></script>
     <script src="./js/auth.js"></script>
 </body>
+
 </html>

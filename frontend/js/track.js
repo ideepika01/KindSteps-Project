@@ -1,8 +1,9 @@
 // Run after page loads
 document.addEventListener('DOMContentLoaded', function () {
+    const token = checkLogin();
+    if (!token) return;
     setupTracking();
 });
-
 
 // ---------------- SETUP ----------------
 
@@ -13,7 +14,6 @@ function setupTracking() {
     trackBtn.addEventListener('click', handleTracking);
 }
 
-
 // ---------------- TRACKING ----------------
 
 async function handleTracking() {
@@ -23,13 +23,15 @@ async function handleTracking() {
     showSearching();
 
     try {
-        const response = await fetch(
+        const response = await fetchWithAuth(
             `${API_BASE_URL}/reports/track/${reportId}`
         );
 
         if (response.ok) {
             const data = await response.json();
-            updateTrackingUI(data.status);
+            updateTrackingUI(data);
+        } else if (response.status === 403) {
+            showAccessDenied();
         } else {
             showNotFound();
         }
@@ -52,20 +54,30 @@ function getTrackingId() {
     return reportId;
 }
 
-
 // ---------------- UI STATES ----------------
 
 function showSearching() {
     const message = document.getElementById('status-message');
     message.innerText = 'Searching...';
-    message.style.color = 'blue';
+    message.style.color = '#fff';
+    document.getElementById('progress-container').style.display = 'none';
+    document.getElementById('detailed-info').style.display = 'none';
 }
 
 function showNotFound() {
     document.getElementById('progress-container').style.display = 'none';
+    document.getElementById('detailed-info').style.display = 'none';
     const message = document.getElementById('status-message');
     message.innerText = 'Report not found. Please check the ID.';
     message.style.color = 'red';
+}
+
+function showAccessDenied() {
+    document.getElementById('progress-container').style.display = 'none';
+    document.getElementById('detailed-info').style.display = 'none';
+    const message = document.getElementById('status-message');
+    message.innerText = 'You can only track reports you personally submitted.';
+    message.style.color = 'orange';
 }
 
 function showServerError() {
@@ -74,37 +86,62 @@ function showServerError() {
     message.style.color = 'red';
 }
 
-
 // ---------------- STATUS UI ----------------
 
-function updateTrackingUI(status) {
+function updateTrackingUI(report) {
     showProgress();
 
     resetAllStatuses();
 
+    const status = report.status;
     const message = document.getElementById('status-message');
-    message.style.color = '#333';
+    message.style.color = '#fff';
 
     if (status === 'received') {
         highlight('status-received');
-        message.innerText =
-            'Report Received. We are reviewing the details.';
+        message.innerText = 'Report Received. We are reviewing the details.';
 
     } else if (status === 'in_progress' || status === 'active') {
         highlight('status-received');
         highlight('status-inprogress');
-        message.innerText =
-            'Rescue in Progress. Help is on the way!';
+        message.innerText = 'Rescue in Progress. Help is on the way!';
 
     } else if (status === 'resolved') {
         highlight('status-received');
         highlight('status-inprogress');
         highlight('status-resolved');
-        message.innerText =
-            'Resolved. The individual has been rescued or the case is closed.';
+        message.innerText = 'Resolved. The individual has been rescued.';
 
     } else {
         message.innerText = `Current Status: ${status}`;
+    }
+
+    // Show detailed info
+    const detailedInfo = document.getElementById('detailed-info');
+    detailedInfo.style.display = 'block';
+
+    document.getElementById('info-priority').textContent = report.priority.charAt(0).toUpperCase() + report.priority.slice(1);
+    document.getElementById('info-priority').style.color = getPriorityColor(report.priority);
+
+    document.getElementById('info-team-name').textContent = report.assigned_team_name || 'Assigning soon...';
+    document.getElementById('info-team-phone').textContent = report.assigned_team_phone || 'N/A';
+    document.getElementById('info-updated').textContent = new Date(report.updated_at).toLocaleString();
+
+    const rescueLocContainer = document.getElementById('rescue-location-container');
+    if (report.rescued_location) {
+        rescueLocContainer.style.display = 'block';
+        document.getElementById('info-rescue-location').textContent = report.rescued_location;
+    } else {
+        rescueLocContainer.style.display = 'none';
+    }
+}
+
+function getPriorityColor(priority) {
+    switch (priority) {
+        case 'high': return '#ff4444';
+        case 'medium': return '#ffbb33';
+        case 'low': return '#00C851';
+        default: return '#fff';
     }
 }
 

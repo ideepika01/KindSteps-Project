@@ -39,9 +39,9 @@ async function loadStats() {
     const reports = stats.reports;
 
     setText('stat-total', reports.total);
-    setText('stat-progress', reports.active);
-    setText('stat-completed', reports.completed);
-    setText('stat-pending', reports.pending);
+    setText('stat-progress', reports.in_progress || 0);
+    setText('stat-completed', reports.resolved || 0);
+    setText('stat-pending', reports.received || 0);
 }
 
 

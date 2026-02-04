@@ -60,6 +60,7 @@
             </div>
 
             <div class="dropdown-card">
+                <label class="dropdown-label">Update Status</label>
                 <select class="case-status-dropdown" id="status-dropdown">
                     <option disabled selected>Case Status</option>
                     <option value="received">Received</option>
@@ -67,6 +68,10 @@
                     <option value="active">Active</option>
                     <option value="resolved">Resolved</option>
                 </select>
+
+                <label class="dropdown-label" style="margin-top: 15px; display: block;">Field Review</label>
+                <textarea id="field-review" class="review-textarea"
+                    placeholder="Add field review details here..."></textarea>
             </div>
 
             <a href="./report_list.html" class="back-btn">Back to Dashboard</a>

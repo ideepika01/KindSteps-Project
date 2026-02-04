@@ -51,6 +51,12 @@ function showReportDetails(report) {
 
     showStatus(report.status);
     showImage(report.photo_url);
+
+    // Set field review if exists
+    const reviewEl = document.getElementById('field-review');
+    if (reviewEl && report.field_review) {
+        reviewEl.value = report.field_review;
+    }
 }
 
 function showStatus(status) {
@@ -90,31 +96,35 @@ function setupStatusUpdate(reportId, currentStatus) {
     dropdown.value = currentStatus;
 
     button.onclick = () => {
-        updateStatus(reportId, dropdown.value);
+        const review = document.getElementById('field-review').value;
+        updateStatusAndReview(reportId, dropdown.value, review);
     };
 }
 
-async function updateStatus(reportId, newStatus) {
+async function updateStatusAndReview(reportId, newStatus, fieldReview) {
     try {
         const response = await fetchWithAuth(
-            `${API_BASE_URL}/reports/${reportId}/status`,
+            `${API_BASE_URL}/reports/${reportId}`,
             {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus })
+                body: JSON.stringify({
+                    status: newStatus,
+                    field_review: fieldReview
+                })
             }
         );
 
         if (!response.ok) {
-            alert('Failed to update status.');
+            alert('Failed to update case.');
             return;
         }
 
-        alert('Status updated successfully!');
+        alert('Case updated successfully!');
         location.reload();
 
     } catch (err) {
-        console.error('Status update error:', err);
+        console.error('Update error:', err);
     }
 }
 

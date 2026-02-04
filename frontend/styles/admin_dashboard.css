@@ -1,10 +1,10 @@
 /* RESET + BASE */
 :root {
-  --blue-600: #00008B;
-  --blue-500: #1b8cff;
-  --muted: #6b7280;
+  --blue-600: #334155;
+  --blue-500: #334155;
+  --muted: #64748b;
   --card-border: #ececec;
-  --shadow: 0 6px 18px rgba(19, 23, 30, 0.06);
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 html,
@@ -54,7 +54,7 @@ body {
 }
 
 .brand {
-  color: white;
+  color: #64748b;
 }
 
 .profile {
@@ -76,7 +76,7 @@ body {
   display: grid;
   max-width: 1250px;
   margin: 25px auto;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr;
   gap: 25px;
   padding: 0 20px;
 }
@@ -210,7 +210,7 @@ body {
 
 .tag.active {
   background: #eef6ff;
-  color: #00008B;
+  color: #ffffff;
 }
 
 .tag.pending {
@@ -262,7 +262,7 @@ body {
 }
 
 .dot.blue {
-  background: #00008B;
+  background: #334155;
 }
 
 .dot.gray {
@@ -296,22 +296,24 @@ body {
 /* FOOTER */
 .page-footer {
   margin-top: 25px;
-  background: #00008B;
-  color: white;
+  background: #334155;
 }
 
 .footer-inner {
   padding: 20px 20px;
-  border-top: 1px solid #eee;
   display: flex;
   justify-content: space-between;
-  color: black;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .footer-links a {
   margin-left: 12px;
   text-decoration: none;
-  color: black;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-links a:hover {
+  color: #ffffff;
 }
 
 /* RESPONSIVE */

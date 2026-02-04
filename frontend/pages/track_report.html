@@ -53,7 +53,7 @@
 
             <div class="progress-item" id="status-inprogress">
                 <!-- <div class="progress-icon">⏳</div> -->
-                 <img src="C:\Deepika\KindSteps Project\frontend\assets\in-progress.svg" alt="this is an image">
+                <img src="C:\Deepika\KindSteps Project\frontend\assets\in-progress.svg" alt="this is an image">
                 <span>In Progress</span>
             </div>
 
@@ -69,6 +69,18 @@
         <div class="status-box" id="status-box">
             <h2>Report Status</h2>
             <p id="status-message">Please enter a valid tracking ID to view report details.</p>
+
+            <div id="detailed-info" class="detailed-info"
+                style="display:none; margin-top: 20px; text-align: left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
+                <p><strong>Priority:</strong> <span id="info-priority">...</span></p>
+                <p><strong>Assigned Team:</strong> <span id="info-team-name">...</span></p>
+                <p><strong>Team Contact:</strong> <span id="info-team-phone">...</span></p>
+                <p><strong>Last Updated:</strong> <span id="info-updated">...</span></p>
+                <div id="rescue-location-container"
+                    style="display:none; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                    <p><strong>Rescue Location:</strong> <span id="info-rescue-location">...</span></p>
+                </div>
+            </div>
         </div>
     </section>
 

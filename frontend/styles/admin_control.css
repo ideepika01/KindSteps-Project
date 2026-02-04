@@ -32,15 +32,28 @@ footer {
 
 /* TOP NAVBAR */
 .topbar {
-  background: #00008B;
-  padding: 12px 0;
-  color: #fff;
+  background: #334155;
+  padding: 20px 0;
+  color: #ffffff;
 }
 
-.navbar,
-.navbar a,
-.navbar .logo {
-  color: #fff !important;
+.top-inner .logo {
+  color: #ffffff !important;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.8) !important;
+  margin: 0 15px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.nav-links a:hover {
+  color: #ffffff !important;
 }
 
 .nav-right {
@@ -239,29 +252,31 @@ footer {
 
 /* FOOTER */
 .footer {
-  background: #00008B;
-  padding: 30px 5%;
-  border-top: 1px solid #e5e5e5;
+  background: #ffffff;
+  padding: 40px 5%;
+  border-top: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: white;
+  color: #64748b;
 }
 
 .footer-logo {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
 }
 
 .footer-links a {
   margin-left: 20px;
   text-decoration: none;
-  color: white;
+  color: #64748b;
+  font-weight: 500;
   transition: 0.3s;
 }
 
 .footer-links a:hover {
-  color: black;
+  color: #ffffff;
 }
 
 

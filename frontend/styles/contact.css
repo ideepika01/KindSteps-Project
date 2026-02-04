@@ -12,7 +12,7 @@ body {
 
 /* NAVBAR */
 .navbar {
-    background: #00008B;
+    background: #334155;
     padding: 15px 0;
     width: 100%;
 }
@@ -114,7 +114,7 @@ body {
 
 /* BUTTON */
 .btn-primary {
-    background: #00008B;
+    background: #334155;
     color: #fff;
     padding: 10px 18px;
     border: none;
@@ -161,20 +161,18 @@ body {
 
 .email-btn:hover {
     background: #eef2ff;
-    border-color: #00008B;
+    border-color: #ffffff;
 }
 
 /* FOOTER */
 .footer {
     margin-top: 80px;
     padding: 30px 5%;
-    border-top: 1px solid #e5e5e5;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #00008B;
-    color: white;
-
+    background-color: #334155;
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .footer-logo {
@@ -184,14 +182,14 @@ body {
 
 .footer-links a {
     margin-left: 20px;
-    color: white;
+    color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
     font-size: 14px;
     transition: 0.25s;
 }
 
 .footer-links a:hover {
-    color: black;
+    color: #ffffff;
 }
 
 /* RESPONSIVE */

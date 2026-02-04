@@ -132,7 +132,7 @@ async function redirectUserBasedOnRole() {
         const user = await response.json();
 
         if (user.role === 'admin') {
-            window.location.href = './pages/admin_dashboard.html';
+            window.location.href = './pages/admin_control.html';
         } else if (user.role === 'rescue_team') {
             window.location.href = './pages/report_list.html';
         } else {

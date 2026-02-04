@@ -1,10 +1,10 @@
 /* RESET + BASE (Synced with Admin) */
 :root {
-  --blue-600: #00008B;
-  --blue-500: #1b8cff;
-  --muted: #6b7280;
-  --card-border: #ececec;
-  --shadow: 0 6px 18px rgba(19, 23, 30, 0.06);
+    --blue-600: #334155;
+    --blue-500: #334155;
+    --muted: #64748b;
+    --card-border: #ececec;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 * {
@@ -14,7 +14,8 @@
     font-family: "Inter", sans-serif;
 }
 
-html, body {
+html,
+body {
     height: 100%;
 }
 
@@ -60,7 +61,7 @@ body {
     width: 90%;
     margin: 30px auto;
     display: grid;
-    grid-template-columns: 70% 30%;
+    grid-template-columns: 1fr;
     gap: 40px;
 }
 
@@ -144,8 +145,8 @@ body {
 
 /* TOP ROW: ID + PILL */
 .case-top {
-  display: flex;
-  justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
 }
 
 .case-id {
@@ -154,37 +155,57 @@ body {
 }
 
 .case-title {
-    font-size: 16px; 
+    font-size: 16px;
     font-weight: 700;
-    margin: 0; /* Override default */
+    margin: 0;
+    /* Override default */
 }
 
 /* META INFO */
 .case-meta {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  font-size: 13px;
-  color: #6b7280;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
+    color: #6b7280;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 /* PILLS (Priority) */
 .pill {
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  color: #fff;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: #fff;
 }
-.pill.red, .pill.High, .pill.high { background: #ff4d57; color: white;}
-.pill.orange, .pill.Medium, .pill.medium { background: #ffb86b; color: #553400; }
-.pill.gray, .pill.Low, .pill.low { background: #cfd4db; color: #333; }
+
+.pill.red,
+.pill.High,
+.pill.high {
+    background: #ff4d57;
+    color: #64748b;
+}
+
+.pill.orange,
+.pill.Medium,
+.pill.medium {
+    background: #ffb86b;
+    color: #553400;
+}
+
+.pill.gray,
+.pill.Low,
+.pill.low {
+    background: #cfd4db;
+    color: #333;
+}
 
 /* TAGS (Status) */
 .case-tags {
-    margin-top: auto; /* Push to bottom if flex stretch */
+    margin-top: auto;
+    /* Push to bottom if flex stretch */
 }
 
 .tag {
@@ -193,31 +214,49 @@ body {
     border-radius: 6px;
     display: inline-block;
 }
-.tag.active, .tag.Active { background: #eef6ff; color: #00008B; }
-.tag.in_progress, .tag.received { background: #fff7ed; color: #92400e; }
-.tag.resolved, .tag.Resolved { background: #f0fdf4; color: #065f46; }
+
+.tag.active,
+.tag.Active {
+    background: #eef6ff;
+    color: #ffffff;
+}
+
+.tag.in_progress,
+.tag.received {
+    background: #fff7ed;
+    color: #92400e;
+}
+
+.tag.resolved,
+.tag.Resolved {
+    background: #f0fdf4;
+    color: #065f46;
+}
 
 /* BUTTONS */
 .btn-primary {
-  background: var(--blue-500);
-  padding: 9px 12px;
-  color: #fff;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  display: inline-block;
-  text-align: center;
+    background: var(--blue-500);
+    padding: 9px 12px;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    text-align: center;
 }
 
 .btn-outline {
-  padding: 9px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #fff;
-  cursor: pointer;
-  font-weight: 500;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    font-weight: 500;
 }
-.small { font-size: 13px; }
+
+.small {
+    font-size: 13px;
+}
 
 /* RIGHT SIDEBAR */
 .right-sidebar {
@@ -225,7 +264,7 @@ body {
     flex-direction: column;
     gap: 25px;
     /* Ensure it doesn't get squashed */
-    min-width: 300px; 
+    min-width: 300px;
 }
 
 .notif-box,
@@ -275,15 +314,28 @@ body {
 
 /* RESPONSIVE */
 @media (max-width: 1200px) {
-    .dashboard-container { grid-template-columns: 1fr; }
-    .right-sidebar { display: none; /* Hide sidebar on small screens or move below? */ }
+    .dashboard-container {
+        grid-template-columns: 1fr;
+    }
+
+    .right-sidebar {
+        display: none;
+        /* Hide sidebar on small screens or move below? */
+    }
 }
 
 @media (max-width: 1000px) {
-    .cases-grid { grid-template-columns: repeat(2, 1fr); }
+    .cases-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 600px) {
-    .cases-grid { grid-template-columns: 1fr; }
-    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .cases-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
 }

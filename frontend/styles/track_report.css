@@ -22,8 +22,8 @@ body {
    NAVBAR
 ========================= */
 .navbar {
-    background: #00008B;
-    padding: 15px 0;
+    background: #334155;
+    padding: 20px 0;
 }
 
 .nav-container {
@@ -35,9 +35,10 @@ body {
 }
 
 .logo {
-    color: #fff;
-    font-size: 22px;
-    font-weight: 700;
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -1px;
 }
 
 .nav-links {
@@ -47,14 +48,14 @@ body {
 }
 
 .nav-links a {
-    color: #fff;
+    color: #ffffff;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
     transition: 0.3s;
 }
 
 .nav-links a:hover {
-    opacity: 0.75;
+    color: #ffffff;
 }
 
 /* =========================
@@ -108,18 +109,21 @@ body {
 }
 
 .track-btn {
-    background: #00008B;
+    background: #334155;
     color: #fff;
-    padding: 10px 18px;
-    border-radius: 6px;
+    padding: 10px 24px;
+    border-radius: 8px;
     border: none;
     cursor: pointer;
-    transition: 0.25s;
-    font-size: 14px;
+    transition: 0.3s;
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0, 97, 255, 0.2);
 }
 
 .track-btn:hover {
-    background: #0668d6;
+    background: #334155;
+    transform: translateY(-1px);
 }
 
 /* =========================
@@ -178,33 +182,31 @@ body {
    FOOTER
 ========================= */
 .footer {
-    background: #00008B;
+    background: #334155;
     padding: 40px 5%;
     margin-top: auto;
-    /* pushes it to bottom */
-
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    border-top: 1px solid #e5e5e5;
-    color: white;
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .footer-logo {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
 }
 
 .footer-links a {
     margin-left: 20px;
-    color: #333;
+    color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
-    transition: 0.2s;
+    font-weight: 500;
+    transition: 0.3s;
 }
 
 .footer-links a:hover {
-    color: #fff;
+    color: #ffffff;
 }
 
 /* =========================

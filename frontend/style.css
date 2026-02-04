@@ -8,6 +8,8 @@
 
 body {
     background: #ffffff;
+    color: #334155;
+    /* Muted Slate Text */
 }
 
 html,
@@ -27,66 +29,21 @@ body {
     padding: 0 20px;
 }
 
-/* UPDATE PAGE WRAPPER TO USE CONTAINER */
+/* PAGE WRAPPER */
 .page-wrapper {
     flex: 1;
-    /* pushes footer down */
     width: 100%;
     padding: 0 20px;
 }
 
-/* CENTER LOGIN CARD WITH MAX WIDTH */
-.login-card {
-    width: 100%;
-    max-width: 400px;
-    background: #00008B;
-    padding: 40px;
-    border-radius: 10px;
-    color: #fff;
-    text-align: center;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-    margin: 0 auto;
-}
-
-/* ENSURE FOOTER CONTENT IS CENTERED */
-.footer {
-    background: #00008B;
-    color: #fff;
-    text-align: center;
-    padding: 20px 5%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-
-flex: 1;
-/* pushes footer down */
-}
-
-.login-page {
-    min-height: calc(100vh - 80px);
-    /* subtract navbar + footer height if needed */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px 20px;
-}
-
-footer {
-    margin-top: auto;
-    /* forces footer to bottom */
-}
-
-
 /* NAVBAR */
 .navbar {
-    background: #00008B;
-    padding: 15px 0;
+    background: #334155;
+    /* Professional Slate Blue - Not flashy */
+    padding: 20px 0;
     width: 100%;
     color: white;
 }
-
 
 .nav-container {
     width: 90%;
@@ -96,6 +53,13 @@ footer {
     align-items: center;
 }
 
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+}
+
 .nav-links {
     list-style: none;
     display: flex;
@@ -103,15 +67,15 @@ footer {
 }
 
 .nav-links a {
-    color: #fff;
+    color: rgba(255, 255, 255, 0.85);
     text-decoration: none;
     font-size: 15px;
     font-weight: 500;
-    transition: 0.25s;
+    transition: 0.3s;
 }
 
 .nav-links a:hover {
-    opacity: 0.7;
+    color: #ffffff;
 }
 
 .nav-auth {
@@ -120,150 +84,166 @@ footer {
     gap: 15px;
 }
 
-.login-btn {
-    color: #fff;
-    font-size: 14px;
-    text-decoration: none;
-    opacity: 0.9;
-}
-
 .signup-btn {
     background: #ffffff;
-    color: #00008B;
-    padding: 7px 16px;
+    color: #334155;
+    padding: 8px 22px;
     border-radius: 6px;
     text-decoration: none;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     transition: 0.3s;
 }
 
 .signup-btn:hover {
-    background: #dcecff;
+    background: #f1f5f9;
 }
 
-/* LOGIN WRAPPER */
+/* LOGIN PAGE */
+.login-page {
+    min-height: calc(100vh - 160px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+}
+
 .login-wrapper {
     width: 100%;
     display: flex;
     justify-content: center;
-    margin: 80px 0;
 }
 
 .login-card {
-    width: 430px;
-    background: #00008B;
-    padding: 40px;
-    border-radius: 10px;
-    color: #fff;
+    width: 100%;
+    max-width: 440px;
+    background: #ffffff;
+    padding: 50px 40px;
+    border-radius: 12px;
+    color: #334155;
     text-align: center;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 20px rgba(51, 65, 85, 0.05);
+    /* Very soft slate shadow */
+    border: 1px solid #e2e8f0;
 }
 
 .login-card h1 {
-    font-size: 22px;
+    font-size: 28px;
     font-weight: 700;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
+    color: #334155;
 }
 
 /* INPUT FIELDS */
-.label {
-    text-align: left;
-}
-
 .login-card label {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
     display: block;
-    margin-top: 10px;
+    margin-top: 20px;
     text-align: left;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .input-field {
     width: 100%;
-    padding: 12px;
-    margin-top: 6px;
-    border-radius: 6px;
-    border: none;
-    font-size: 14px;
-    color: #333;
+    padding: 14px;
+    margin-top: 8px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 15px;
+    background: #ffffff;
+    color: #334155;
+    transition: 0.3s;
 }
 
-.password-box {
-    position: relative;
+.input-field:focus {
+    outline: none;
+    border-color: #334155;
 }
 
-.eye-icon {
-    position: absolute;
-    right: 12px;
-    top: 12px;
-    cursor: pointer;
-    font-size: 18px;
-    opacity: 0.8;
+.input-field::placeholder {
+    color: #94a3b8;
 }
 
 .forgot {
     display: block;
     text-align: left;
-    margin: 8px 0 20px;
-    color: #c6ddff;
-    font-size: 13px;
+    margin: 10px 0 25px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
     text-decoration: none;
+}
+
+.forgot:hover {
+    color: #334155;
+    text-decoration: underline;
 }
 
 /* LOGIN BUTTON */
 .login-submit {
     width: 100%;
-    background: #1b8cff;
-    color: #fff;
-    padding: 12px;
-    border-radius: 6px;
+    background: #334155;
+    /* Slate Blue Button - Calm & Professional */
+    color: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
     border: none;
-    font-size: 15px;
+    font-size: 16px;
+    font-weight: 700;
     cursor: pointer;
-    transition: 0.25s;
+    transition: 0.3s;
 }
 
 .login-submit:hover {
-    background: #0b6eda;
+    background: #1e293b;
+    transform: translateY(-2px);
 }
 
 .signup-text {
-    margin-top: 15px;
+    margin-top: 25px;
     font-size: 14px;
+    color: #64748b;
 }
 
 .signup-text a {
-    color: #fff;
+    color: #334155;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.signup-text a:hover {
     text-decoration: underline;
 }
 
 /* FOOTER */
 .footer {
-    background: #00008B;
-    color: #fff;
-    margin-top: 100px;
-    padding: 20px 5%;
+    background: #334155;
+    /* Slate Blue Footer */
+    color: rgba(255, 255, 255, 0.7);
+    padding: 40px 5%;
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: auto;
 }
 
 .footer-links a {
-    color: #fff;
+    color: rgba(255, 255, 255, 0.7);
     margin-left: 20px;
     font-size: 14px;
     text-decoration: none;
-    transition: 0.25s;
+    transition: 0.3s;
 }
 
 .footer-links a:hover {
-    opacity: 0.75;
+    color: white;
 }
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
-
     .nav-links {
         display: none;
     }
@@ -276,13 +256,13 @@ footer {
     }
 
     .login-card {
-        width: 90%;
-        padding: 30px;
+        width: 95%;
+        padding: 40px 25px;
     }
 
     .footer {
         flex-direction: column;
         text-align: center;
-        gap: 10px;
+        gap: 15px;
     }
 }

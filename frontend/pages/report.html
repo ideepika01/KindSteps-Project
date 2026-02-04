@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report a Vulnerable Individual</title>
     <link rel="stylesheet" href="../styles/report.css">
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 </head>
 
 <body>
@@ -31,70 +34,83 @@
             <h1>Report a Vulnerable Individual</h1>
             <p class="subtext">Your report will make a difference. Please fill all fields carefully.</p>
 
-            <!-- CONDITION -->
-            <div class="section-block">
-                <h2>What Did You See?</h2>
-                <p class="desc">Describe the individual's condition and behavior.</p>
+            <form id="report-form" class="report-grid">
 
-                <label class="label">Condition <span style="color:red">*</span></label>
-                <select id="report-condition" class="input-field" required>
-                    <option value="">Select condition</option>
-                    <option value="child">Young Child</option>
-                    <option value="mentally-challenged">Mentally Challenged Kid</option>
-                    <option value="elderly">Elderly Person</option>
-                    <option value="beggar">Beggar</option>
-                    <option value="injured">Injured Person</option>
-                    <option value="disabled">Disabled Individual</option>
-                </select>
+                <!-- COLUMN 1: INCIDENT INFO -->
+                <div class="form-column">
+                    <div class="section-block">
+                        <h2>What Did You See?</h2>
+                        <p class="desc">Describe the individual's condition and behavior.</p>
 
-                <label class="label">Detailed Description <span style="color:red">*</span></label>
-                <textarea id="report-description" class="textarea-field" placeholder="Describe what you observed..."
-                    required></textarea>
-            </div>
+                        <label class="label">Condition <span style="color:red">*</span></label>
+                        <select id="report-condition" class="input-field" required>
+                            <option value="">Select condition</option>
+                            <option value="child">Young Child</option>
+                            <option value="mentally-challenged">Mentally Challenged Kid</option>
+                            <option value="elderly">Elderly Person</option>
+                            <option value="beggar">Beggar</option>
+                            <option value="injured">Injured Person</option>
+                            <option value="disabled">Disabled Individual</option>
+                        </select>
 
-            <!-- LOCATION -->
-            <div class="section-block">
-                <h2>Where Did You See Them?</h2>
-                <p class="desc">Specify the location of the incident.</p>
+                        <label class="label">Detailed Description <span style="color:red">*</span></label>
+                        <textarea id="report-description" class="textarea-field"
+                            placeholder="Describe what you observed..." required></textarea>
+                    </div>
 
-                <label class="label">Location Address or Landmark <span style="color:red">*</span></label>
-                <input id="report-location" type="text" class="input-field"
-                    placeholder="E.g. Near bus stand, Market road…" required>
+                    <div class="section-block">
+                        <h2>Upload Photo</h2>
+                        <p class="desc">Upload an image (JPG/PNG). Max 5MB.</p>
 
+                        <div class="upload-box">
+                            <input id="report-photo" type="file" accept="image/*" required>
+                            <div class="upload-content">
+                                <div class="upload-icon">📷</div>
+                                <p>Drag & drop photo here</p>
+                            </div>
+                        </div>
 
-            </div>
-
-            <!-- UPLOAD -->
-            <div class="section-block">
-                <h2>Upload Photo</h2>
-                <p class="desc">Upload an image (JPG/PNG). Max size 5MB.</p>
-
-                <div class="upload-box">
-                    <input id="report-photo" type="file" accept="image/*" required>
-                    <div class="upload-content">
-                        <div class="upload-icon">📷</div>
-                        <p>Drag & drop photo here, or click to browse</p>
-                        <span>Supported formats: JPG, PNG (max 5MB)</span>
+                        <!-- MAP BELOW IMAGE UPLOAD -->
+                        <div class="map-section">
+                            <label class="label">Pin Location on Map</label>
+                            <div id="report-map" style="height: 250px; border-radius: 8px; border: 1px solid #ddd;">
+                            </div>
+                            <input type="hidden" id="report-lat">
+                            <input type="hidden" id="report-lng">
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- CONTACT -->
-            <div class="section-block">
-                <h2>Your Contact Information (Required)</h2>
+                <!-- COLUMN 2: CONTACT & LOCATION -->
+                <div class="form-column">
+                    <div class="section-block">
+                        <h2>Where Did You See Them?</h2>
+                        <p class="desc">Specify the location details.</p>
 
-                <label class="label">Your Name <span style="color:red">*</span></label>
-                <input id="contact-name" type="text" class="input-field" required>
+                        <label class="label">Location Address or Landmark <span style="color:red">*</span></label>
+                        <input id="report-location" type="text" class="input-field"
+                            placeholder="E.g. Near bus stand, Market road…" required>
+                    </div>
 
-                <label class="label">Email Address <span style="color:red">*</span></label>
-                <input id="contact-email" type="email" class="input-field" required>
+                    <div class="section-block">
+                        <h2>Your Contact Information</h2>
+                        <p class="desc">We may contact you for further details.</p>
 
-                <label class="label">Phone Number <span style="color:red">*</span></label>
-                <input id="contact-phone" type="tel" class="input-field" required>
-            </div>
+                        <label class="label">Your Name <span style="color:red">*</span></label>
+                        <input id="contact-name" type="text" class="input-field" required>
 
-            <!-- SUBMIT BUTTON -->
-            <button id="submit-report-btn" class="submit-btn" type="submit">Submit Report</button>
+                        <label class="label">Email Address <span style="color:red">*</span></label>
+                        <input id="contact-email" type="email" class="input-field" required>
+
+                        <label class="label">Phone Number <span style="color:red">*</span></label>
+                        <input id="contact-phone" type="tel" class="input-field" required>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <button id="submit-report-btn" class="submit-btn" type="submit">Submit Report</button>
+                </div>
+
+            </form>
 
         </div>
     </div>
@@ -112,6 +128,9 @@
     <!-- Scripts -->
     <script src="../js/config.js"></script>
     <script src="../js/utils.js"></script>
+    <!-- Leaflet Map JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="../js/report.js"></script>
 </body>
 

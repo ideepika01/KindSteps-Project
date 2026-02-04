@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     setupPhotoPreview();
     setupReportSubmit();
+    initReportMap();
 });
 
 
@@ -88,6 +89,9 @@ function getReportFormValues() {
     const contactPhone = document.getElementById('contact-phone').value;
     const photoInput = document.getElementById('report-photo');
 
+    const lat = document.getElementById('report-lat').value;
+    const lng = document.getElementById('report-lng').value;
+
     if (!condition || !description || !location || !contactName || !contactPhone) {
         return null;
     }
@@ -98,7 +102,9 @@ function getReportFormValues() {
         location,
         contactName,
         contactPhone,
-        photoInput
+        photoInput,
+        lat,
+        lng
     };
 }
 
@@ -115,5 +121,60 @@ function buildReportFormData(values) {
         formData.append('photo', values.photoInput.files[0]);
     }
 
+    if (values.lat && values.lng) {
+        formData.append('latitude', values.lat);
+        formData.append('longitude', values.lng);
+    }
+
     return formData;
+}
+
+
+// ---------------- MAP LOGIC ----------------
+
+let reportMap;
+let reportMarker;
+
+function initReportMap() {
+    const mapElement = document.getElementById('report-map');
+    if (!mapElement) return;
+
+    // Default to a central location (ensure it's valid)
+    reportMap = L.map('report-map').setView([12.9716, 77.5946], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(reportMap);
+
+    // Click to pin
+    reportMap.on('click', function (e) {
+        const { lat, lng } = e.latlng;
+        setReportMarker(lat, lng);
+    });
+
+    // Try GeoLocation
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const { latitude, longitude } = pos.coords;
+            reportMap.setView([latitude, longitude], 15);
+            setReportMarker(latitude, longitude);
+        });
+    }
+}
+
+function setReportMarker(lat, lng) {
+    if (reportMarker) {
+        reportMarker.setLatLng([lat, lng]);
+    } else {
+        reportMarker = L.marker([lat, lng], { draggable: true }).addTo(reportMap);
+        reportMarker.on('dragend', function (event) {
+            const marker = event.target;
+            const position = marker.getLatLng();
+            document.getElementById('report-lat').value = position.lat;
+            document.getElementById('report-lng').value = position.lng;
+        });
+    }
+
+    document.getElementById('report-lat').value = lat;
+    document.getElementById('report-lng').value = lng;
 }

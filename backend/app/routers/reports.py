@@ -7,7 +7,7 @@ from app.db.session import get_db
 from app.dependencies import get_current_user
 from app.models.report import Report, ReportStatus, ReportPriority
 from app.models.user import User, UserRole
-from app.schemas.report import ReportResponse, ReportStatusUpdate
+from app.schemas.report import ReportResponse, ReportStatusUpdate, ReportUpdate
 
 router = APIRouter()
 
@@ -112,20 +112,28 @@ def get_report(
 
 
 # -------- PUBLIC TRACKING --------
-@router.get("/track/{id}")
-def track_report(id: int, db: Session = Depends(get_db)):
+@router.get("/track/{id}", response_model=ReportResponse)
+def track_report(
+    id: int, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     report = db.query(Report).filter(Report.id == id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
 
-    return {"id": report.id, "status": report.status}
+    # Security check: Only owner, admin, or rescue team can track
+    if current_user.role == UserRole.user and report.reporter_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only track your own reports")
+
+    return report
 
 
-# -------- UPDATE STATUS --------
-@router.put("/{id}/status", response_model=ReportResponse)
-def update_status(
+# -------- UPDATE REPORT (ADMIN/TEAM) --------
+@router.put("/{id}", response_model=ReportResponse)
+def update_report(
     id: int,
-    status_update: ReportStatusUpdate,
+    report_update: ReportUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -136,8 +144,11 @@ def update_status(
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
 
-    report.status = status_update.status
+    # Update fields if provided
+    update_data = report_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(report, key, value)
+
     db.commit()
     db.refresh(report)
-
     return report
