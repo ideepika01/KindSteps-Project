@@ -1,3 +1,4 @@
+# Reports Router: Manages report submissions, tracking, and status updates.
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -38,6 +39,10 @@ def create_report(
 ):
     photo_url = file_to_base64(photo)
 
+    # Auto-assign to Team Alpha (team@kindsteps.com)
+    team = db.query(User).filter(User.email == "team@kindsteps.com").first()
+    team_id = team.id if team else None
+
     report = Report(
         reporter_id=current_user.id,
         condition=condition,
@@ -46,7 +51,8 @@ def create_report(
         contact_name=contact_name,
         contact_phone=contact_phone,
         priority=priority,
-        photo_url=photo_url
+        photo_url=photo_url,
+        assigned_team_id=team_id
     )
 
     db.add(report)
@@ -107,6 +113,10 @@ def get_report(
     report = db.query(Report).filter(Report.id == id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
+
+    # Security check: Only owner, admin, or rescue team can access
+    if current_user.role == UserRole.user and report.reporter_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to view this report")
 
     return report
 

@@ -1,3 +1,4 @@
+// Report Submit Logic: Captures form data and sends reports to the backend.
 // Run when the page is fully loaded
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -65,9 +66,8 @@ async function handleReportSubmit(event) {
         });
 
         if (response.ok) {
-            const data = await response.json();
-            alert(`Report submitted! ID: ${data.id}`);
-            window.location.href = './track_report.html';
+            // No alert as requested
+            window.location.href = './my_reports.html';
         } else {
             alert('Failed to submit report. Please try again.');
         }

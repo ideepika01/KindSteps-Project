@@ -1,3 +1,4 @@
+# KindSteps API: Handles core routing, database initialization, and middleware.
 import sys
 import os
 
@@ -6,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import engine, Base, SessionLocal
-from app.routers import auth, reports, admin
+from app.routers import auth, reports, admin, webinars
 from app.db.init_db import init_db
 
 app = FastAPI(title="KindSteps Support API")
@@ -22,6 +23,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(reports.router, prefix="/reports", tags=["Reports"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
+app.include_router(webinars.router, prefix="/webinars", tags=["Webinars"])
 
 @app.on_event("startup")
 def on_startup():

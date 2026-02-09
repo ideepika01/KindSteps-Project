@@ -1,3 +1,4 @@
+# Report Model: Defines the database schema for the reporting system.
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func

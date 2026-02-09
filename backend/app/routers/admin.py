@@ -1,3 +1,4 @@
+# Admin Router: Handles administrative functions and system statistics.
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session

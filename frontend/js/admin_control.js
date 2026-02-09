@@ -1,3 +1,4 @@
+// Admin Control Logic: Manages the detailed table view for rescue operations.
 document.addEventListener('DOMContentLoaded', async () => {
     const token = checkLogin();
     if (!token) return;
@@ -47,19 +48,37 @@ async function loadReports() {
             const statusClass = getStatusClass(report.status);
             const dateStr = new Date(report.updated_at || report.created_at).toLocaleString();
 
+            // Add a snippet of field review if it exists
+            const reviewSnippet = report.field_review
+                ? `<div class="review-snippet" title="${report.field_review}">${report.field_review.substring(0, 30)}${report.field_review.length > 30 ? '...' : ''}</div>`
+                : '<span class="no-review">No updates</span>';
+
             row.innerHTML = `
                 <td>RPT-${report.id.toString().padStart(5, '0')}</td>
                 <td>${report.contact_name}</td>
+                <td>${report.location}</td>
                 <td><span class="badge ${statusClass}">${report.status}</span></td>
                 <td>${report.assigned_team_name || 'Unassigned'}</td>
-                <td>${dateStr}</td>
+                <td>
+                    <div class="update-info">
+                        ${dateStr}
+                        ${reviewSnippet}
+                    </div>
+                </td>
+                <td>
+                    <button class="btn-view" onclick="viewDetails(${report.id})">View Details</button>
+                </td>
             `;
             tableBody.appendChild(row);
         });
     } catch (error) {
         console.error('Error loading reports:', error);
-        document.getElementById('report-table-body').innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Error loading reports.</td></tr>';
+        document.getElementById('report-table-body').innerHTML = '<tr><td colspan="6" style="text-align:center; color: red;">Error loading reports.</td></tr>';
     }
+}
+
+window.viewDetails = function (id) {
+    window.location.href = `./view_report.html?id=${id}`;
 }
 
 function getStatusClass(status) {

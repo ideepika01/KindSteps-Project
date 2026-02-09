@@ -18,10 +18,10 @@
             <nav>
                 <ul class="nav-links">
                     <li><a href="./main.html">Home</a></li>
-
+                    <li><a href="./report.html">Report</a></li>
+                    <li><a href="./my_reports.html">My Reports</a></li>
                     <li><a href="./about.html">About Us</a></li>
                     <li><a href="./contact.html">Contact</a></li>
-
                     <li><a href="./works.html">How it works</a></li>
                 </ul>
             </nav>
@@ -30,16 +30,16 @@
 
     <!-- MAIN SECTION -->
     <section class="track-wrapper">
-        <h1>Track Your Report Status</h1>
+        <h1>Track Report Status</h1>
         <p class="subtext">
-            Enter your unique tracking ID below to view the current progress of your report.
-            We are committed to keeping you informed every step of the way.
+            Viewing progress for your submitted report. For a full list of your submissions, please visit the
+            <a href="./my_reports.html" style="color: #64b5f6; text-decoration: none; font-weight: bold;">My Reports</a>
+            dashboard.
         </p>
 
-        <div class="track-input-box">
-            <div class="search-icon">🔍</div>
-            <input id="tracking-id-input" type="text" placeholder="Enter Tracking ID (e.g., 123)">
-            <button id="track-btn" class="track-btn">Track Status</button>
+        <!-- Removed manual input for security - user should use dashboard links -->
+        <div id="tracking-id-input-container" style="display:none;">
+            <input id="tracking-id-input" type="hidden">
         </div>
 
         <!-- Progress Tracker -->
@@ -76,8 +76,14 @@
                 <p><strong>Assigned Team:</strong> <span id="info-team-name">...</span></p>
                 <p><strong>Team Contact:</strong> <span id="info-team-phone">...</span></p>
                 <p><strong>Last Updated:</strong> <span id="info-updated">...</span></p>
-                <div id="rescue-location-container"
-                    style="display:none; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                <div class="info-item" id="field-review-container"
+                    style="display: none; grid-column: 1 / -1; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+                    <label>Team Update / Field Review</label>
+                    <p id="info-field-review" style="white-space: pre-wrap; margin-top: 5px;"></p>
+                </div>
+
+                <div class="info-item" id="rescue-location-container"
+                    style="grid-column: 1 / -1; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
                     <p><strong>Rescue Location:</strong> <span id="info-rescue-location">...</span></p>
                 </div>
             </div>

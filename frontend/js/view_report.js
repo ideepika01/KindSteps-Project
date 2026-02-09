@@ -1,3 +1,4 @@
+// Case Details Logic: Displays report information and map coordinates.
 document.addEventListener('DOMContentLoaded', async () => {
     // Block access if not logged in
     checkLogin();
@@ -44,7 +45,16 @@ function showReportDetails(report) {
     setText('case-id', `ID: RSC-${String(report.id).padStart(6, '0')}`);
     setText('case-date', `Reported: ${new Date(report.created_at).toLocaleString()}`);
 
-    setText('location-text', report.location);
+    const locationEl = document.getElementById('location-text');
+    if (locationEl) {
+        locationEl.textContent = report.location;
+        if (report.latitude && report.longitude) {
+            locationEl.innerHTML += `<br><small style="margin-top: 10px; display: block;">
+                <a href="https://www.google.com/maps?q=${report.latitude},${report.longitude}" target="_blank" style="color: #64b5f6; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                    <span>📍</span> View on Google Maps
+                </a></small>`;
+        }
+    }
     setText('summary-text', report.description);
     setText('reporter-name', report.contact_name);
     setText('reporter-phone', report.contact_phone);
@@ -52,10 +62,15 @@ function showReportDetails(report) {
     showStatus(report.status);
     showImage(report.photo_url);
 
-    // Set field review if exists
+    // Set field review and rescued location if exists
     const reviewEl = document.getElementById('field-review');
     if (reviewEl && report.field_review) {
         reviewEl.value = report.field_review;
+    }
+
+    const rescuedLocEl = document.getElementById('rescued-location');
+    if (rescuedLocEl && report.rescued_location) {
+        rescuedLocEl.value = report.rescued_location;
     }
 }
 
@@ -97,11 +112,12 @@ function setupStatusUpdate(reportId, currentStatus) {
 
     button.onclick = () => {
         const review = document.getElementById('field-review').value;
-        updateStatusAndReview(reportId, dropdown.value, review);
+        const rescuedLoc = document.getElementById('rescued-location').value;
+        updateStatusAndReview(reportId, dropdown.value, review, rescuedLoc);
     };
 }
 
-async function updateStatusAndReview(reportId, newStatus, fieldReview) {
+async function updateStatusAndReview(reportId, newStatus, fieldReview, rescuedLocation) {
     try {
         const response = await fetchWithAuth(
             `${API_BASE_URL}/reports/${reportId}`,
@@ -110,7 +126,8 @@ async function updateStatusAndReview(reportId, newStatus, fieldReview) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     status: newStatus,
-                    field_review: fieldReview
+                    field_review: fieldReview,
+                    rescued_location: rescuedLocation
                 })
             }
         );

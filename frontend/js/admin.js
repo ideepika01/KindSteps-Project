@@ -84,6 +84,7 @@ function renderReportsTable(reports, tableBody) {
             <td>${report.id}</td>
             <td>${report.condition}</td>
             <td>${report.location}</td>
+            <td>${report.assigned_team_name || 'Unassigned'}</td>
             <td>
                 <span class="status-badge ${report.status}">
                     ${report.status}
@@ -123,6 +124,7 @@ function renderCasesGrid(reports, container) {
             <ul>
                 <li>📍 ${report.location}</li>
                 <li>🕒 ${new Date(report.created_at).toLocaleString()}</li>
+                <li>👥 ${report.assigned_team_name || 'Unassigned'}</li>
             </ul>
 
             <span class="tag ${report.status}">

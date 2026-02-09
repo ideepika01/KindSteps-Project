@@ -1,8 +1,21 @@
+// Case Tracking Logic: Securely fetches status updates for a specific report.
 // Run after page loads
 document.addEventListener('DOMContentLoaded', function () {
     const token = checkLogin();
     if (!token) return;
     setupTracking();
+
+    // Auto-track if ID is in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+    if (id) {
+        const input = document.getElementById('tracking-id-input');
+        if (input) input.value = id;
+        handleTracking();
+    } else {
+        // If no ID, redirect back to list
+        window.location.href = './my_reports.html';
+    }
 });
 
 // ---------------- SETUP ----------------
@@ -125,12 +138,24 @@ function updateTrackingUI(report) {
 
     document.getElementById('info-team-name').textContent = report.assigned_team_name || 'Assigning soon...';
     document.getElementById('info-team-phone').textContent = report.assigned_team_phone || 'N/A';
-    document.getElementById('info-updated').textContent = new Date(report.updated_at).toLocaleString();
+    const updateLabel = report.status === 'resolved' ? '🚀 Rescue Completed At' : '🕒 Last Updated';
+    document.getElementById('info-updated').textContent = `${updateLabel}: ${new Date(report.updated_at).toLocaleString()}`;
+
+    // Field Review / Team Updates
+    const reviewContainer = document.getElementById('field-review-container');
+    const reviewText = document.getElementById('info-field-review');
+    if (report.field_review) {
+        if (reviewContainer) reviewContainer.style.display = 'block';
+        if (reviewText) reviewText.textContent = report.field_review;
+    } else {
+        if (reviewContainer) reviewContainer.style.display = 'none';
+    }
 
     const rescueLocContainer = document.getElementById('rescue-location-container');
     if (report.rescued_location) {
         rescueLocContainer.style.display = 'block';
-        document.getElementById('info-rescue-location').textContent = report.rescued_location;
+        const label = report.status === 'resolved' ? '✅ Rescue Destination' : '📍 Temporary Location';
+        rescueLocContainer.innerHTML = `<p><strong>${label}:</strong> <span id="info-rescue-location">${report.rescued_location}</span></p>`;
     } else {
         rescueLocContainer.style.display = 'none';
     }
