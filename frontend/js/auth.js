@@ -1,11 +1,11 @@
 // Run only after page loads
 document.addEventListener('DOMContentLoaded', function () {
 
-    const loginBtn = document.getElementById('login-btn');
+    const loginForm = document.getElementById('login-form');
     const signupBtn = document.getElementById('signup-btn');
 
-    if (loginBtn) {
-        loginBtn.addEventListener('click', handleLogin);
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
     }
 
     if (signupBtn) {

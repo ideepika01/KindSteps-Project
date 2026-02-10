@@ -14,54 +14,57 @@
     <header class="navbar">
         <div class="nav-container">
             <a href="./index.html" class="logo">KindSteps</a>
-
             <div class="nav-auth">
-                <a href="./pages/signup.html" class="signup-btn">Sign Up</a>
+                <a href="./pages/signup.html" class="signup-btn">Get Started</a>
             </div>
         </div>
     </header>
-    <div class="page-wrapper">
-        <!-- ALL your login page content goes here -->
-        <div class="login-page">
 
-            <!-- ALL form content -->
-            <section class="login-wrapper">
-                <div class="login-card" data-aos="zoom-in" data-aos-duration="1000">
+    <main class="login-page">
+        <!-- LEFT SIDE: Visual Storytelling -->
+        <section class="login-visual">
+            <div class="visual-content" data-aos="fade-right">
+                <div class="quote-box">
+                    <div class="quote-icon">“</div>
+                    <h2 id="kindness-quote">No act of kindness, no matter how small, is ever wasted.</h2>
+                    <p class="quote-author">— Aesop</p>
+                </div>
+            </div>
+        </section>
 
-                    <h1>Login to your account</h1>
+        <!-- RIGHT SIDE: Modern Login Form -->
+        <section class="login-form-side">
+            <div class="login-card" data-aos="zoom-in">
+                <h1>Welcome Back</h1>
+                <p class="subtext">Enter your credentials to access your dashboard.</p>
 
-                    <label>Email</label>
-                    <input type="email" id="login-email" placeholder="your.email@example.com" class="input-field">
-
-                    <label>Password</label>
-                    <div class="password-box">
-                        <input type="password" id="login-password" placeholder="••••••••" class="input-field password">
-
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" placeholder="name@domain.com" class="input-field" required>
                     </div>
 
-                    <a href="#" class="forgot">Forgot password?</a>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <div class="password-container">
+                            <input type="password" id="login-password" placeholder="••••••••" class="input-field"
+                                required>
+                            <button type="button" class="toggle-password" id="pw-toggle">👁️</button>
+                        </div>
+                    </div>
 
-                    <button id="login-btn" class="login-submit">Login</button>
+                    <a href="#" class="forgot">Forgot your password?</a>
 
-                    <p class="signup-text">Don't have an account? <a href="./pages/signup.html">Sign Up</a></p>
+                    <button type="submit" id="login-btn" class="login-submit">Sign In to Account</button>
+                </form>
 
+                <p class="signup-text">New to KindSteps? <a href="./pages/signup.html">Create an account</a></p>
+            </div>
+        </section>
+    </main>
 
-            </section>
-        </div>
-    </div>
-    <!-- MAIN LOGIN CARD -->
-
-
-    </div>
-    <!-- NAVBAR -->
-
-    <!-- FOOTER -->
     <footer class="footer">
-        <div class="footer-left">
-            <p>© 2025 KindSteps. All rights reserved.</p>
-        </div>
-
-
+        <p>© 2025 KindSteps • Humanity First</p>
     </footer>
 
     <!-- Scripts -->
@@ -70,12 +73,42 @@
     <script src="./js/auth.js"></script>
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
-        AOS.init({
-            duration: 800,
-            easing: 'ease-in-out',
-            once: true,
-            mirror: false
-        });
+        // AOS Animation Init
+        AOS.init({ duration: 1000, once: true });
+
+        // Password Toggle Feature
+        const pwInput = document.getElementById('login-password');
+        const pwToggle = document.getElementById('pw-toggle');
+        if (pwToggle) {
+            pwToggle.addEventListener('click', () => {
+                const type = pwInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                pwInput.setAttribute('type', type);
+                pwToggle.textContent = type === 'password' ? '👁️' : '🔒';
+            });
+        }
+
+        // Sequential Kindness Quotes
+        const quotes = [
+            { text: "No act of kindness, no matter how small, is ever wasted.", author: "Aesop" },
+            { text: "Kindness is a language which the deaf can hear and the blind can see.", author: "Mark Twain" },
+            { text: "Be kind whenever possible. It is always possible.", author: "Dalai Lama" },
+            { text: "One person can make a difference, and everyone should try.", author: "JFK" }
+        ];
+        const quoteEl = document.getElementById('kindness-quote');
+        const authorEl = document.querySelector('.quote-author');
+        let quoteIdx = 0;
+
+        setInterval(() => {
+            quoteIdx = (quoteIdx + 1) % quotes.length;
+            if (quoteEl) {
+                quoteEl.style.opacity = 0;
+                setTimeout(() => {
+                    quoteEl.textContent = quotes[quoteIdx].text;
+                    authorEl.textContent = `— ${quotes[quoteIdx].author}`;
+                    quoteEl.style.opacity = 1;
+                }, 500);
+            }
+        }, 5000);
     </script>
 </body>
 
