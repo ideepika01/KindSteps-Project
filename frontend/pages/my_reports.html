@@ -7,12 +7,13 @@
     <title>My Reports - KindSteps</title>
     <link rel="stylesheet" href="../styles/report_list.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 </head>
 
 <body>
     <header class="navbar">
         <div class="nav-container">
-            <div class="logo">KindSteps</div>
+            <a href="./main.html" class="logo">KindSteps</a>
             <nav>
                 <ul class="nav-links">
                     <li><a href="./main.html">Home</a></li>
@@ -26,7 +27,7 @@
 
     <div class="dashboard-container">
         <div class="left-content">
-            <div class="welcome-box">
+            <div class="welcome-box" data-aos="fade-down" data-aos-duration="1000">
                 <h2>My Reported Cases</h2>
                 <p>Track the status of all your submitted reports in one place.</p>
             </div>
@@ -44,6 +45,15 @@
     <script src="../js/config.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/my_reports.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
+        });
+    </script>
 </body>
 
 </html>

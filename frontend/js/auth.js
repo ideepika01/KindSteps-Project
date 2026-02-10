@@ -134,7 +134,7 @@ async function redirectUserBasedOnRole() {
         if (user.role === 'admin') {
             window.location.href = './pages/admin_control.html';
         } else if (user.role === 'rescue_team') {
-            window.location.href = './pages/report_list.html';
+            window.location.href = './pages/rescue_team.html';
         } else {
             goToMainPage();
         }

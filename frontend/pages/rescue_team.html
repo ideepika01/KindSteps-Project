@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rescue Team Dashboard - KindSteps</title>
+    <link rel="stylesheet" href="../styles/report_list.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="./rescue_team.html" class="logo">KindSteps</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="./rescue_team.html" class="active">My Assignments</a></li>
+                    <li><a href="#" onclick="logout()" style="color: #ff4d4d;">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <section class="welcome-box" data-aos="fade-down">
+            <div class="welcome-text">
+                <h2>Rescue Team Dashboard</h2>
+                <p>Welcome back! Here are the cases currently assigned to you.</p>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="overview-grid"
+            style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px;"
+            data-aos="fade-up">
+            <div class="overview-card card"
+                style="background: var(--card-bg); backdrop-filter: blur(10px); padding: 25px; border-radius: 15px; border: 1px solid var(--glass-border); text-align: center; box-shadow: var(--shadow-md);">
+                <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px;">🛡️ Total Assigned
+                </div>
+                <div id="stat-total" style="font-size: 2rem; font-weight: 700; color: var(--primary);">0</div>
+            </div>
+            <div class="overview-card card"
+                style="background: var(--card-bg); backdrop-filter: blur(10px); padding: 25px; border-radius: 15px; border: 1px solid var(--glass-border); text-align: center; box-shadow: var(--shadow-md);">
+                <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px;">⏳ In Progress
+                </div>
+                <div id="stat-progress" style="font-size: 2rem; font-weight: 700; color: var(--accent);">0</div>
+            </div>
+            <div class="overview-card card"
+                style="background: var(--card-bg); backdrop-filter: blur(10px); padding: 25px; border-radius: 15px; border: 1px solid var(--glass-border); text-align: center; box-shadow: var(--shadow-md);">
+                <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px;">✅ Resolved</div>
+                <div id="stat-resolved" style="font-size: 2rem; font-weight: 700; color: #166534;">0</div>
+            </div>
+        </section>
+
+        <h2 style="color: var(--primary); margin-bottom: 25px;" data-aos="fade-right">Assigned Reports</h2>
+
+        <div id="rescue-reports-grid" class="cases-grid">
+            <!-- Reports will be loaded here -->
+            <div style="text-align: center; color: var(--text-muted); padding: 50px; width: 100%;">
+                <p>Loading assigned cases...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/rescue_team.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+    </script>
+</body>
+
+</html>

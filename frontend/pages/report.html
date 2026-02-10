@@ -9,6 +9,7 @@
     <!-- Leaflet Map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 </head>
 
 <body>
@@ -16,7 +17,7 @@
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="logo">KindSteps</div>
+            <a href="./main.html" class="logo">KindSteps</a>
             <ul class="nav-links">
                 <li><a href="./main.html">Home</a></li>
                 <li><a href="./report.html" class="active">Report</a></li>
@@ -29,7 +30,7 @@
 
     <!-- REPORT FORM -->
     <div class="report-wrapper">
-        <div class="report-card">
+        <div class="report-card" data-aos="fade-up" data-aos-duration="1000">
 
             <h1>Report a Vulnerable Individual</h1>
             <p class="subtext">Your report will make a difference. Please fill all fields carefully.</p>
@@ -65,7 +66,7 @@
                         <div class="upload-box">
                             <input id="report-photo" type="file" accept="image/*" required>
                             <div class="upload-content">
-                                <div class="upload-icon">📷</div>
+
                                 <p>Drag & drop photo here</p>
                             </div>
                         </div>
@@ -132,6 +133,15 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="../js/report.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
+        });
+    </script>
 </body>
 
 </html>

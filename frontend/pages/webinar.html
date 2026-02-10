@@ -7,12 +7,13 @@
     <title>Webinars - KindSteps</title>
     <link rel="stylesheet" href="../styles/webinar.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 </head>
 
 <body>
     <header class="navbar">
         <div class="nav-container">
-            <div class="logo">KindSteps</div>
+            <a href="./main.html" class="logo">KindSteps</a>
             <nav>
                 <ul class="nav-links">
                     <li><a href="./main.html">Home</a></li>
@@ -26,24 +27,25 @@
     </header>
 
     <main class="webinar-page">
-        <section class="webinar-hero">
+        <section class="webinar-hero" data-aos="fade-in">
             <div class="hero-overlay"></div>
             <img src="../../.gemini/antigravity/brain/a5e15e91-b5de-44ca-9e79-a7ad94a07080/webinar_banner_1770084471953.png"
                 alt="Webinar Banner" class="hero-img">
             <div class="hero-text">
-                <h1>KindSteps Community Webinars</h1>
-                <p>Learn how to make a difference in your community through our expert-led sessions.</p>
+                <h1 data-aos="fade-up" data-aos-delay="200">KindSteps Community Webinars</h1>
+                <p data-aos="fade-up" data-aos-delay="400">Learn how to make a difference in your community through our
+                    expert-led sessions.</p>
             </div>
         </section>
 
-        <section class="webinar-list container">
+        <section class="webinar-list container" data-aos="fade-up">
             <div class="section-header">
                 <h2>Upcoming Webinars</h2>
                 <p>Join our live sessions and interact with rescue professionals.</p>
             </div>
 
             <div class="webinar-grid">
-                <div class="webinar-card">
+                <div class="webinar-card" data-aos="zoom-in" data-aos-delay="100">
                     <div class="card-badge">LIVE OCT 26</div>
                     <div class="card-content">
                         <h3>Compassionate Intervention</h3>
@@ -57,7 +59,7 @@
                     </div>
                 </div>
 
-                <div class="webinar-card">
+                <div class="webinar-card" data-aos="zoom-in" data-aos-delay="200">
                     <div class="card-badge">NOV 10</div>
                     <div class="card-content">
                         <h3>Community Resilience</h3>
@@ -72,7 +74,7 @@
             </div>
         </section>
 
-        <section class="past-webinars container">
+        <section class="past-webinars container" data-aos="fade-up">
             <div class="section-header">
                 <h2>Watch Past Sessions</h2>
             </div>
@@ -99,7 +101,17 @@
         </div>
     </footer>
     <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
     <script src="../js/webinar.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
+        });
+    </script>
 </body>
 
 </html>

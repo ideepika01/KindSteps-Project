@@ -22,11 +22,20 @@ body {
 }
 
 .nav-container {
-    width: 90%;
+    width: 95%;
+    max-width: 1600px;
     margin: auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.logo {
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-decoration: none;
+    letter-spacing: -0.5px;
 }
 
 .nav-links {
@@ -99,7 +108,7 @@ body {
 .signup-card h1 {
     font-size: 28px;
     font-weight: 800;
-    color: #ffffff;
+    color: #1e293b;
     margin-bottom: 10px;
     letter-spacing: -0.5px;
 }
@@ -133,7 +142,7 @@ body {
 }
 
 .input-field:focus {
-    border-color: #ffffff;
+    border-color: #334155;
     background: #fff;
 }
 
@@ -186,13 +195,13 @@ body {
 
 /* FOOTER */
 .footer {
-    background: #ffffff;
+    background: #334155;
     color: rgba(255, 255, 255, 0.6);
     padding: 40px 5%;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .footer-links a {

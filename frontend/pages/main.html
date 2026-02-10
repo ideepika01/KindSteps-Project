@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 </head>
 
 <body>
@@ -16,7 +17,7 @@
     <!-- Navbar -->
     <header class="navbar">
         <div class="nav-container">
-            <div class="logo">KindSteps</div>
+            <a href="./main.html" class="logo">KindSteps</a>
             <nav>
                 <ul class="nav-links">
 
@@ -33,32 +34,33 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="hero">
+    <section class="hero" data-aos="fade-in">
         <div class="hero-overlay"></div>
-        <img src="../assets/mentally challenged kid.jpg" class="hero-bg" alt="Hero Image">
-        <div class="hero-content">
+        <img src="../assets/ks-profile.jpg" class="hero-bg" alt="Hero Image">
+        <div class="hero-content" data-aos="fade-up" data-aos-delay="200">
             <h1>A Step Towards a Kinder Future</h1>
             <p>KindSteps is dedicated to locating and assisting vulnerable individuals, especially children, through
                 compassionate reporting and community action. Join us in making a difference.</p>
-            <a href="./report.html" class="report-btn">Report Now</a>
+            <a href="./report.html" class="report-btn">Report a Case</a>
         </div>
     </section>
 
     <!-- How We Help -->
-    <section class="help-section">
+    <section class="help-section" data-aos="fade-up">
         <h2>How We Help</h2>
-
         <div class="help-cards">
-            <div class="help-card">
-                <div class="icon">🛡️</div>
+            <div class="help-card" data-aos="fade-right" data-aos-delay="100">
+
                 <h3>Identification & Reporting</h3>
+                <br />
                 <p>Our platform provides an easy and confidential way for anyone to report vulnerable individuals in
                     need. Your reports directly lead to intervention.</p>
             </div>
 
-            <div class="help-card">
-                <div class="icon">💙</div>
+            <div class="help-card" data-aos="fade-left" data-aos-delay="200">
+
                 <h3>Rescue & Care</h3>
+                <br />
                 <p>Once a report is filed, our network of trained volunteers and partners swiftly mobilizes to provide
                     immediate assistance, care, and safe placement.</p>
             </div>
@@ -66,25 +68,25 @@
     </section>
 
     <!-- Impact Section -->
-    <section class="impact">
+    <section class="impact" data-aos="fade-up">
         <h2>Our Impact So Far</h2>
 
         <div class="impact-stats">
 
-            <div class="stat-box">
-                <div class="stat-icon">📄</div>
+            <div class="stat-box" data-aos="zoom-in" data-aos-delay="100">
+
                 <h3>2,145+</h3>
                 <p>Reports Filed</p>
             </div>
 
-            <div class="stat-box">
-                <div class="stat-icon">🧒</div>
+            <div class="stat-box" data-aos="zoom-in" data-aos-delay="200">
+
                 <h3>876+</h3>
                 <p>Individuals Rescued</p>
             </div>
 
-            <div class="stat-box">
-                <div class="stat-icon">⚖️</div>
+            <div class="stat-box" data-aos="zoom-in" data-aos-delay="300">
+
                 <h3>120+</h3>
                 <p>Active Volunteers</p>
             </div>
@@ -92,20 +94,20 @@
     </section>
 
     <!-- Get Involved -->
-    <section class="involved">
+    <section class="involved" data-aos="fade-up">
         <h2>Ways to Get Involved</h2>
 
         <div class="involved-cards">
 
-            <div class="involved-card">
-                <div class="icon">⭐</div>
+            <div class="involved-card" data-aos="fade-right" data-aos-delay="100">
+
                 <h3>About Us</h3>
                 <p>Join our dedicated team and contribute your time and skills to directly impact lives.</p>
                 <a href="../pages/about.html" class="card-btn">Join Us</a>
             </div>
 
-            <div class="involved-card">
-                <div class="icon">📘</div>
+            <div class="involved-card" data-aos="fade-left" data-aos-delay="200">
+
                 <h3>Learn & Educate</h3>
                 <p>Discover resources and guidance on how to kindly and safely interact with vulnerable populations in
                     your community.</p>
@@ -129,6 +131,32 @@
         </div>
     </footer>
 
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        // Check login and auto-redirect if admin/team hits this page accidentally
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = getToken();
+            if (token) {
+                try {
+                    const res = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
+                    if (res.ok) {
+                        const user = await res.json();
+                        if (user.role === 'admin') window.location.href = './admin_control.html';
+                        else if (user.role === 'rescue_team') window.location.href = './report_list.html';
+                    }
+                } catch (e) { }
+            }
+        });
+
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
+        });
+    </script>
 </body>
 
 </html>

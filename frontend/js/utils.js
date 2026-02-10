@@ -56,3 +56,53 @@ async function fetchWithAuth(url, options = {}) {
 
     return response;
 }
+
+
+// ---------------- DYNAMIC NAVBAR ----------------
+
+async function setupDynamicNavbar() {
+    const token = getToken();
+    if (!token) return;
+
+    try {
+        // We use a simple cache or just fetch it. Fetching is safer.
+        const response = await fetchWithAuth(`${typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://localhost:8000'}/auth/me`);
+        if (!response.ok) return;
+
+        const user = await response.json();
+
+        // Update Brand/Logo links
+        const logoLinks = document.querySelectorAll('.logo, .brand');
+        logoLinks.forEach(link => {
+            if (link.tagName === 'A') {
+                link.href = getDashboardUrl(user.role);
+            }
+        });
+
+        // Update Nav "Home" or "Dashboard" links
+        const navLinks = document.querySelectorAll('.nav-links a, .nav-links li a');
+        navLinks.forEach(link => {
+            if (link.textContent.toLowerCase() === 'home' || link.textContent.toLowerCase() === 'dashboard') {
+                link.href = getDashboardUrl(user.role);
+            }
+        });
+
+    } catch (error) {
+        console.error('Error setting up dynamic navbar:', error);
+    }
+}
+
+function getDashboardUrl(role) {
+    const isInsidePages = window.location.pathname.includes('/pages/');
+    const prefix = isInsidePages ? './' : './pages/';
+
+    // If we're already in pages, some links might need ../ if they aren't in same dir
+    // But for simplicity, let's assume all main dashboards are in /pages/
+
+    if (role === 'admin') return prefix + 'admin_control.html';
+    if (role === 'rescue_team') return prefix + 'rescue_team.html';
+    return prefix + 'main.html';
+}
+
+// Auto-run if possible or let pages call it
+document.addEventListener('DOMContentLoaded', setupDynamicNavbar);

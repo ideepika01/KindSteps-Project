@@ -1,33 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Safety Tips - KindSteps</title>
     <link rel="stylesheet" href="../styles/works.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 </head>
+
 <body>
 
     <!-- NAVBAR -->
     <header class="navbar">
         <div class="nav-container">
-            <div class="logo">KindSteps</div>
+            <a href="./main.html" class="logo">KindSteps</a>
             <ul class="nav-links">
                 <li><a href="./main.html">Home</a></li>
-                
+
                 <li><a href="./about.html">About Us</a></li>
                 <li><a href="./contact.html">Contact</a></li>
-                
+
             </ul>
         </div>
     </header>
 
     <!-- HERO SECTION -->
-    <section class="hero">
-        <h1>Empathetic Engagement: Safety Tips</h1>
-        <p>
-            Interacting with vulnerable individuals requires sensitivity, respect, and awareness. 
+    <section class="hero" data-aos="fade-in">
+        <h1 data-aos="fade-up" data-aos-delay="200">Empathetic Engagement: Safety Tips</h1>
+        <p data-aos="fade-up" data-aos-delay="400">
+            Interacting with vulnerable individuals requires sensitivity, respect, and awareness.
             Here are guidelines to ensure both their safety and yours, while offering effective assistance.
         </p>
     </section>
@@ -42,8 +45,8 @@
                 <div class="icon">🧭</div>
                 <h3>Understand Their Situation</h3>
                 <p>
-                    Approach with an open mind, recognizing that vulnerable individuals may be facing complex 
-                    challenges like mental health issues, homelessness, or past trauma. Avoid judgment and 
+                    Approach with an open mind, recognizing that vulnerable individuals may be facing complex
+                    challenges like mental health issues, homelessness, or past trauma. Avoid judgment and
                     seek to understand their needs.
                 </p>
             </div>
@@ -53,7 +56,7 @@
                 <div class="icon">💬</div>
                 <h3>Communicate with Respect</h3>
                 <p>
-                    Use a calm, gentle tone of voice and simple language. Make eye contact if appropriate, 
+                    Use a calm, gentle tone of voice and simple language. Make eye contact if appropriate,
                     but respect their personal space. Ask how you can help, rather than making assumptions.
                 </p>
             </div>
@@ -63,7 +66,7 @@
                 <div class="icon">⚠️</div>
                 <h3>Prioritize Your Safety First</h3>
                 <p>
-                    Always assess the situation to ensure your own safety. If you feel uncomfortable or unsafe, 
+                    Always assess the situation to ensure your own safety. If you feel uncomfortable or unsafe,
                     maintain a safe distance and consider contacting authorities or KindSteps.
                 </p>
             </div>
@@ -73,7 +76,7 @@
                 <div class="icon">👂</div>
                 <h3>Listen Actively and Patiently</h3>
                 <p>
-                    Give them your full attention without interrupting. Show empathy and validate their feelings. 
+                    Give them your full attention without interrupting. Show empathy and validate their feelings.
                     Even if you can't solve their problems, a listening ear can provide comfort.
                 </p>
             </div>
@@ -83,7 +86,7 @@
                 <div class="icon">🤝</div>
                 <h3>Offer Practical Assistance</h3>
                 <p>
-                    If safe and appropriate, offer immediate help such as water, food, or a warm blanket. 
+                    If safe and appropriate, offer immediate help such as water, food, or a warm blanket.
                     Be specific and avoid making promises you cannot keep.
                 </p>
             </div>
@@ -93,7 +96,7 @@
                 <div class="icon">📍</div>
                 <h3>Accurate Reporting to KindSteps</h3>
                 <p>
-                    Provide as much detail as possible: location, time, appearance, and any specific needs observed. 
+                    Provide as much detail as possible: location, time, appearance, and any specific needs observed.
                     Photos can also be helpful.
                 </p>
             </div>
@@ -103,7 +106,7 @@
                 <div class="icon">👀</div>
                 <h3>Observe Without Staring</h3>
                 <p>
-                    Observe from a respectful distance without making them feel scrutinized. 
+                    Observe from a respectful distance without making them feel scrutinized.
                     Gather information discreetly for a report.
                 </p>
             </div>
@@ -113,7 +116,7 @@
                 <div class="icon">🏥</div>
                 <h3>Encourage Professional Help</h3>
                 <p>
-                    If the person is in danger, contact emergency services. Otherwise, suggest reaching 
+                    If the person is in danger, contact emergency services. Otherwise, suggest reaching
                     out to shelters or mental health organizations.
                 </p>
             </div>
@@ -123,7 +126,7 @@
                 <div class="icon">📘</div>
                 <h3>Educate Yourself Continually</h3>
                 <p>
-                    Learn more about homelessness, mental illness, and vulnerabilities. Ongoing learning 
+                    Learn more about homelessness, mental illness, and vulnerabilities. Ongoing learning
                     equips you to care compassionately.
                 </p>
             </div>
@@ -141,9 +144,21 @@
         <div class="footer-links">
             <a href="./about.html">About Us</a>
             <a href="./contact.html">Contact</a>
-            
+
         </div>
     </footer>
 
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
+        });
+    </script>
 </body>
+
 </html>

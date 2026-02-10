@@ -1,272 +1,230 @@
-/* =========================
-   GLOBAL RESET
-========================= */
+/* =========================================
+   MODERN DESIGN SYSTEM
+   ========================================= */
+:root {
+    --primary: #334155;
+    --accent: #6366f1;
+    --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Inter", sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 body {
-    background: #fff;
-    color: #222;
-
-    /* Push footer to bottom */
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
 }
 
-/* =========================
+/* =========================================
    NAVBAR
-========================= */
+   ========================================= */
 .navbar {
-    background: #334155;
-    padding: 20px 0;
+    background: rgba(51, 65, 85, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .nav-container {
-    width: 90%;
-    margin: auto;
+    width: 95%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .logo {
-    color: #ffffff;
-    font-size: 26px;
+    color: #fff;
+    font-size: 1.5rem;
     font-weight: 800;
-    letter-spacing: -1px;
+    text-decoration: none;
+    transition: var(--transition);
 }
 
 .nav-links {
     display: flex;
+    gap: 2rem;
     list-style: none;
-    gap: 28px;
 }
 
 .nav-links a {
-    color: #ffffff;
+    color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
-    font-weight: 600;
-    transition: 0.3s;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: var(--transition);
 }
 
 .nav-links a:hover {
-    color: #ffffff;
+    color: #fff;
 }
 
-/* =========================
-   MAIN WRAPPER
-========================= */
+/* =========================================
+   TRACKING CONTENT
+   ========================================= */
 .track-wrapper {
-    width: 80%;
-    margin: 60px auto;
+    max-width: 900px;
+    margin: 4rem auto;
+    padding: 0 2rem;
     text-align: center;
+    flex: 1;
+    animation: fadeIn 0.8s ease-out;
 }
 
 .track-wrapper h1 {
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 8px;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
 }
 
 .subtext {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 35px;
+    color: var(--text-muted);
+    margin-bottom: 3rem;
 }
 
-/* =========================
-   SEARCH INPUT + BUTTON
-========================= */
-.track-input-box {
-    width: 60%;
-    margin: auto;
-    display: flex;
-    align-items: center;
-    padding: 10px 12px;
-
-    border: 1px solid #d6d6d6;
-    border-radius: 8px;
-
-    background: #fff;
-}
-
-.search-icon {
-    font-size: 18px;
-    margin-right: 10px;
-    opacity: 0.7;
-}
-
-.track-input-box input {
-    flex: 1;
-    border: none;
-    font-size: 14px;
-    outline: none;
-}
-
-.track-btn {
-    background: #334155;
-    color: #fff;
-    padding: 10px 24px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition: 0.3s;
-    font-size: 15px;
-    font-weight: 700;
-    box-shadow: 0 4px 10px rgba(0, 97, 255, 0.2);
-}
-
-.track-btn:hover {
-    background: #334155;
-    transform: translateY(-1px);
-}
-
-/* =========================
-   PROGRESS BAR
-========================= */
+/* Progress Stepper */
 .progress-container {
-    width: 80%;
-    margin: 60px auto 40px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin: 4rem 0;
+    background: var(--card-bg);
+    padding: 3rem;
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .progress-item {
-    width: 120px;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    position: relative;
+    z-index: 1;
 }
 
 .progress-icon {
-    font-size: 28px;
-    margin-bottom: 8px;
+    width: 60px;
+    height: 60px;
+    background: #fff;
+    border: 3px solid #e2e8f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: var(--transition);
 }
 
-.progress-item span {
-    font-size: 14px;
-    color: #444;
+.progress-item img {
+    width: 60px;
+    height: 60px;
+    border: 3px solid #e2e8f0;
+    border-radius: 50%;
+    padding: 10px;
+    background: #fff;
+}
+
+.progress-item.highlight .progress-icon,
+.progress-item.highlight img {
+    border-color: var(--accent);
+    background: rgba(99, 102, 241, 0.1);
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
 }
 
 .progress-line {
     flex: 1;
-    height: 3px;
-    background: #dcdcdc;
-    margin: 0 10px;
-    border-radius: 3px;
+    height: 4px;
+    background: #e2e8f0;
+    margin: 0 -30px;
+    margin-top: -35px;
 }
 
-/* =========================
-   STATUS BOX
-========================= */
-.status-box {
-    width: 60%;
-    margin: 40px auto;
-    padding: 40px;
+.progress-line.highlight {
+    background: var(--accent);
+}
 
+/* Status Card */
+.status-box {
     background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 3rem;
+    border-radius: 24px;
+    text-align: left;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+    margin-top: 2rem;
+    border: 1px solid var(--glass-border);
 }
 
 .status-box h2 {
-    font-size: 22px;
-    margin-bottom: 10px;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+    font-weight: 800;
 }
 
-/* =========================
-   FOOTER
-========================= */
-.footer {
-    background: #334155;
-    padding: 40px 5%;
-    margin-top: auto;
+#status-message {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    color: var(--text-main);
+}
+
+.detailed-info {
+    display: grid;
+    gap: 1rem;
+}
+
+#detailed-info p {
+    margin-bottom: 0.75rem;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    color: rgba(255, 255, 255, 0.7);
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 0.75rem;
+    color: var(--text-main);
 }
 
-.footer-logo {
-    font-size: 22px;
-    font-weight: 800;
-    color: #ffffff;
-}
-
-.footer-links a {
-    margin-left: 20px;
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
+#detailed-info p strong {
+    color: var(--text-muted);
     font-weight: 500;
-    transition: 0.3s;
 }
 
-.footer-links a:hover {
-    color: #ffffff;
-}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
 
-/* =========================
-   RESPONSIVE (TABLET + MOBILE)
-========================= */
-
-/* Tablet */
-@media (max-width: 1000px) {
-
-    .track-input-box,
-    .status-box {
-        width: 80%;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* Mobile */
-@media (max-width: 768px) {
-
-    /* Hide desktop nav */
-    .nav-links {
-        display: none;
-    }
-
-    /* Hamburger icon */
-    .navbar::after {
-        content: "☰";
-        color: #fff;
-        font-size: 26px;
-        margin-right: 20px;
-        cursor: pointer;
-    }
-
-    .track-wrapper {
-        width: 90%;
-    }
-
-    .track-input-box {
-        width: 100%;
-    }
-
-    /* Vertical progress steps */
-    .progress-container {
-        flex-direction: column;
-        gap: 25px;
-    }
-
-    .progress-line {
-        width: 3px;
-        height: 60px;
-        /* rotated line */
-    }
-
-    .status-box {
-        width: 100%;
-        padding: 30px;
-    }
-
-    .footer {
-        flex-direction: column;
-        text-align: center;
-        gap: 12px;
-    }
+.footer {
+    background: var(--primary);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 3rem 0;
+    text-align: center;
 }

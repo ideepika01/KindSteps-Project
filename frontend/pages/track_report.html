@@ -7,6 +7,7 @@
     <title>Track Report Status - KindSteps</title>
     <link rel="stylesheet" href="../styles/track_report.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 </head>
 
 <body>
@@ -14,7 +15,7 @@
     <!-- NAVBAR -->
     <header class="navbar">
         <div class="nav-container">
-            <div class="logo">KindSteps</div>
+            <a href="./main.html" class="logo">KindSteps</a>
             <nav>
                 <ul class="nav-links">
                     <li><a href="./main.html">Home</a></li>
@@ -29,7 +30,7 @@
     </header>
 
     <!-- MAIN SECTION -->
-    <section class="track-wrapper">
+    <section class="track-wrapper" data-aos="fade-up">
         <h1>Track Report Status</h1>
         <p class="subtext">
             Viewing progress for your submitted report. For a full list of your submissions, please visit the
@@ -43,7 +44,7 @@
         </div>
 
         <!-- Progress Tracker -->
-        <div class="progress-container" id="progress-container" style="display:none;">
+        <div class="progress-container" id="progress-container" style="display:none;" data-aos="fade-in">
             <div class="progress-item" id="status-received">
                 <div class="progress-icon">📥</div>
                 <span>Received</span>
@@ -66,7 +67,7 @@
         </div>
 
         <!-- STATUS BOX -->
-        <div class="status-box" id="status-box">
+        <div class="status-box" id="status-box" data-aos="zoom-in" data-aos-duration="1000">
             <h2>Report Status</h2>
             <p id="status-message">Please enter a valid tracking ID to view report details.</p>
 
@@ -97,17 +98,22 @@
             <p>© 2025 KindSteps. All rights reserved.</p>
         </div>
 
-        <div class="footer-links">
-            <a href="./about.html">About Us</a>
-            <a href="./contact.html">Contact</a>
 
-        </div>
     </footer>
 
     <!-- Scripts -->
     <script src="../js/config.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/track.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
+        });
+    </script>
 </body>
 
 </html>

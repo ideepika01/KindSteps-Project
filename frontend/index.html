@@ -7,16 +7,13 @@
     <title>Login - KindSteps</title>
     <link rel="stylesheet" href="./style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 </head>
 
 <body>
     <header class="navbar">
         <div class="nav-container">
-            <div class="logo">KindSteps</div>
-            <ul class="nav-links">
-                <li><a href="./pages/about.html">About Us</a></li>
-                <li><a href="./pages/works.html">How it Works</a></li>
-            </ul>
+            <a href="./index.html" class="logo">KindSteps</a>
 
             <div class="nav-auth">
                 <a href="./pages/signup.html" class="signup-btn">Sign Up</a>
@@ -29,7 +26,7 @@
 
             <!-- ALL form content -->
             <section class="login-wrapper">
-                <div class="login-card">
+                <div class="login-card" data-aos="zoom-in" data-aos-duration="1000">
 
                     <h1>Login to your account</h1>
 
@@ -71,6 +68,15 @@
     <script src="./js/config.js"></script>
     <script src="./js/utils.js"></script>
     <script src="./js/auth.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
+        });
+    </script>
 </body>
 
 </html>

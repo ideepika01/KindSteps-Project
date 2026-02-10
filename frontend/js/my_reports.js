@@ -18,6 +18,8 @@ async function loadMyReports() {
 
         const reports = await response.json();
         renderMyReports(reports, container);
+        // Refresh AOS for dynamic content
+        if (window.AOS) AOS.refresh();
 
     } catch (error) {
         console.error('My Reports error:', error);
@@ -46,6 +48,7 @@ function renderMyReports(reports, container) {
 function createReportCard(report) {
     const card = document.createElement('article');
     card.className = 'case-card card';
+    card.setAttribute('data-aos', 'fade-up');
 
     const date = new Date(report.created_at).toLocaleString();
 

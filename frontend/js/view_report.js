@@ -8,8 +8,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!reportId) {
         alert('No Report ID found.');
-        window.location.href = './admin_dashboard.html';
+        window.location.href = './main.html';
         return;
+    }
+
+    // Setup Dynamic Back Button
+    const backBtn = document.getElementById('back-to-dash');
+    if (backBtn) {
+        backBtn.onclick = async (e) => {
+            e.preventDefault();
+            try {
+                const res = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
+                if (res.ok) {
+                    const user = await res.json();
+                    if (user.role === 'admin') window.location.href = './admin_control.html';
+                    else if (user.role === 'rescue_team') window.location.href = './rescue_team.html';
+                    else window.location.href = './my_reports.html';
+                } else {
+                    window.location.href = './main.html';
+                }
+            } catch (e) {
+                window.location.href = './main.html';
+            }
+        };
     }
 
     loadReport(reportId);

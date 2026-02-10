@@ -17,7 +17,8 @@ body {
 }
 
 .nav-container {
-  width: 90%;
+  width: 95%;
+  max-width: 1600px;
   margin: auto;
   display: flex;
   justify-content: space-between;

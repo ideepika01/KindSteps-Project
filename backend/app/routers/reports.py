@@ -66,16 +66,24 @@ def create_report(
 @router.get("/", response_model=List[ReportResponse])
 def list_reports(
     status: Optional[ReportStatus] = None,
+    all_reports: bool = False,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Normal users see only their reports
-    if current_user.role == UserRole.user:
+    # Default behavior: Show only the user's own reports
+    # This prevents users (even admins) from seeing everything in their personal dashboard
+    if not all_reports:
         return db.query(Report)\
                  .filter(Report.reporter_id == current_user.id)\
                  .all()
 
-    # Admin / Rescue Team see all
+    # If all_reports=true is requested, check permissions
+    if current_user.role not in [UserRole.admin, UserRole.rescue_team]:
+        raise HTTPException(
+            status_code=403, 
+            detail="You do not have permission to view all reports"
+        )
+
     query = db.query(Report)
     if status:
         query = query.filter(Report.status == status)
@@ -100,6 +108,7 @@ def my_assignments(
 
     return db.query(Report)\
              .filter(Report.status.in_(active_statuses))\
+             .filter(Report.assigned_team_id == current_user.id)\
              .all()
 
 
