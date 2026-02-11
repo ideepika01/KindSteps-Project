@@ -63,7 +63,9 @@ def run_migrations():
                 ("longitude", "VARCHAR"),
                 ("assigned_team_id", "INTEGER"),
                 ("rescued_location", "VARCHAR"),
-                ("field_review", "TEXT")
+                ("field_review", "TEXT"),
+                ("created_at", "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP"),
+                ("updated_at", "TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP")
             ]
             for col_name, col_type in columns:
                 try:
