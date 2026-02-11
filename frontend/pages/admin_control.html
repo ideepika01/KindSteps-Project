@@ -60,8 +60,26 @@
 
         <div class="content-header">
           <h1>Admin Control Panel</h1>
-          <div class="search-box">
-            <input type="text" placeholder="Search reports, users, or cases…">
+          <div class="header-actions" style="display: flex; gap: 15px; align-items: center;">
+            <div class="filter-group" style="display: flex; gap: 10px; align-items: center;">
+              <input type="date" id="start-date"
+                style="padding: 10px 15px; border-radius: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; outline: none; font-size: 0.85rem;">
+              <span style="color: #666;">to</span>
+              <input type="date" id="end-date"
+                style="padding: 10px 15px; border-radius: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; outline: none; font-size: 0.85rem;">
+
+              <select id="status-filter"
+                style="padding: 10px 15px; border-radius: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; outline: none; font-size: 0.85rem;">
+                <option value="all">Every Status</option>
+                <option value="received">New/Received</option>
+                <option value="active">Active Cases</option>
+                <option value="in_progress">In-Progress</option>
+                <option value="resolved">Resolved/Closed</option>
+              </select>
+            </div>
+            <div class="search-box">
+              <input type="text" id="admin-search" placeholder="Search reports, users, or cases…">
+            </div>
           </div>
         </div>
 

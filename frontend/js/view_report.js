@@ -99,7 +99,8 @@ function showStatus(status) {
     const statusEl = document.getElementById('case-status-text');
     if (!statusEl) return;
 
-    statusEl.innerHTML = `Status: <span class="tag ${status}">${status}</span>`;
+    const displayStatus = status || 'received';
+    statusEl.innerHTML = `Status: <span class="tag ${displayStatus}">${displayStatus}</span>`;
 }
 
 function showImage(photoUrl) {

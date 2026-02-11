@@ -43,9 +43,9 @@ async function loadDashboardData() {
 
 function updateStats(reports) {
     setText('stat-total', reports.total);
-    setText('stat-progress', reports.active);
-    setText('stat-completed', reports.completed);
-    setText('stat-pending', reports.pending);
+    setText('stat-progress', reports.active + reports.in_progress);
+    setText('stat-completed', reports.resolved);
+    setText('stat-pending', reports.received);
 }
 
 function setText(id, value) {

@@ -74,7 +74,8 @@ body {
 .dashboard-layout {
   flex: 1;
   display: grid;
-  max-width: 1250px;
+  width: 95%;
+  max-width: 1800px;
   margin: 25px auto;
   grid-template-columns: 1fr;
   gap: 25px;

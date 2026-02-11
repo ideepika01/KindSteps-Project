@@ -17,7 +17,7 @@
             <nav>
                 <ul class="nav-links">
                     <li><a href="./rescue_team.html" class="active">My Assignments</a></li>
-                    <li><a href="#" onclick="logout()" style="color: #ff4d4d;">Logout</a></li>
+                    <li><a href="../index.html" onclick="logout()" style="color: #ff4d4d;">Logout</a></li>
                 </ul>
             </nav>
         </div>
@@ -54,7 +54,24 @@
             </div>
         </section>
 
-        <h2 style="color: var(--primary); margin-bottom: 25px;" data-aos="fade-right">Assigned Reports</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h2 style="color: var(--primary); margin: 0;" data-aos="fade-right">Assigned Reports</h2>
+            <div class="filter-group" data-aos="fade-left" style="display: flex; gap: 15px; align-items: center;">
+                <input type="date" id="start-date"
+                    style="padding: 10px 15px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--card-bg); color: var(--text-main); font-weight: 500; cursor: pointer; outline: none;">
+                <span style="color: var(--text-muted); font-size: 0.9rem;">to</span>
+                <input type="date" id="end-date"
+                    style="padding: 10px 15px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--card-bg); color: var(--text-main); font-weight: 500; cursor: pointer; outline: none;">
+
+                <select id="status-filter"
+                    style="padding: 10px 15px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--card-bg); color: var(--text-main); font-weight: 500; cursor: pointer; outline: none;">
+                    <option value="all">All Statuses</option>
+                    <option value="received">New / Received</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                </select>
+            </div>
+        </div>
 
         <div id="rescue-reports-grid" class="cases-grid">
             <!-- Reports will be loaded here -->

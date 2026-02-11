@@ -1,4 +1,4 @@
-# Reports Router: Manages report submissions, tracking, and status updates.
+# This router handles all the core tasks for reports, like submitting a new case and tracking its status.
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -12,19 +12,16 @@ from app.schemas.report import ReportResponse, ReportStatusUpdate, ReportUpdate
 
 router = APIRouter()
 
-
-# -------- HELPER --------
+# Helper function to turn an uploaded photo into a format our database can store easily
 def file_to_base64(file: UploadFile | None) -> Optional[str]:
     if not file:
         return None
-
     content = file.file.read()
     encoded = base64.b64encode(content).decode("utf-8")
     mime = file.content_type or "image/jpeg"
     return f"data:{mime};base64,{encoded}"
 
-
-# -------- CREATE REPORT --------
+# Creating a brand new rescue report from the citizen form
 @router.post("/", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)
 def create_report(
     condition: str = Form(...),
@@ -39,7 +36,7 @@ def create_report(
 ):
     photo_url = file_to_base64(photo)
 
-    # Auto-assign to Team Alpha (team@kindsteps.com)
+    # We automatically assign new cases to "Team Alpha" for immediate attention
     team = db.query(User).filter(User.email == "team@kindsteps.com").first()
     team_id = team.id if team else None
 
@@ -58,11 +55,9 @@ def create_report(
     db.add(report)
     db.commit()
     db.refresh(report)
-
     return report
 
-
-# -------- LIST REPORTS --------
+# Showing a list of reports, usually limited to just the ones you filed yourself
 @router.get("/", response_model=List[ReportResponse])
 def list_reports(
     status: Optional[ReportStatus] = None,
@@ -70,19 +65,13 @@ def list_reports(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Default behavior: Show only the user's own reports
-    # This prevents users (even admins) from seeing everything in their personal dashboard
+    # Unless otherwise asked, we only show you your own personal reports
     if not all_reports:
-        return db.query(Report)\
-                 .filter(Report.reporter_id == current_user.id)\
-                 .all()
+        return db.query(Report).filter(Report.reporter_id == current_user.id).all()
 
-    # If all_reports=true is requested, check permissions
+    # Admins and Rescue Teams can see everything if they use the right filter
     if current_user.role not in [UserRole.admin, UserRole.rescue_team]:
-        raise HTTPException(
-            status_code=403, 
-            detail="You do not have permission to view all reports"
-        )
+        raise HTTPException(status_code=403, detail="You can only view your own report history.")
 
     query = db.query(Report)
     if status:
@@ -90,29 +79,32 @@ def list_reports(
 
     return query.all()
 
-
-# -------- RESCUE TEAM ASSIGNMENTS --------
+# Providing rescue team members with a list of the specific cases assigned to them
 @router.get("/my-assignments", response_model=List[ReportResponse])
 def my_assignments(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role != UserRole.rescue_team:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    # Both staff and admins can view assignments (admins see their own if assigned, or others via admin dash)
+    if current_user.role not in [UserRole.rescue_team, UserRole.admin]:
+        raise HTTPException(status_code=403, detail="Assignments are only visible to staff.")
 
-    active_statuses = [
-        ReportStatus.received,
-        ReportStatus.active,
-        ReportStatus.in_progress
-    ]
+    from fastapi.responses import JSONResponse
+    from fastapi.encoders import jsonable_encoder
+    
+    assignments = db.query(Report).filter(Report.assigned_team_id == current_user.id).all()
+    
+    # We return a JSONResponse with No-Cache headers to ensure the browser doesn't show old data
+    return JSONResponse(
+        content=jsonable_encoder(assignments),
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )
 
-    return db.query(Report)\
-             .filter(Report.status.in_(active_statuses))\
-             .filter(Report.assigned_team_id == current_user.id)\
-             .all()
-
-
-# -------- SINGLE REPORT --------
+# Fetching the details for a single specific report
 @router.get("/{id}", response_model=ReportResponse)
 def get_report(
     id: int,
@@ -121,16 +113,15 @@ def get_report(
 ):
     report = db.query(Report).filter(Report.id == id).first()
     if not report:
-        raise HTTPException(status_code=404, detail="Report not found")
+        raise HTTPException(status_code=404, detail="We couldn't find a report with that ID.")
 
-    # Security check: Only owner, admin, or rescue team can access
+    # Only the person who filed it or the staff can see the details
     if current_user.role == UserRole.user and report.reporter_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to view this report")
+        raise HTTPException(status_code=403, detail="You don't have permission to view this report.")
 
     return report
 
-
-# -------- PUBLIC TRACKING --------
+# Allowing citizens to track a report's progress using its unique ID
 @router.get("/track/{id}", response_model=ReportResponse)
 def track_report(
     id: int, 
@@ -139,16 +130,15 @@ def track_report(
 ):
     report = db.query(Report).filter(Report.id == id).first()
     if not report:
-        raise HTTPException(status_code=404, detail="Report not found")
+        raise HTTPException(status_code=404, detail="That tracking ID doesn't appear to be valid.")
 
-    # Security check: Only owner, admin, or rescue team can track
+    # For safety, you must be the owner of the report to track its live status
     if current_user.role == UserRole.user and report.reporter_id != current_user.id:
-        raise HTTPException(status_code=403, detail="You can only track your own reports")
+        raise HTTPException(status_code=403, detail="You can only track reports that you personally filed.")
 
     return report
 
-
-# -------- UPDATE REPORT (ADMIN/TEAM) --------
+# Letting admins and teams update a report (like changing the status or adding notes)
 @router.put("/{id}", response_model=ReportResponse)
 def update_report(
     id: int,
@@ -156,18 +146,28 @@ def update_report(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    # Only staff and admins can make changes to case files
     if current_user.role not in [UserRole.admin, UserRole.rescue_team]:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="Only rescue staff can update report details.")
 
     report = db.query(Report).filter(Report.id == id).first()
     if not report:
-        raise HTTPException(status_code=404, detail="Report not found")
+        raise HTTPException(status_code=404, detail="We couldn't find that report to update it.")
 
-    # Update fields if provided
+    # Updating the fields with the new information provided
     update_data = report_update.model_dump(exclude_unset=True)
+    
     for key, value in update_data.items():
-        setattr(report, key, value)
+        if key == "status" and value:
+            # Explicitly use the status value as a lowercase string
+            old_status = report.status
+            new_status = str(value.value if hasattr(value, 'value') else value).lower().strip()
+            report.status = new_status
+            print(f"REPORT UPDATE: ID {id} | {old_status} -> {new_status}")
+        else:
+            setattr(report, key, value)
 
+    # Save the changes
     db.commit()
     db.refresh(report)
     return report

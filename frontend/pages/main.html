@@ -26,8 +26,6 @@
                     <li><a href="./about.html">About Us</a></li>
                     <li><a href="./contact.html">Contact</a></li>
                     <li><a href="./works.html">How it works</a></li>
-                    <li><a href="./webinar.html">Webinars</a></li>
-                    <li><a href="./impact_map.html">Impact Map</a></li>
                 </ul>
             </nav>
         </div>
@@ -36,7 +34,10 @@
     <!-- Hero Section -->
     <section class="hero" data-aos="fade-in">
         <div class="hero-overlay"></div>
-        <img src="../assets/ks-profile.jpg" class="hero-bg" alt="Hero Image">
+        <img src="../assets/ks-profile.jpg" class="hero-bg active" alt="Hero Image 1">
+        <img src="../assets/hero1.webp" class="hero-bg active" alt="Hero Image 1">
+        <img src="../assets/hero2.jpg" class="hero-bg" alt="Hero Image 2">
+        <img src="../assets/hero3.webp" class="hero-bg" alt="Hero Image 3">
         <div class="hero-content" data-aos="fade-up" data-aos-delay="200">
             <h1>A Step Towards a Kinder Future</h1>
             <p>KindSteps is dedicated to locating and assisting vulnerable individuals, especially children, through
@@ -135,7 +136,9 @@
     <script src="../js/utils.js"></script>
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
-        // Check login and auto-redirect if admin/team hits this page accidentally
+        // Checking if we should send this user straight to a dashboard
+        // When the page loads, we'll check if the user is an admin or team member
+        // This helps send them straight to their dashboard if they hit the home page
         document.addEventListener('DOMContentLoaded', async () => {
             const token = getToken();
             if (token) {
@@ -149,6 +152,16 @@
                 } catch (e) { }
             }
         });
+
+        // This little loop cycles through our hero background images every few seconds
+        let currentImg = 0;
+        const heroImages = document.querySelectorAll('.hero-bg');
+
+        setInterval(() => {
+            heroImages[currentImg].classList.remove('active');
+            currentImg = (currentImg + 1) % heroImages.length;
+            heroImages[currentImg].classList.add('active');
+        }, 5000);
 
         AOS.init({
             duration: 800,

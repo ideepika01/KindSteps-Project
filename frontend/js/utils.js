@@ -1,55 +1,47 @@
-// ---------------- TOKEN HELPERS ----------------
+// This file holds all the little helpers we use across the whole app.
 
-// Get token from browser storage
+// Getting the login token from the user's browser storage
 function getToken() {
     return localStorage.getItem('access_token');
 }
 
-// Save token after login
+// Saving the secret token so the user stays signed in
 function saveToken(token) {
     localStorage.setItem('access_token', token);
 }
 
-// Remove token and send user to login page
+// Say goodbye: clearing the session and heading home
 function logout() {
     localStorage.removeItem('access_token');
-    window.location.href = '/index.html';
+    window.location.href = '../index.html';
 }
 
-
-// ---------------- LOGIN CHECK ----------------
-
-// Used on protected pages
+// Checking if the user is logged in. If not, we kindly ask them to sign in.
 function checkLogin() {
     const token = getToken();
 
     if (!token) {
-        alert('You must be logged in to view this page.');
-        window.location.href = '/index.html';
+        alert('Hold on! You need to sign in to see this page.');
+        window.location.href = '../index.html';
         return null;
     }
-
     return token;
 }
 
-
-// ---------------- AUTH FETCH ----------------
-
-// Automatically adds token to API requests
+// A special tool that fetches data and carries our login key for us automatically
 async function fetchWithAuth(url, options = {}) {
     const token = getToken();
 
+    // Adding the 'authorization' stamp to our request envelope
     const headers = {
         ...options.headers,
-        Authorization: `Bearer ${token}`
+        'Authorization': `Bearer ${token}`
     };
 
-    const response = await fetch(url, {
-        ...options,
-        headers
-    });
+    // Sending the request out
+    const response = await fetch(url, { ...options, headers });
 
-    // Token expired or invalid
+    // If the server doesn't recognize our key anymore, we'll log out to keep things safe.
     if (response.status === 401) {
         logout();
     }
@@ -57,52 +49,43 @@ async function fetchWithAuth(url, options = {}) {
     return response;
 }
 
-
-// ---------------- DYNAMIC NAVBAR ----------------
-
+// Updating the navbar links based on who is logged in (Admin, Team, or Citizen)
 async function setupDynamicNavbar() {
     const token = getToken();
     if (!token) return;
 
     try {
-        // We use a simple cache or just fetch it. Fetching is safer.
-        const response = await fetchWithAuth(`${typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://localhost:8000'}/auth/me`);
+        const response = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
         if (!response.ok) return;
 
         const user = await response.json();
+        const dashboardUrl = getDashboardUrl(user.role);
 
-        // Update Brand/Logo links
-        const logoLinks = document.querySelectorAll('.logo, .brand');
-        logoLinks.forEach(link => {
-            if (link.tagName === 'A') {
-                link.href = getDashboardUrl(user.role);
+        // Making sure the "Home" and Logo links send you to your specific dashboard
+        document.querySelectorAll('.logo, .brand, .nav-links a').forEach(link => {
+            const text = link.textContent.toLowerCase();
+            if (text === 'home' || link.classList.contains('logo')) {
+                link.href = dashboardUrl;
             }
         });
 
-        // Update Nav "Home" or "Dashboard" links
-        const navLinks = document.querySelectorAll('.nav-links a, .nav-links li a');
-        navLinks.forEach(link => {
-            if (link.textContent.toLowerCase() === 'home' || link.textContent.toLowerCase() === 'dashboard') {
-                link.href = getDashboardUrl(user.role);
-            }
-        });
-
-    } catch (error) {
-        console.error('Error setting up dynamic navbar:', error);
+    } catch (err) {
+        console.warn('Skipping navbar update for now.');
     }
 }
 
+// Figuring out which dashboard page belongs to which role
 function getDashboardUrl(role) {
-    const isInsidePages = window.location.pathname.includes('/pages/');
-    const prefix = isInsidePages ? './' : './pages/';
+    const inPages = window.location.pathname.includes('/pages/');
+    const p = inPages ? './' : './pages/';
 
-    // If we're already in pages, some links might need ../ if they aren't in same dir
-    // But for simplicity, let's assume all main dashboards are in /pages/
-
-    if (role === 'admin') return prefix + 'admin_control.html';
-    if (role === 'rescue_team') return prefix + 'rescue_team.html';
-    return prefix + 'main.html';
+    if (role === 'admin') return p + 'admin_control.html';
+    if (role === 'rescue_team') return p + 'rescue_team.html';
+    return p + 'main.html';
 }
 
-// Auto-run if possible or let pages call it
+// Running the navbar setup as soon as the page is ready
+document.addEventListener('DOMContentLoaded', setupDynamicNavbar);
+
+// Initialize navbar automatically when the page loads
 document.addEventListener('DOMContentLoaded', setupDynamicNavbar);

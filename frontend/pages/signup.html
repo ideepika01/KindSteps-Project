@@ -15,61 +15,80 @@
     <header class="navbar">
         <div class="nav-container">
             <a href="../index.html" class="logo">KindSteps</a>
-            <ul class="nav-links">
-                <li><a href="../index.html">Login</a></li>
-            </ul>
+            <div class="nav-auth">
+                <a href="../index.html" class="login-link">Sign In</a>
+            </div>
         </div>
     </header>
 
-    <!-- SIGNUP WRAPPER -->
-    <section class="signup-wrapper">
-        <div class="signup-card">
-
-            <h1>Create Your Account</h1>
-            <p class="subtext">Join KindSteps to make an impact.</p>
-
-            <label>Full Name</label>
-            <input type="text" id="signup-name" placeholder="John Doe" class="input-field">
-
-            <label>Email Address</label>
-            <input type="email" id="signup-email" placeholder="john.doe@example.com" class="input-field">
-
-            <label>Phone Number</label>
-            <input type="text" id="signup-phone" placeholder="+1 (555) 123-4567" class="input-field">
-
-            <label>Password</label>
-            <input type="password" id="signup-password" placeholder="********" class="input-field">
-
-            <label>Your Role</label>
-            <div class="role-selector">
-                <label><input type="radio" name="role" value="user" checked> User</label>
-                <label><input type="radio" name="role" value="rescue_team"> Rescue Team</label>
+    <main class="signup-page">
+        <!-- LEFT SIDE: Storytelling Visual -->
+        <section class="signup-visual">
+            <div class="visual-content" data-aos="fade-right">
+                <h2>Join the Movement for Humanity</h2>
+                <p>Every report you file, every volunteer hour you give, brings us one step closer to a safer world for
+                    everyone. Be the change today.</p>
             </div>
+        </section>
 
-            <button id="signup-btn" class="signup-submit">Sign Up</button>
+        <!-- RIGHT SIDE: Modern Signup Form -->
+        <section class="signup-form-side">
+            <div class="signup-card" data-aos="zoom-in">
+                <h1>Create Account</h1>
+                <p class="subtext">Join our community of helpers and heroes.</p>
 
-            <p class="login-text">Already have an account? <a href="../index.html">Login</a>.</p>
+                <form id="signup-form">
+                    <div class="form-grid">
+                        <div class="form-group full">
+                            <label for="signup-name">Full Name</label>
+                            <input type="text" id="signup-name" placeholder="John Doe" class="input-field" required>
+                        </div>
 
-        </div>
-    </section>
+                        <div class="form-group">
+                            <label for="signup-email">Email Address</label>
+                            <input type="email" id="signup-email" placeholder="john@example.com" class="input-field"
+                                required>
+                        </div>
 
-    </div>
-    </section>
+                        <div class="form-group">
+                            <label for="signup-phone">Phone Number</label>
+                            <input type="tel" id="signup-phone" placeholder="+1 (555) 000-0000" class="input-field"
+                                required>
+                        </div>
 
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="footer-left">
-            <p>© 2025 KindSteps. All rights reserved.</p>
-        </div>
+                        <div class="form-group full">
+                            <label for="signup-password">Choose Password</label>
+                            <input type="password" id="signup-password" placeholder="••••••••" class="input-field"
+                                required>
+                        </div>
 
+                        <div class="form-group full">
+                            <label>Identify Your Role</label>
+                            <div class="role-selector">
+                                <label><input type="radio" name="role" value="user" checked> Resident / Citizen</label>
+                                <label><input type="radio" name="role" value="rescue_team"> Rescue Staff</label>
+                            </div>
+                        </div>
+                    </div>
 
-    </footer>
+                    <button type="submit" id="signup-btn" class="signup-submit">Create My Account</button>
+                </form>
 
+                <p class="login-text">Already a member? <a href="../index.html">Sign In here</a></p>
+                <p style="margin-top: 2rem; font-size: 0.8rem; color: var(--text-muted); text-align: center;">© 2025
+                    KindSteps • Humanity First</p>
+            </div>
+        </section>
+    </main>
 
     <!-- Scripts -->
     <script src="../js/config.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/auth.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 1000, once: true });
+    </script>
 </body>
 
 </html>

@@ -1,180 +1,129 @@
-// Report Submit Logic: Captures form data and sends reports to the backend.
-// Run when the page is fully loaded
-document.addEventListener('DOMContentLoaded', function () {
+// This file manages the report form, including photo previews and map pins.
 
-    checkLogin();
+document.addEventListener('DOMContentLoaded', () => {
+    checkLogin();           // Safety first: make sure the user is signed in
 
+    // Getting everything ready for the user
     setupPhotoPreview();
-    setupReportSubmit();
-    initReportMap();
+    setupSubmission();
+    initLocationMap();
 });
 
-
-// ---------------- PHOTO PREVIEW ----------------
-
+// Showing the user which photo they've selected
 function setupPhotoPreview() {
-    const photoInput = document.getElementById('report-photo');
-    if (!photoInput) return;
+    const input = document.getElementById('report-photo');
+    const displayArea = document.querySelector('.upload-content');
+    if (!input || !displayArea) return;
 
-    photoInput.addEventListener('change', function () {
-        updatePhotoPreview(photoInput);
+    input.addEventListener('change', () => {
+        if (input.files.length > 0) {
+            const fileName = input.files[0].name;
+            displayArea.innerHTML = `<p class="success-text">Nice! You selected: <strong>${fileName}</strong></p>`;
+        } else {
+            // If they clear the selection, show the original tip
+            displayArea.innerHTML = `<p>Drag & drop, or click to browse</p>`;
+        }
     });
 }
 
-function updatePhotoPreview(photoInput) {
-    const uploadContent = document.querySelector('.upload-content');
+// Sending the finalized report to the database
+function setupSubmission() {
+    const btn = document.getElementById('submit-report-btn');
+    if (!btn) return;
 
-    if (photoInput.files.length > 0) {
-        const fileName = photoInput.files[0].name;
-        uploadContent.innerHTML =
-            `<p style="color:green; font-weight:bold;">Selected: ${fileName}</p>`;
-    } else {
-        uploadContent.innerHTML = `
-            <div class="upload-icon">📷</div>
-            <p>Drag & drop photo here, or click to browse</p>
-            <span>Supported formats: JPG, PNG (max 5MB)</span>
-        `;
-    }
-}
+    btn.addEventListener('click', async (e) => {
+        e.preventDefault(); // Stop the page from refreshing
 
+        // Collecting all the details from the form
+        const formData = new FormData();
+        const fields = {
+            condition: document.getElementById('report-condition').value,
+            description: document.getElementById('report-description').value,
+            location: document.getElementById('report-location').value,
+            contact_name: document.getElementById('contact-name').value,
+            contact_phone: document.getElementById('contact-phone').value,
+            latitude: document.getElementById('report-lat').value,
+            longitude: document.getElementById('report-lng').value
+        };
 
-// ---------------- SUBMIT REPORT ----------------
-
-function setupReportSubmit() {
-    const submitBtn = document.getElementById('submit-report-btn');
-    if (!submitBtn) return;
-
-    submitBtn.addEventListener('click', handleReportSubmit);
-}
-
-async function handleReportSubmit(event) {
-    event.preventDefault();
-
-    const formValues = getReportFormValues();
-
-    if (!formValues) {
-        alert('Please fill all required fields.');
-        return;
-    }
-
-    const formData = buildReportFormData(formValues);
-
-    try {
-        const response = await fetchWithAuth(`${API_BASE_URL}/reports/`, {
-            method: 'POST',
-            body: formData
-        });
-
-        if (response.ok) {
-            // No alert as requested
-            window.location.href = './my_reports.html';
-        } else {
-            alert('Failed to submit report. Please try again.');
+        // Making sure the most important boxes are checked
+        if (!fields.condition || !fields.location || !fields.contact_name) {
+            return alert('Wait! We need at least the condition, location, and your name to help.');
         }
 
-    } catch (error) {
-        console.error(error);
-        alert('Network error while submitting.');
-    }
+        // Tucking the text fields into our request package
+        for (const key in fields) {
+            if (fields[key]) formData.append(key, fields[key]);
+        }
+
+        // Adding the photo if the user provided one
+        const photoFile = document.getElementById('report-photo').files[0];
+        if (photoFile) formData.append('photo', photoFile);
+
+        try {
+            // Sending the report off to our team
+            const res = await fetchWithAuth(`${API_BASE_URL}/reports/`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (res.ok) {
+                window.location.href = './my_reports.html'; // Heading over to the dashboard to see progress
+            } else {
+                alert('Oops, something didn\'t work. Please double-check your info and try again.');
+            }
+        } catch (err) {
+            alert('We lost connection with the server. Is it awake?');
+        }
+    });
 }
 
+// Setting up the interactive map so users can point to where help is needed
+let mapObj;
+let pin;
 
-// ---------------- HELPERS ----------------
+function initLocationMap() {
+    const mapDiv = document.getElementById('report-map');
+    if (!mapDiv) return;
 
-function getReportFormValues() {
-    const condition = document.getElementById('report-condition').value;
-    const description = document.getElementById('report-description').value;
-    const location = document.getElementById('report-location').value;
-    const contactName = document.getElementById('contact-name').value;
-    const contactPhone = document.getElementById('contact-phone').value;
-    const photoInput = document.getElementById('report-photo');
-
-    const lat = document.getElementById('report-lat').value;
-    const lng = document.getElementById('report-lng').value;
-
-    if (!condition || !description || !location || !contactName || !contactPhone) {
-        return null;
-    }
-
-    return {
-        condition,
-        description,
-        location,
-        contactName,
-        contactPhone,
-        photoInput,
-        lat,
-        lng
-    };
-}
-
-function buildReportFormData(values) {
-    const formData = new FormData();
-
-    formData.append('condition', values.condition);
-    formData.append('description', values.description);
-    formData.append('location', values.location);
-    formData.append('contact_name', values.contactName);
-    formData.append('contact_phone', values.contactPhone);
-
-    if (values.photoInput.files.length > 0) {
-        formData.append('photo', values.photoInput.files[0]);
-    }
-
-    if (values.lat && values.lng) {
-        formData.append('latitude', values.lat);
-        formData.append('longitude', values.lng);
-    }
-
-    return formData;
-}
-
-
-// ---------------- MAP LOGIC ----------------
-
-let reportMap;
-let reportMarker;
-
-function initReportMap() {
-    const mapElement = document.getElementById('report-map');
-    if (!mapElement) return;
-
-    // Default to a central location (ensure it's valid)
-    reportMap = L.map('report-map').setView([12.9716, 77.5946], 13);
+    // We start the map centered on Bangalore by default
+    mapObj = L.map('report-map').setView([12.9716, 77.5946], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(reportMap);
+        attribution: '© OpenStreetMap'
+    }).addTo(mapObj);
 
-    // Click to pin
-    reportMap.on('click', function (e) {
-        const { lat, lng } = e.latlng;
-        setReportMarker(lat, lng);
+    // When the user clicks the map, we place a pin right there
+    mapObj.on('click', (e) => {
+        updatePinLocation(e.latlng.lat, e.latlng.lng);
     });
 
-    // Try GeoLocation
+    // If the browser allows it, we'll try to find where the user is currently standing
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
             const { latitude, longitude } = pos.coords;
-            reportMap.setView([latitude, longitude], 15);
-            setReportMarker(latitude, longitude);
+            mapObj.setView([latitude, longitude], 15);
+            updatePinLocation(latitude, longitude);
         });
     }
 }
 
-function setReportMarker(lat, lng) {
-    if (reportMarker) {
-        reportMarker.setLatLng([lat, lng]);
+// Putting the pin on the map and saving the coordinates
+function updatePinLocation(lat, lng) {
+    if (pin) {
+        pin.setLatLng([lat, lng]); // Move the existing pin
     } else {
-        reportMarker = L.marker([lat, lng], { draggable: true }).addTo(reportMap);
-        reportMarker.on('dragend', function (event) {
-            const marker = event.target;
-            const position = marker.getLatLng();
-            document.getElementById('report-lat').value = position.lat;
-            document.getElementById('report-lng').value = position.lng;
+        pin = L.marker([lat, lng], { draggable: true }).addTo(mapObj); // Create a brand new pin
+        pin.on('dragend', () => {
+            const pos = pin.getLatLng();
+            saveCoords(pos.lat, pos.lng);
         });
     }
+    saveCoords(lat, lng);
+}
 
+// Storing the coordinates in hidden boxes so our form can send them
+function saveCoords(lat, lng) {
     document.getElementById('report-lat').value = lat;
     document.getElementById('report-lng').value = lng;
 }

@@ -115,7 +115,8 @@ body {
    ========================================= */
 .dashboard-container {
     flex: 1;
-    max-width: 1200px;
+    width: 95%;
+    max-width: 1800px;
     margin: 3rem auto;
     padding: 0 2rem;
     animation: fadeIn 0.8s ease-out;
@@ -149,6 +150,7 @@ body {
     grid-template-columns: repeat(2, 1fr);
     gap: 2rem;
     padding-bottom: 4rem;
+
 }
 
 .case-card {

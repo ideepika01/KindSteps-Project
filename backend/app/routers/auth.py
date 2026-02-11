@@ -1,3 +1,4 @@
+# This router handles everything related to joining and signing in to KindSteps.
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -13,18 +14,17 @@ from app.schemas.token import Token
 
 router = APIRouter()
 
-
-# -------- SIGNUP --------
+# Registering a brand new user into our community
 @router.post("/signup", response_model=UserResponse)
 def signup(user: UserCreate, db: Session = Depends(get_db)):
-    # Check if user already exists
+    # Making sure this email hasn't already been used
     if db.query(User).filter(User.email == user.email).first():
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="That email is already in our system.")
 
-    # Hash password
+    # Scrambling the password for safety before saving it
     hashed_password = security.hash_password(user.password)
 
-    # Create user
+    # Creating the new user profile
     new_user = User(
         full_name=user.full_name,
         email=user.email,
@@ -39,26 +39,24 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
 
     return new_user
 
-
-# -------- LOGIN --------
+# Signing in an existing user and giving them a secure "key" (JWT token)
 @router.post("/login", response_model=Token)
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
+    # Finding the user by their email address
     user = db.query(User).filter(User.email == form_data.username).first()
 
-    if not user or not security.verify_password(
-        form_data.password,
-        user.hashed_password
-    ):
+    # Checking if the email exists and the password matches
+    if not user or not security.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Hmm, that email or password doesn't look right.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Create JWT token
+    # Handing out a secure sessions key that lasts for a set amount of time
     access_token = security.create_access_token(
         data={"sub": user.email},
         expires_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
@@ -69,8 +67,7 @@ def login(
         "token_type": "bearer"
     }
 
-
-# -------- CURRENT USER --------
+# Identifying who is currently logged in based on their secure key
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
