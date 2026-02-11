@@ -70,11 +70,23 @@ def on_startup():
         db = SessionLocal()
         try:
             from sqlalchemy import text
-            # We try to add these columns - 'IF NOT EXISTS' keeps it safe
-            db.execute(text("ALTER TABLE reports ADD COLUMN IF NOT EXISTS latitude VARCHAR"))
-            db.execute(text("ALTER TABLE reports ADD COLUMN IF NOT EXISTS longitude VARCHAR"))
+            # List of columns that might be missing if the DB was created earlier
+            columns_to_add = [
+                ("latitude", "VARCHAR"),
+                ("longitude", "VARCHAR"),
+                ("assigned_team_id", "INTEGER"),
+                ("rescued_location", "VARCHAR"),
+                ("field_review", "TEXT")
+            ]
+            
+            for col_name, col_type in columns_to_add:
+                try:
+                    db.execute(text(f"ALTER TABLE reports ADD COLUMN IF NOT EXISTS {col_name} {col_type}"))
+                except Exception as e:
+                    print(f"Skipping {col_name} (likely already exists): {e}")
+
             db.commit()
-            print("Migration: GPS columns checked/added.")
+            print("Migration: All tracking columns checked/added.")
             
             # 3. Setting up initial data (like the admin account)
             init_db(db)
