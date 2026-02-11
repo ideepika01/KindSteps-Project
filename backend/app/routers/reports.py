@@ -101,7 +101,10 @@ def my_assignments(
     from fastapi.responses import JSONResponse
     from fastapi.encoders import jsonable_encoder
     
-    assignments = db.query(Report).filter(Report.assigned_team_id == current_user.id).all()
+    # NEW LOGIC: 
+    # Both Admins and Rescue Team members now see ALL reports in their dashboard.
+    # This ensures a collaborative view where any team member can help with any case.
+    assignments = db.query(Report).all()
     
     # We return a JSONResponse with No-Cache headers to ensure the browser doesn't show old data
     return JSONResponse(
