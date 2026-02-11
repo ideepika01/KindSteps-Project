@@ -6,49 +6,37 @@ from app.core.config import settings
 
 # ===== DATABASE ENGINE =====
 
+# We pull the connection string from our settings
 DATABASE_URL = settings.SQLALCHEMY_DATABASE_URI
-print(f"DEBUG: Using DB URL: {DATABASE_URL.split('@')[-1]}") # hide password
 
-# 1. Supabase Connection Strategy (Auto-detected based on URI)
-# We handle the 'Tenant or user not found' error by ensuring the username matches the project ref etc.
-if "supabase.com" in DATABASE_URL and ":6543" in DATABASE_URL:
-    # If using the pooler, Supabase requires the username format: [user].[ref]
-    from urllib.parse import urlparse, urlunparse
-    url = urlparse(DATABASE_URL)
-    if "." not in url.username:
-        # Extract project ref from hostname if possible
-        # For pooler hostname: [ref].supabase.com
-        ref = url.hostname.split('.')[0]
-        # Or if it's the generic pooler hostname, this logic might be different
-        # But usually you use the project-specific one
-        if ref and ref != "aws-0-ap-south-1": # generic pooler check
-             new_netloc = f"{url.username}.{ref}:{url.password}@{url.hostname}:{url.port}"
-             # This is a bit complex to regex, let's keep it simple
-             pass
-
-# 2. Driver Selection (Use pg8000 for pure-Python support)
-# We ensure the URI uses the correct postgresql+pg8000:// prefix
+# 1. Driver Selection: We always use 'pg8000' here because it's pure Python 
+# and works seamlessly in serverless environments like Vercel.
 if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+pg8000://", 1)
 elif DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+pg8000://", 1)
 
-# Fix: Remove pgbouncer=true or other query params that pg8000 doesn't like
+# 2. Parameter Stripping: The pg8000 driver is very strict. It doesn't allow 
+# query parameters like '?pgbouncer=true' in the URL string.
+# Since Supabase handles the pooling on its end, we strip these for compatibility.
 if "?" in DATABASE_URL:
-    base_url, query = DATABASE_URL.split("?", 1)
-    # We strip the query parameters because pg8000 handles pooling differently
-    DATABASE_URL = base_url
+    DATABASE_URL = DATABASE_URL.split("?")[0]
 
-# Ensure Vercel / serverless friendly settings
+# Masking the password and printing the final URL to the logs for verification
+safe_url = DATABASE_URL.split("@")[-1] if "@" in DATABASE_URL else DATABASE_URL
+print(f"DATABASE CONNECTION: Connecting to {safe_url}")
+
+# Creating the core engine that talks to our database
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,
-    pool_recycle=300,
+    pool_pre_ping=True,  # Checks if the connection is still alive before using it
+    pool_recycle=300    # Refreshes connections every 5 minutes
 )
 
 
-# ===== SESSION =====
+# ===== SESSION SETUP =====
 
+# This factory creates new session objects for us whenever we need to query data
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
@@ -58,11 +46,13 @@ SessionLocal = sessionmaker(
 
 # ===== BASE MODEL =====
 
+# All our database tables will inherit from this base
 Base = declarative_base()
 
 
 # ===== FASTAPI DEPENDENCY =====
 
+# A helper function that gives us a database session and makes sure it's closed safely
 def get_db():
     db = SessionLocal()
     try:
