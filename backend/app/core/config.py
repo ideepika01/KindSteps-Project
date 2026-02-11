@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     DB_NAME: str = ""
 
     # ===== JWT / AUTH =====
-    SECRET_KEY: str
+    SECRET_KEY: str = "super-secret-key-change-this-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
@@ -25,17 +25,16 @@ class Settings(BaseSettings):
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
-        # If discrete variables are provided, construct the URL
+        # First priority: Look for a direct connection string (often from Vercel/Production)
+        # We check if DATABASE_URL starts with postgres/postgresql
+        if self.DATABASE_URL.startswith("postgres"):
+            return self.DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+        # Second priority: Construct from discrete variables (often from .env)
         if self.DB_USERNAME and self.DB_HOSTNAME and self.DB_NAME:
-            # Construct PostgreSQL URL
-            url = f"postgresql://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOSTNAME}:{self.DB_PORT}/{self.DB_NAME}"
-            return url
+            return f"postgresql://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOSTNAME}:{self.DB_PORT}/{self.DB_NAME}"
             
-        # Fallback to DATABASE_URL if provided
-        if self.DATABASE_URL.startswith("postgres://"):
-            return self.DATABASE_URL.replace(
-                "postgres://", "postgresql://", 1
-            )
+        # Last resort: return whatever is in DATABASE_URL
         return self.DATABASE_URL
 
 

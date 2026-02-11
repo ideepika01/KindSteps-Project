@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import engine, Base, SessionLocal
+from app.models import User, Report # Ensure all models are loaded
 from app.routers import auth, reports, admin
 from app.db.init_db import init_db
 

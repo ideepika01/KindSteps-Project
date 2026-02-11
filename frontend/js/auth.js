@@ -37,6 +37,14 @@ async function handleLogin(event) {
             body: params
         });
 
+        // First check if the response is actually JSON
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            const text = await response.text();
+            console.error("Server returned non-JSON response:", text);
+            return alert("The server is having a bit of trouble right now (Error 500). Please try again in a few minutes.");
+        }
+
         const data = await response.json();
 
         if (response.ok) {
