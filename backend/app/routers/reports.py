@@ -56,10 +56,15 @@ def create_report(
         assigned_team_id=team_id
     )
 
-    db.add(report)
-    db.commit()
-    db.refresh(report)
-    return report
+    try:
+        db.add(report)
+        db.commit()
+        db.refresh(report)
+        return report
+    except Exception as e:
+        db.rollback()
+        print(f"CREATE REPORT ERROR: {e}")
+        raise e
 
 # Showing a list of reports, usually limited to just the ones you filed yourself
 @router.get("/", response_model=List[ReportResponse])

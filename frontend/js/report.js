@@ -71,7 +71,8 @@ function setupSubmission() {
                 window.location.href = './my_reports.html'; // Heading over to the dashboard to see progress
             } else {
                 const data = await res.json();
-                alert(`Error: ${data.detail || data.error || 'Something went wrong. Please try again.'}`);
+                const errorMsg = data.detail || data.error || 'Something went wrong. Please try again.';
+                alert(`Submission Failed: ${errorMsg}`);
             }
         } catch (err) {
             alert('We lost connection with the server. Is it awake?');

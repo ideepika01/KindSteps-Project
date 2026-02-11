@@ -46,12 +46,13 @@ def health_check(db = Depends(get_db)):
 # Global error handler to prevent "Internal Server Error" plain text responses
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    print(f"GLOBAL ERROR: {exc}")
+    error_str = str(exc)
+    print(f"GLOBAL ERROR: {error_str}")
     import traceback
     traceback.print_exc()
     return JSONResponse(
         status_code=500,
-        content={"detail": "A server-side error occurred.", "error": str(exc)}
+        content={"detail": f"Server Error: {error_str}", "error": error_str}
     )
 
 # This runs automatically when the server starts up
