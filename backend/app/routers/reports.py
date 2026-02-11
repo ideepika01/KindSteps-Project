@@ -30,6 +30,8 @@ def create_report(
     contact_name: str = Form(...),
     contact_phone: str = Form(...),
     priority: ReportPriority = Form(ReportPriority.medium),
+    latitude: Optional[str] = Form(None),
+    longitude: Optional[str] = Form(None),
     photo: UploadFile = File(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -48,6 +50,8 @@ def create_report(
         contact_name=contact_name,
         contact_phone=contact_phone,
         priority=priority,
+        latitude=latitude,
+        longitude=longitude,
         photo_url=photo_url,
         assigned_team_id=team_id
     )

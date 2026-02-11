@@ -60,13 +60,28 @@ def on_startup():
     try:
         if engine is None:
             return
-        # Creating database tables if they don't exist yet
+        
+        # 1. Creating database tables if they don't exist yet
         Base.metadata.create_all(bind=engine)
+        
+        # 2. Manual Migration: Add columns that SQLAlchemy might have missed 
+        # (e.g. if the table already existed but without these new fields)
         db = SessionLocal()
         try:
-            # Setting up initial data (like the admin account)
+            from sqlalchemy import text
+            # We try to add these columns - 'IF NOT EXISTS' keeps it safe
+            db.execute(text("ALTER TABLE reports ADD COLUMN IF NOT EXISTS latitude VARCHAR"))
+            db.execute(text("ALTER TABLE reports ADD COLUMN IF NOT EXISTS longitude VARCHAR"))
+            db.commit()
+            print("Migration: GPS columns checked/added.")
+            
+            # 3. Setting up initial data (like the admin account)
             init_db(db)
+        except Exception as migration_error:
+            print(f"Migration Note: {migration_error}")
+            db.rollback()
         finally:
             db.close()
+            
     except Exception as e:
         print(f"Server Startup Note: {e}")

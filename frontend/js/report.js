@@ -70,7 +70,8 @@ function setupSubmission() {
             if (res.ok) {
                 window.location.href = './my_reports.html'; // Heading over to the dashboard to see progress
             } else {
-                alert('Oops, something didn\'t work. Please double-check your info and try again.');
+                const data = await res.json();
+                alert(`Error: ${data.detail || data.error || 'Something went wrong. Please try again.'}`);
             }
         } catch (err) {
             alert('We lost connection with the server. Is it awake?');
