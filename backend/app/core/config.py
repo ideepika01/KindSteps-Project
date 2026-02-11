@@ -32,7 +32,7 @@ class Settings(BaseSettings):
 
         # Second priority: Construct from discrete variables (often from .env)
         if self.DB_USERNAME and self.DB_HOSTNAME and self.DB_NAME:
-            return f"postgresql://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOSTNAME}:{self.DB_PORT}/{self.DB_NAME}"
+            return f"postgresql+pg8000://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOSTNAME}:{self.DB_PORT}/{self.DB_NAME}"
             
         # Last resort: return whatever is in DATABASE_URL
         return self.DATABASE_URL
