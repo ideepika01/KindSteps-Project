@@ -51,12 +51,19 @@ async function handleLogin(event) {
             saveToken(data.access_token); // Keeping the login token safe in browser storage
             redirectUserBasedOnRole();    // Sending the user to their specific dashboard
         } else {
-            alert(`Login Failed: ${data.detail || 'Check your email and password again.'}`);
+            // If the server gave us a specific error message, we show it
+            const errorMsg = data.error || data.detail || 'Check your email and password again.';
+            alert(`Server Error: ${errorMsg}`);
         }
 
     } catch (err) {
         console.error('Login Error:', err);
-        alert('We couldn\'t reach the server. Please try again in a moment!');
+        // If it's a SyntaxError, it likely means the server returned an HTML error page instead of JSON
+        if (err.name === 'SyntaxError') {
+            alert('The server isn\'t responding correctly. Please check if the backend is running and connected.');
+        } else {
+            alert('We couldn\'t reach the server. Please check your internet or try again later.');
+        }
     }
 }
 
