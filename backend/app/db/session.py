@@ -33,6 +33,12 @@ if DATABASE_URL.startswith("postgresql://"):
 elif DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+pg8000://", 1)
 
+# Fix: Remove pgbouncer=true or other query params that pg8000 doesn't like
+if "?" in DATABASE_URL:
+    base_url, query = DATABASE_URL.split("?", 1)
+    # We strip the query parameters because pg8000 handles pooling differently
+    DATABASE_URL = base_url
+
 # Ensure Vercel / serverless friendly settings
 engine = create_engine(
     DATABASE_URL,
