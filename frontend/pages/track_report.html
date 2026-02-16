@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Report Status - KindSteps</title>
     <link rel="stylesheet" href="../styles/track_report.css">
+    <link rel="stylesheet" href="../styles/globals.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -16,16 +18,15 @@
     <header class="navbar">
         <div class="nav-container">
             <a href="./main.html" class="logo">KindSteps</a>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="./main.html">Home</a></li>
-                    <li><a href="./report.html">Report</a></li>
-                    <li><a href="./my_reports.html">My Reports</a></li>
-                    <li><a href="./about.html">About Us</a></li>
-                    <li><a href="./contact.html">Contact</a></li>
-                    <li><a href="./works.html">How it works</a></li>
-                </ul>
-            </nav>
+            <ul class="nav-links">
+                <li><a href="./main.html">Home</a></li>
+                <li><a href="./report.html">Report</a></li>
+                <li><a href="./my_reports.html">My Impact</a></li>
+                <li><a href="./about.html">About</a></li>
+                <li><a href="./contact.html">Contact</a></li>
+                <li><a href="./works.html">How it works</a></li>
+                <li><a href="#" class="logout-btn">Logout</a></li>
+            </ul>
         </div>
     </header>
 
@@ -38,54 +39,78 @@
             dashboard.
         </p>
 
-        <!-- Removed manual input for security - user should use dashboard links -->
-        <div id="tracking-id-input-container" style="display:none;">
-            <input id="tracking-id-input" type="hidden">
+        <div class="track-input-group" data-aos="zoom-in">
+            <input id="tracking-id-input" type="text" placeholder="Enter Tracking ID (e.g. 123)">
+            <button id="track-btn" class="track-btn">Track Report</button>
         </div>
 
         <!-- Progress Tracker -->
         <div class="progress-container" id="progress-container" style="display:none;" data-aos="fade-in">
             <div class="progress-item" id="status-received">
-                <div class="progress-icon">📥</div>
+                <div class="progress-icon"><i data-lucide="file-text"></i></div>
                 <span>Received</span>
             </div>
 
             <div class="progress-line"></div>
 
             <div class="progress-item" id="status-inprogress">
-                <div class="progress-icon">⏳</div>
-
+                <div class="progress-icon"><i data-lucide="clock"></i></div>
                 <span>In Progress</span>
             </div>
 
             <div class="progress-line"></div>
 
             <div class="progress-item" id="status-resolved">
-                <div class="progress-icon">🛡️</div>
+                <div class="progress-icon"><i data-lucide="check-circle"></i></div>
                 <span>Rescued</span>
             </div>
         </div>
 
-        <!-- STATUS BOX -->
-        <div class="status-box" id="status-box" data-aos="zoom-in" data-aos-duration="1000">
-            <h2>Report Status</h2>
-            <p id="status-message">Please enter a valid tracking ID to view report details.</p>
+        <!-- STATUS DASHBOARD -->
+        <div class="status-dashboard" id="status-dashboard" data-aos="zoom-in" data-aos-duration="1000">
+            <div class="status-header">
+                <h2>Your Report's Journey</h2>
+                <div class="status-badge" id="status-badge">Awaiting ID</div>
+                <p id="status-message">Please enter a valid tracking ID to view the care progress.</p>
+            </div>
 
-            <div id="detailed-info" class="detailed-info"
-                style="display:none; margin-top: 20px; text-align: left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
-                <p><strong>Priority:</strong> <span id="info-priority">...</span></p>
-                <p><strong>Assigned Team:</strong> <span id="info-team-name">...</span></p>
-                <p><strong>Team Contact:</strong> <span id="info-team-phone">...</span></p>
-                <p><strong>Last Updated:</strong> <span id="info-updated">...</span></p>
-                <div class="info-item" id="field-review-container"
-                    style="display: none; grid-column: 1 / -1; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
-                    <label>Team Update / Field Review</label>
-                    <p id="info-field-review" style="white-space: pre-wrap; margin-top: 5px;"></p>
+            <div id="detailed-info" class="details-grid" style="display:none;">
+                <!-- Mission Team Card -->
+                <div class="info-card team-card">
+                    <div class="card-icon"><i data-lucide="users"></i></div>
+                    <div class="card-content">
+                        <label>Your Dedicated Support Team</label>
+                        <h4 id="info-team-name">Assigning Soon</h4>
+                        <p id="info-team-phone">Contact: N/A</p>
+                    </div>
                 </div>
 
-                <div class="info-item" id="rescue-location-container"
-                    style="grid-column: 1 / -1; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                    <p><strong>Rescue Location:</strong> <span id="info-rescue-location">...</span></p>
+                <!-- Update Timeline Card -->
+                <div class="info-card update-card">
+                    <div class="card-icon"><i data-lucide="refresh-cw"></i></div>
+                    <div class="card-content">
+                        <label>Latest Progress Update</label>
+                        <h4 id="info-status-label">Report Received</h4>
+                        <p id="info-updated">Awaiting update...</p>
+                    </div>
+                </div>
+
+                <!-- Location Card -->
+                <div class="info-card location-card" id="rescue-location-container">
+                    <div class="card-icon"><i data-lucide="map-pin"></i></div>
+                    <div class="card-content">
+                        <label>Where We're Providing Care</label>
+                        <h4 id="info-rescue-location">Pending Rescue</h4>
+                    </div>
+                </div>
+
+                <!-- Field Notes Card (Full Width) -->
+                <div class="info-card field-notes-card" id="field-review-container" style="display: none;">
+                    <div class="card-icon"><i data-lucide="heart"></i></div>
+                    <div class="card-content">
+                        <label>Latest Notes from our Volunteers</label>
+                        <p id="info-field-review"></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -95,13 +120,18 @@
     <footer class="footer">
         <div class="footer-left">
             <div class="footer-logo">KindSteps</div>
-            <p>© 2025 KindSteps. All rights reserved.</p>
+            <p>© 2025 KindSteps • Humanity First</p>
         </div>
 
-
+        <div class="footer-links">
+            <a href="./about.html">About Us</a>
+            <a href="./contact.html">Contact</a>
+            <a href="./works.html">Safety Tips</a>
+        </div>
     </footer>
 
     <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="../js/config.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/track.js"></script>

@@ -6,61 +6,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Case Details</title>
     <link rel="stylesheet" href="../styles/view_report.css">
+    <link rel="stylesheet" href="../styles/globals.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
-
+    <div class="bg-accents">
+        <div class="accent-blob blob-1"></div>
+        <div class="accent-blob blob-2"></div>
+    </div>
     <!-- TOP BAR -->
     <header class="navbar">
         <div class="nav-container">
             <a href="./main.html" class="logo">KindSteps</a>
-            <nav>
-                <ul class="nav-links">
-
-                    <li><a href="./report.html">Report</a></li>
-                    <li><a href="./about.html">About Us</a></li>
-                    <li><a href="./contact.html">Contact</a></li>
-                    <li><a href="./works.html">How it works</a></li>
-                </ul>
-            </nav>
+            <ul class="nav-links">
+                <li><a href="./main.html">Home</a></li>
+                <li><a href="./report.html">Report</a></li>
+                <li><a href="./my_reports.html">My Impact</a></li>
+                <li><a href="./about.html">About</a></li>
+                <li><a href="./works.html">How it works</a></li>
+                <li><a href="#" class="logout-btn">Logout</a></li>
+            </ul>
         </div>
     </header>
 
     <!-- MAIN CONTENT GRID -->
     <div class="case-container">
 
-        <!-- LEFT COLUMN -->
+        <!-- LEFT COLUMN (USER DATA) -->
         <div class="left-column">
+            <div class="card media-card">
+                <h3 class="card-title">Case Evidence</h3>
+                <img src="../assets/demo.jpg" class="media-img" id="case-image">
+            </div>
 
             <div class="card">
                 <h3 class="card-title">Case Overview</h3>
                 <h2 class="case-title" id="case-title">Loading...</h2>
-                <p class="case-id" id="case-id">ID: ...</p>
-                <p class="case-date" id="case-date">Reported: ...</p>
+                <div class="case-meta">
+                    <p class="case-id" id="case-id">ID: ...</p>
+                    <p class="case-date" id="case-date">Reported: ...</p>
+                </div>
                 <p class="case-status" id="case-status-text">Status: <span>Active</span></p>
             </div>
 
             <div class="card">
-                <h3 class="card-title">Reporter Information</h3>
+                <h3 class="card-title">Reporter Details</h3>
                 <p class="reporter-name" id="reporter-name">Loading...</p>
-                <!-- <p class="reporter-email" id="reporter-email">📧 ...</p> -->
-                <p class="reporter-phone" id="reporter-phone">📞 ...</p>
+                <p class="reporter-phone" id="reporter-phone"><i data-lucide="phone"></i> ...</p>
             </div>
 
             <div class="card">
-                <h3 class="card-title">Location</h3>
+                <h3 class="card-title">Incident Location</h3>
                 <p class="location-text" id="location-text">...</p>
-                <!-- <img src="map.png" class="map-img"> -->
             </div>
 
             <div class="card">
-                <h3 class="card-title">Summary</h3>
+                <h3 class="card-title">Original Summary</h3>
                 <p class="summary-text" id="summary-text">...</p>
             </div>
+        </div>
 
+        <!-- RIGHT COLUMN (TEAM ACTIONS) -->
+        <div class="right-column">
             <div class="dropdown-card">
-                <label class="dropdown-label">Update Status</label>
+                <h3 class="card-title">Team Command Center</h3>
+
+                <label class="dropdown-label">Update Case Status</label>
                 <select class="case-status-dropdown" id="status-dropdown">
                     <option disabled selected>Case Status</option>
                     <option value="received">Received</option>
@@ -69,56 +82,74 @@
                     <option value="resolved">Resolved</option>
                 </select>
 
-                <label class="dropdown-label" style="margin-top: 15px; display: block;">Rescue Destination / Home
-                    Details</label>
+                <label class="dropdown-label" style="margin-top: 15px; display: block;">Rescue Destination / Safe
+                    Home</label>
                 <input type="text" id="rescued-location" class="input-field"
-                    style="width: 100%; margin-top: 5px; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 5px;"
                     placeholder="E.g. Home, Sacred Heart Shelter, etc.">
 
                 <label class="dropdown-label" style="margin-top: 15px; display: block;">Field Review / Team
                     Notes</label>
                 <textarea id="field-review" class="review-textarea"
-                    placeholder="Add field review details here..."></textarea>
+                    placeholder="Add mission logs and field observations here..."></textarea>
+
+                <button class="update-btn" id="update-btn" style="width: 100%; margin-top: 20px;">Update Case</button>
             </div>
 
-            <a href="#" class="back-btn" id="back-to-dash">Back to Dashboard</a>
-
-        </div>
-
-        <!-- RIGHT COLUMN -->
-        <div class="right-column">
-
-            <div class="card">
-                <h3 class="card-title">Case Media</h3>
-                <img src="../assets/demo.jpg" class="media-img" id="case-image">
+            <!-- RESCUE TIMELINE -->
+            <div class="card timeline-container-card">
+                <h3 class="card-title">Rescue Timeline</h3>
+                <div class="timeline-container" id="timeline">
+                    <div class="timeline-step" id="step-received">
+                        <div class="step-icon"><i data-lucide="file-text"></i></div>
+                        <div class="step-info">
+                            <h4>Report Received</h4>
+                            <p id="time-received">--</p>
+                        </div>
+                    </div>
+                    <div class="timeline-step" id="step-in_progress">
+                        <div class="step-icon"><i data-lucide="truck"></i></div>
+                        <div class="step-info">
+                            <h4>Team Dispatched</h4>
+                            <p id="time-dispatched">--</p>
+                        </div>
+                    </div>
+                    <div class="timeline-step" id="step-active">
+                        <div class="step-icon"><i data-lucide="shield"></i></div>
+                        <div class="step-info">
+                            <h4>Mission Active</h4>
+                            <p id="time-active">--</p>
+                        </div>
+                    </div>
+                    <div class="timeline-step" id="step-resolved">
+                        <div class="step-icon"><i data-lucide="check-circle"></i></div>
+                        <div class="step-info">
+                            <h4>Safely Rescued</h4>
+                            <p id="time-resolved">--</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-
-
+            <a href="#" class="back-btn" id="back-to-dash">
+                <i data-lucide="arrow-left"></i> Back to Dashboard
+            </a>
         </div>
     </div>
 
-    </div>
-
-    <!-- UPDATE BUTTON -->
-    <div class="update-container">
-        <button class="update-btn" id="update-btn">Update</button>
-    </div>
 
     <!-- FOOTER -->
     <footer class="footer">
         <div class="footer-left">
             <div class="footer-logo">KindSteps</div>
-            <p>© 2025 KindSteps. All rights reserved.</p>
+            <p>© 2025 KindSteps • Humanity First</p>
         </div>
 
         <div class="footer-links">
             <a href="./about.html">About Us</a>
             <a href="./contact.html">Contact</a>
-
+            <a href="./works.html">Safety Tips</a>
         </div>
     </footer>
-
     <script src="../js/config.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/view_report.js"></script>

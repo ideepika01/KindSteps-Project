@@ -1,133 +1,142 @@
-// This script handles all the login and signup magic for KindSteps.
+document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.getElementById("login-form");
+    const signupForm = document.getElementById("signup-form");
 
-document.addEventListener('DOMContentLoaded', () => {
-    // We start by finding the login and signup forms on the page
-    const loginForm = document.getElementById('login-form');
-    const signupForm = document.getElementById('signup-form');
-
-    // When a user submits a form, we'll handle it right here
-    if (loginForm) loginForm.addEventListener('submit', handleLogin);
-    if (signupForm) signupForm.addEventListener('submit', handleSignup);
+    if (loginForm) loginForm.addEventListener("submit", login);
+    if (signupForm) signupForm.addEventListener("submit", signup);
 });
 
-// Taking care of the login process
-async function handleLogin(event) {
-    event.preventDefault(); // Stop the page from reloading
 
-    // Gathering the username and password from the inputs
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+// ---------------- LOGIN ----------------
 
-    // Making sure both fields are filled in
+async function login(e) {
+    e.preventDefault();
+
+    const email = getValue("login-email");
+    const password = getValue("login-password");
+
     if (!email || !password) {
-        return alert('Oops! You forgot to enter your email or password.');
+        return alert("Enter email and password.");
     }
 
     try {
-        // We pack the login details into a format the server likes
-        const params = new URLSearchParams({
-            username: email,
-            password: password
-        });
+        const body = new URLSearchParams({ username: email, password });
 
-        // Sending the login request to our backend
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params
-        });
+        const data = await postForm("/auth/login", body);
+        if (!data) return;
 
-        // First check if the response is actually JSON
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            const text = await response.text();
-            console.error("Server returned non-JSON response:", text);
-            return alert("The server is having a bit of trouble right now (Error 500). Please try again in a few minutes.");
-        }
+        saveToken(data.access_token);
+        redirectUser();
 
-        const data = await response.json();
-
-        if (response.ok) {
-            saveToken(data.access_token); // Keeping the login token safe in browser storage
-            redirectUserBasedOnRole();    // Sending the user to their specific dashboard
-        } else {
-            // If the server gave us a specific error message, we show it
-            const errorMsg = data.error || data.detail || 'Check your email and password again.';
-            alert(`Server Error: ${errorMsg}`);
-        }
-
-    } catch (err) {
-        console.error('Login Error:', err);
-        // If it's a SyntaxError, it likely means the server returned an HTML error page instead of JSON
-        if (err.name === 'SyntaxError') {
-            alert('The server isn\'t responding correctly. Please check if the backend is running and connected.');
-        } else {
-            alert('We couldn\'t reach the server. Please check your internet or try again later.');
-        }
+    } catch {
+        alert("Unable to connect to server.");
     }
 }
 
-// Handling new account creation
-async function handleSignup(event) {
-    event.preventDefault();
 
-    // Picking up all the info from the signup form
-    const fullName = document.getElementById('signup-name').value;
-    const email = document.getElementById('signup-email').value;
-    const phone = document.getElementById('signup-phone').value;
-    const password = document.getElementById('signup-password').value;
-    const role = document.querySelector('input[name="role"]:checked')?.value || 'user';
+// ---------------- SIGNUP ----------------
 
-    // Basic check to see if required fields are filled
-    if (!fullName || !email || !password) {
-        return alert('Please fill in your name, email, and a password to get started.');
+async function signup(e) {
+    e.preventDefault();
+
+    const full_name = getValue("signup-name");
+    const email = getValue("signup-email");
+    const phone = getValue("signup-phone");
+    const password = getValue("signup-password");
+    const role = document.querySelector('input[name="role"]:checked')?.value || "user";
+
+    if (!full_name || !email || !password) {
+        return alert("Fill required fields.");
     }
 
     try {
-        // Sending the new user data to the server
-        const response = await fetch(`${API_BASE_URL}/auth/signup`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ full_name: fullName, email, phone, password, role })
+        const data = await postJSON("/auth/signup", {
+            full_name,
+            email,
+            phone,
+            password,
+            role
         });
 
-        const data = await response.json();
+        if (!data) return;
 
-        if (response.ok) {
-            alert('Great news! Your account is ready. You can log in now.');
-            window.location.href = '../index.html'; // Sending them back to the sign-in page
-        } else {
-            alert(`Signup Failed: ${data.detail}`);
-        }
+        alert("Account created. Please login.");
+        window.location.href = "../index.html";
 
-    } catch (err) {
-        console.error('Signup Error:', err);
-        alert('Something went wrong on our end. Please try signing up again later.');
+    } catch {
+        alert("Server error. Try again.");
     }
 }
 
-// Sending users to the right dashboard after they log in
-async function redirectUserBasedOnRole() {
+
+// ---------------- REDIRECT ----------------
+
+async function redirectUser() {
     try {
-        // First, we check who is currently logged in
-        const response = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
+        const res = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
+        if (!res.ok) return goHome();
 
-        if (!response.ok) {
-            return window.location.href = './pages/main.html';
-        }
+        const user = await res.json();
 
-        const user = await response.json();
+        const routes = {
+            admin: "./pages/admin_control.html",
+            rescue_team: "./pages/rescue_team.html"
+        };
 
-        // Sending Admins, Rescue Teams, and Citizens to their own special pages
-        if (user.role === 'admin') {
-            window.location.href = './pages/admin_control.html';
-        } else if (user.role === 'rescue_team') {
-            window.location.href = './pages/rescue_team.html';
-        } else {
-            window.location.href = './pages/main.html';
-        }
+        window.location.href = routes[user.role] || "./pages/main.html";
 
-    } catch (error) {
-        window.location.href = './pages/main.html';
+    } catch {
+        goHome();
+    }
+}
+
+function goHome() {
+    window.location.href = "./pages/main.html";
+}
+
+
+// ---------------- HELPERS ----------------
+
+function getValue(id) {
+    return document.getElementById(id)?.value.trim();
+}
+
+async function postForm(endpoint, body) {
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body
+    });
+
+    if (!res.ok) {
+        const error = await safeJSON(res);
+        alert(error?.detail || error?.error || "Request failed.");
+        return null;
+    }
+
+    return res.json();
+}
+
+async function postJSON(endpoint, data) {
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    if (!res.ok) {
+        const error = await safeJSON(res);
+        alert(error?.detail || "Request failed.");
+        return null;
+    }
+
+    return res.json();
+}
+
+async function safeJSON(res) {
+    try {
+        return await res.json();
+    } catch {
+        return null;
     }
 }

@@ -10,45 +10,7 @@ body {
     background: #ffffff;
 }
 
-/* NAVBAR */
-.navbar {
-    background: #334155;
-    padding: 15px 0;
-    width: 100%;
-}
-
-.nav-container {
-    width: 95%;
-    max-width: 1600px;
-    margin: auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
-    color: #fff;
-    font-size: 22px;
-    font-weight: 700;
-}
-
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 28px;
-}
-
-.nav-links a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: 500;
-    transition: 0.25s;
-}
-
-.nav-links a:hover,
-.nav-links a.active {
-    opacity: 0.75;
-}
+/* NAVBAR Standardized in globals.css */
 
 /* HERO */
 .hero {
@@ -133,7 +95,8 @@ body {
 .inquiries {
     width: 85%;
     margin: 50px auto;
-    background: #f4f6fa;
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
     text-align: center;
     padding: 45px;
     border-radius: 12px;
@@ -161,7 +124,7 @@ body {
 }
 
 .email-btn:hover {
-    background: #eef2ff;
+    background: #f8fafc;
     border-color: #ffffff;
 }
 

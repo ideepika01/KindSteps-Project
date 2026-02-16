@@ -4,9 +4,9 @@
 :root {
     --primary: #334155;
     --accent: #6366f1;
-    --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    --card-bg: rgba(255, 255, 255, 0.8);
-    --glass-border: rgba(255, 255, 255, 0.4);
+    --bg-gradient: #ffffff;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --glass-border: rgba(0, 0, 0, 0.05);
     --text-main: #1e293b;
     --text-muted: #64748b;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -27,62 +27,13 @@ body {
     flex-direction: column;
 }
 
-/* =========================================
-   NAVBAR
-   ========================================= */
-.navbar {
-    background: rgba(51, 65, 85, 0.95);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    width: 100%;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    padding: 1rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.nav-container {
-    width: 95%;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 0 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
-    color: #fff;
-    font-size: 1.5rem;
-    font-weight: 800;
-    text-decoration: none;
-    transition: var(--transition);
-}
-
-.nav-links {
-    display: flex;
-    gap: 2rem;
-    list-style: none;
-}
-
-.nav-links a {
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 500;
-    transition: var(--transition);
-}
-
-.nav-links a:hover {
-    color: #fff;
-}
+/* NAVBAR Standardized in globals.css */
 
 /* =========================================
    TRACKING CONTENT
    ========================================= */
 .track-wrapper {
-    max-width: 900px;
+    max-width: 1100px;
     margin: 4rem auto;
     padding: 0 2rem;
     text-align: center;
@@ -99,7 +50,48 @@ body {
 
 .subtext {
     color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+
+.track-input-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
     margin-bottom: 3rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#tracking-id-input {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+#tracking-id-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.1);
+}
+
+.track-btn {
+    padding: 12px 25px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.track-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
 }
 
 /* Progress Stepper */
@@ -167,49 +159,127 @@ body {
     background: var(--accent);
 }
 
-/* Status Card */
-.status-box {
-    background: #fff;
-    padding: 3rem;
-    border-radius: 24px;
-    text-align: left;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-    margin-top: 2rem;
+/* =========================================
+   RESCUE DASHBOARD (Premium Styling)
+   ========================================= */
+.status-dashboard {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
+    border-radius: 32px;
+    padding: 3rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+    text-align: left;
 }
 
-.status-box h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
+.status-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.status-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
     color: var(--primary);
     font-weight: 800;
 }
 
+.status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: #eff6ff;
+    color: #2563eb;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
+}
+
 #status-message {
     font-size: 1.1rem;
-    margin-bottom: 2rem;
-    color: var(--text-main);
-}
-
-.detailed-info {
-    display: grid;
-    gap: 1rem;
-}
-
-#detailed-info p {
-    margin-bottom: 0.75rem;
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #f1f5f9;
-    padding-bottom: 0.75rem;
-    color: var(--text-main);
-}
-
-#detailed-info p strong {
     color: var(--text-muted);
-    font-weight: 500;
+    font-weight: 400;
 }
 
+/* Details Grid */
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.info-card {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 24px;
+    border: 1px solid #f1f5f9;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.team-card {
+    border-left: 4px solid #6366f1;
+}
+
+.update-card {
+    border-left: 4px solid #2563eb;
+}
+
+.location-card {
+    border-left: 4px solid #06b6d4;
+}
+
+.field-notes-card {
+    grid-column: 1 / -1;
+    border-left: 4px solid #8b5cf6;
+    align-items: flex-start;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+}
+
+.card-icon {
+    width: 48px;
+    height: 48px;
+    background: #f8fafc;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.card-content label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.card-content h4 {
+    font-size: 1rem;
+    color: var(--text-main);
+    font-weight: 700;
+    margin-bottom: 0.15rem;
+}
+
+.card-content p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Animations & Responsive */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -222,9 +292,30 @@ body {
     }
 }
 
+@media (max-width: 992px) {
+    .details-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .status-dashboard {
+        padding: 2rem;
+    }
+
+    .progress-container {
+        padding: 2rem 1.5rem;
+    }
+}
+
 .footer {
     background: var(--primary);
     color: rgba(255, 255, 255, 0.6);
     padding: 3rem 0;
     text-align: center;
+    margin-top: auto;
 }

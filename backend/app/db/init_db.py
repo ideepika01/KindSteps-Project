@@ -1,44 +1,69 @@
-# This script sets up the essential data our app needs to run properly from day one.
 from sqlalchemy.orm import Session
-from app.core import security
+from app.core.security import hash_password
 from app.models.user import User, UserRole
+from app.models.report import Report
 
-# This function adds initial accounts (like the Admin) if they don't already exist
-def init_db(db: Session) -> None:
-    # 1. Ensure Admin exists
-    admin = db.query(User).filter(User.email == "admin@kindsteps.com").first()
-    if not admin:
-        print("Creating default admin account...")
-        admin = User(
-            full_name="KindSteps Admin",
-            email="admin@kindsteps.com",
-            hashed_password=security.hash_password("admin123"),
-            role=UserRole.admin.value,
-            phone="1234567890"
-        )
-        db.add(admin)
 
-    # 2. Ensure Team Alpha exists
-    team = db.query(User).filter(User.email == "team@kindsteps.com").first()
-    if not team:
-        print("Creating default team account...")
-        team = User(
-            full_name="Team Alpha",
-            email="team@kindsteps.com",
-            hashed_password=security.hash_password("team123"),
-            role=UserRole.rescue_team.value,
-            phone="0987654321"
-        )
-        db.add(team)
-    
+def create_user_if_not_exists(db: Session, full_name: str, email: str, password: str, role: str, phone: str):
+    # Check if user already exists using email
+    user = db.query(User).filter(User.email == email).first()
+
+    # If user exists, return that user
+    if user:
+        return user
+
+    # Create new user object
+    new_user = User(
+        full_name=full_name,
+        email=email,
+        hashed_password=hash_password(password),  # Convert password into hashed value
+        role=role,
+        phone=phone,
+    )
+
+    # Add user to database
+    db.add(new_user)
+
+    # Save changes permanently
     db.commit()
-    db.refresh(team)
 
-    # 3. Clean up unassigned reports
-    from app.models.report import Report
-    unassigned_count = db.query(Report).filter(Report.assigned_team_id == None).count()
-    if unassigned_count > 0:
-        print(f"Assigning {unassigned_count} unassigned reports to {team.full_name}")
-        db.query(Report).filter(Report.assigned_team_id == None).update({Report.assigned_team_id: team.id})
-    
+    # Refresh to get updated data (like id)
+    db.refresh(new_user)
+
+    # Return newly created user
+    return new_user
+
+
+def assign_unassigned_reports(db: Session, team: User):
+    # Update all reports where assigned_team_id is empty
+    db.query(Report)\
+        .filter(Report.assigned_team_id == None)\
+        .update({Report.assigned_team_id: team.id})
+
+    # Save changes to database
     db.commit()
+
+
+def init_db(db: Session):
+    # Create admin user if not exists
+    create_user_if_not_exists(
+        db,
+        "KindSteps Admin",
+        "admin@kindsteps.com",
+        "admin123",
+        UserRole.admin.value,
+        "1234567890",
+    )
+
+    # Create team user if not exists
+    team = create_user_if_not_exists(
+        db,
+        "Team Alpha",
+        "team@kindsteps.com",
+        "team123",
+        UserRole.rescue_team.value,
+        "0987654321",
+    )
+
+    # Assign all unassigned reports to the team
+    assign_unassigned_reports(db, team)

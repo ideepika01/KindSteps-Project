@@ -6,7 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Control Panel</title>
   <link rel="stylesheet" href="../styles/admin_control.css">
+  <link rel="stylesheet" href="../styles/globals.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 
@@ -19,18 +21,14 @@
   <div class="page-wrapper">
 
     <!-- TOP NAVBAR -->
-    <header class="topbar">
-      <div class="top-inner">
-
-        <a href="../pages/main.html" class="brand" style="text-decoration: none;">
-          <span class="brand-text">KindSteps</span>
-        </a>
-
-        <div class="nav-right">
-          <span class="user-name">Deepika</span>
-          <img src="../assets/user.png" alt="Profile" class="profile-img">
-        </div>
-
+    <header class="navbar">
+      <div class="nav-container">
+        <a href="./main.html" class="logo">KindSteps</a>
+        <ul class="nav-links">
+          <li><a href="./admin_control.html" class="active">Management</a></li>
+          <li><a href="./main.html">Home</a></li>
+          <li><a href="#" class="logout-btn">Logout</a></li>
+        </ul>
       </div>
     </header>
 
@@ -46,11 +44,11 @@
         </div>
 
         <ul class="sidebar-menu">
-          <li><a href="./admin_dashboard.html"><span>🛡️</span> Admin access</a></li>
-          <li><a href="./admin_control.html"><span>🌐</span> RescueNet</a></li>
-          <li><a href="./admin_control.html"><span>🎒</span> RescueTeam</a></li>
-          <li><a href="./admin_dashboard.html"><span>👥</span> Users</a></li>
-          <li><a href="./admin_control.html"><span>👤</span> Profile</a></li>
+          <li><a href="./admin_control.html"><i data-lucide="shield-check"></i> Admin access</a></li>
+          <li><a href="./admin_control.html"><i data-lucide="globe"></i> RescueNet</a></li>
+          <li><a href="./admin_control.html"><i data-lucide="briefcase"></i> RescueTeam</a></li>
+          <li><a href="./admin_control.html"><i data-lucide="users"></i> Users</a></li>
+          <li><a href="./admin_control.html"><i data-lucide="user"></i> Profile</a></li>
         </ul>
 
       </aside>
@@ -86,25 +84,25 @@
         <div class="stats-grid">
 
           <div class="stat-card">
-            <div class="stat-title"><span>🧑‍🤝‍🧑</span> Total Users</div>
+            <div class="stat-title"><i data-lucide="users-2"></i> Total Users</div>
             <div id="stat-total-users" class="stat-number">...</div>
             <div class="stat-change" id="stat-users-change">Loading...</div>
           </div>
 
           <div class="stat-card">
-            <div class="stat-title"><span>👨‍🚒</span> Active Volunteers</div>
+            <div class="stat-title"><i data-lucide="flame"></i> Active Volunteers</div>
             <div id="stat-volunteers" class="stat-number">...</div>
             <div class="stat-change">Direct impact</div>
           </div>
 
           <div class="stat-card">
-            <div class="stat-title"><span>📄</span> Open Reports</div>
+            <div class="stat-title"><i data-lucide="file-warning"></i> Open Reports</div>
             <div id="stat-open-reports" class="stat-number">...</div>
             <div class="stat-change">Active cases</div>
           </div>
 
           <div class="stat-card">
-            <div class="stat-title"><span>🗂️</span> Resolved Cases</div>
+            <div class="stat-title"><i data-lucide="check-square"></i> Resolved Cases</div>
             <div id="stat-resolved-cases" class="stat-number">...</div>
             <div class="stat-change">Total success</div>
           </div>
@@ -152,13 +150,13 @@
   <footer class="footer">
     <div class="footer-left">
       <div class="footer-logo">KindSteps</div>
-      <p>© 2025 KindSteps. All rights reserved.</p>
+      <p>© 2025 KindSteps • Humanity First</p>
     </div>
 
     <div class="footer-links">
       <a href="./about.html">About Us</a>
       <a href="./contact.html">Contact</a>
-
+      <a href="./works.html">Safety Tips</a>
     </div>
   </footer>
 
@@ -167,6 +165,9 @@
   <script src="../js/config.js"></script>
   <script src="../js/utils.js"></script>
   <script src="../js/admin_control.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
 </body>
 
 </html>

@@ -6,11 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Safety Tips - KindSteps</title>
     <link rel="stylesheet" href="../styles/works.css">
+    <link rel="stylesheet" href="../styles/globals.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
+    <div class="bg-accents">
+        <div class="accent-blob blob-1"></div>
+        <div class="accent-blob blob-2"></div>
+    </div>
 
     <!-- NAVBAR -->
     <header class="navbar">
@@ -18,10 +24,12 @@
             <a href="./main.html" class="logo">KindSteps</a>
             <ul class="nav-links">
                 <li><a href="./main.html">Home</a></li>
-
-                <li><a href="./about.html">About Us</a></li>
+                <li><a href="./report.html">Report</a></li>
+                <li><a href="./my_reports.html">My Impact</a></li>
+                <li><a href="./about.html">About</a></li>
                 <li><a href="./contact.html">Contact</a></li>
-
+                <li><a href="./works.html" class="active">How it works</a></li>
+                <li><a href="#" class="logout-btn">Logout</a></li>
             </ul>
         </div>
     </header>
@@ -42,7 +50,7 @@
 
             <!-- CARD 1 -->
             <div class="tip-card">
-                <div class="icon">🧭</div>
+                <div class="icon"><i data-lucide="compass"></i></div>
                 <h3>Understand Their Situation</h3>
                 <p>
                     Approach with an open mind, recognizing that vulnerable individuals may be facing complex
@@ -53,7 +61,7 @@
 
             <!-- CARD 2 -->
             <div class="tip-card">
-                <div class="icon">💬</div>
+                <div class="icon"><i data-lucide="message-square"></i></div>
                 <h3>Communicate with Respect</h3>
                 <p>
                     Use a calm, gentle tone of voice and simple language. Make eye contact if appropriate,
@@ -63,7 +71,7 @@
 
             <!-- CARD 3 -->
             <div class="tip-card">
-                <div class="icon">⚠️</div>
+                <div class="icon"><i data-lucide="alert-triangle"></i></div>
                 <h3>Prioritize Your Safety First</h3>
                 <p>
                     Always assess the situation to ensure your own safety. If you feel uncomfortable or unsafe,
@@ -73,7 +81,7 @@
 
             <!-- CARD 4 -->
             <div class="tip-card">
-                <div class="icon">👂</div>
+                <div class="icon"><i data-lucide="ear"></i></div>
                 <h3>Listen Actively and Patiently</h3>
                 <p>
                     Give them your full attention without interrupting. Show empathy and validate their feelings.
@@ -83,7 +91,7 @@
 
             <!-- CARD 5 -->
             <div class="tip-card">
-                <div class="icon">🤝</div>
+                <div class="icon"><i data-lucide="handshake"></i></div>
                 <h3>Offer Practical Assistance</h3>
                 <p>
                     If safe and appropriate, offer immediate help such as water, food, or a warm blanket.
@@ -93,7 +101,7 @@
 
             <!-- CARD 6 -->
             <div class="tip-card">
-                <div class="icon">📍</div>
+                <div class="icon"><i data-lucide="map-pin"></i></div>
                 <h3>Accurate Reporting to KindSteps</h3>
                 <p>
                     Provide as much detail as possible: location, time, appearance, and any specific needs observed.
@@ -103,7 +111,7 @@
 
             <!-- CARD 7 -->
             <div class="tip-card">
-                <div class="icon">👀</div>
+                <div class="icon"><i data-lucide="eye"></i></div>
                 <h3>Observe Without Staring</h3>
                 <p>
                     Observe from a respectful distance without making them feel scrutinized.
@@ -113,7 +121,7 @@
 
             <!-- CARD 8 -->
             <div class="tip-card">
-                <div class="icon">🏥</div>
+                <div class="icon"><i data-lucide="hospital"></i></div>
                 <h3>Encourage Professional Help</h3>
                 <p>
                     If the person is in danger, contact emergency services. Otherwise, suggest reaching
@@ -123,7 +131,7 @@
 
             <!-- CARD 9 -->
             <div class="tip-card">
-                <div class="icon">📘</div>
+                <div class="icon"><i data-lucide="book-open"></i></div>
                 <h3>Educate Yourself Continually</h3>
                 <p>
                     Learn more about homelessness, mental illness, and vulnerabilities. Ongoing learning
@@ -138,13 +146,13 @@
     <footer class="footer">
         <div class="footer-left">
             <div class="footer-logo">KindSteps</div>
-            <p>© 2025 KindSteps. All rights reserved.</p>
+            <p>© 2025 KindSteps • Humanity First</p>
         </div>
 
         <div class="footer-links">
             <a href="./about.html">About Us</a>
             <a href="./contact.html">Contact</a>
-
+            <a href="./works.html">Safety Tips</a>
         </div>
     </footer>
 
@@ -158,6 +166,11 @@
             once: true,
             mirror: false
         });
+
+        // Initialize icons
+        if (window.lucide) {
+            lucide.createIcons();
+        }
     </script>
 </body>
 

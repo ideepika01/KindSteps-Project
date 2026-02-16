@@ -6,17 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - KindSteps</title>
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./styles/globals.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
     <header class="navbar">
         <div class="nav-container">
             <a href="./index.html" class="logo">KindSteps</a>
-            <div class="nav-auth">
-                <a href="./pages/signup.html" class="signup-btn">Get Started</a>
-            </div>
+            <ul class="nav-links">
+                <li><a href="./pages/signup.html" class="nav-cta-btn">Get Started</a></li>
+            </ul>
         </div>
     </header>
 
@@ -49,7 +51,8 @@
                         <div class="password-container">
                             <input type="password" id="login-password" placeholder="••••••••" class="input-field"
                                 required>
-                            <button type="button" class="toggle-password" id="pw-toggle">👁️</button>
+                            <button type="button" class="toggle-password" id="pw-toggle"><i
+                                    data-lucide="eye"></i></button>
                         </div>
                     </div>
 
@@ -63,9 +66,6 @@
         </section>
     </main>
 
-    <footer class="footer">
-        <p>© 2025 KindSteps • Humanity First</p>
-    </footer>
 
     <!-- Scripts -->
     <script src="./js/config.js"></script>
@@ -83,7 +83,9 @@
             pwToggle.addEventListener('click', () => {
                 const type = pwInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 pwInput.setAttribute('type', type);
-                pwToggle.textContent = type === 'password' ? '👁️' : '🔒';
+                // Update icon based on state
+                pwToggle.innerHTML = type === 'password' ? '<i data-lucide="eye"></i>' : '<i data-lucide="eye-off"></i>';
+                lucide.createIcons();
             });
         }
 
@@ -109,6 +111,11 @@
                 }, 500);
             }
         }, 5000);
+
+        // Initialize icons
+        if (window.lucide) {
+            lucide.createIcons();
+        }
     </script>
 </body>
 

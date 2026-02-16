@@ -1,176 +1,234 @@
-// Case Details Logic: Displays report information and map coordinates.
-document.addEventListener('DOMContentLoaded', async () => {
-    // Block access if not logged in
+document.addEventListener("DOMContentLoaded", start);
+
+async function start() {
     checkLogin();
 
-    // Get report ID from URL (?id=123)
-    const reportId = new URLSearchParams(window.location.search).get('id');
+    const reportId = new URLSearchParams(window.location.search).get("id");
 
     if (!reportId) {
-        alert('No Report ID found.');
-        window.location.href = './main.html';
+        alert("No Report ID found.");
+        window.location.href = "./main.html";
         return;
     }
 
-    // Setup Dynamic Back Button
-    const backBtn = document.getElementById('back-to-dash');
-    if (backBtn) {
-        backBtn.onclick = async (e) => {
-            e.preventDefault();
-            try {
-                const res = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
-                if (res.ok) {
-                    const user = await res.json();
-                    if (user.role === 'admin') window.location.href = './admin_control.html';
-                    else if (user.role === 'rescue_team') window.location.href = './rescue_team.html';
-                    else window.location.href = './my_reports.html';
-                } else {
-                    window.location.href = './main.html';
-                }
-            } catch (e) {
-                window.location.href = './main.html';
-            }
-        };
-    }
-
+    setupBackButton();
     loadReport(reportId);
-});
+}
 
 
-// ---------------- LOAD REPORT ----------------
+// ================= BACK BUTTON =================
+
+function setupBackButton() {
+    const backBtn = document.getElementById("back-to-dash");
+    if (!backBtn) return;
+
+    backBtn.onclick = async (e) => {
+        e.preventDefault();
+
+        try {
+            const res = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
+            if (!res.ok) {
+                window.location.href = "./main.html";
+                return;
+            }
+
+            const user = await res.json();
+
+            if (user.role === "admin") {
+                window.location.href = "./admin_control.html";
+                return;
+            }
+
+            if (user.role === "rescue_team") {
+                window.location.href = "./rescue_team.html";
+                return;
+            }
+
+            window.location.href = "./my_reports.html";
+
+        } catch {
+            window.location.href = "./main.html";
+        }
+    };
+}
+
+
+// ================= LOAD REPORT =================
 
 async function loadReport(reportId) {
     try {
-        const response = await fetchWithAuth(`${API_BASE_URL}/reports/${reportId}`);
+        const res = await fetchWithAuth(`${API_BASE_URL}/reports/${reportId}`);
 
-        if (!response.ok) {
-            alert('Report not found.');
+        if (!res.ok) {
+            alert("Report not found.");
             return;
         }
 
-        const report = await response.json();
-
-        showReportDetails(report);
+        const report = await res.json();
+        displayReport(report);
         setupStatusUpdate(report.id, report.status);
 
-    } catch (err) {
-        console.error('Error loading report:', err);
+    } catch (error) {
+        console.error("Load error:", error);
     }
 }
 
 
-// ---------------- DISPLAY REPORT ----------------
+// ================= DISPLAY REPORT =================
 
-function showReportDetails(report) {
-    setText('case-title', report.condition);
-    setText('case-id', `ID: RSC-${String(report.id).padStart(6, '0')}`);
-    setText('case-date', `Reported: ${new Date(report.created_at).toLocaleString()}`);
+function displayReport(report) {
 
-    const locationEl = document.getElementById('location-text');
-    if (locationEl) {
-        locationEl.textContent = report.location;
-        if (report.latitude && report.longitude) {
-            locationEl.innerHTML += `<br><small style="margin-top: 10px; display: block;">
-                <a href="https://www.google.com/maps?q=${report.latitude},${report.longitude}" target="_blank" style="color: #64b5f6; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
-                    <span>📍</span> View on Google Maps
-                </a></small>`;
+    // Basic info
+    document.getElementById("case-title").innerText = report.condition;
+    document.getElementById("case-id").innerText =
+        "ID: RSC-" + String(report.id).padStart(6, "0");
+
+    document.getElementById("case-date").innerText =
+        "Reported: " + new Date(report.created_at).toLocaleString();
+
+    document.getElementById("summary-text").innerText =
+        report.description;
+
+    document.getElementById("reporter-name").innerText =
+        report.contact_name;
+
+    document.getElementById("reporter-phone").innerText =
+        report.contact_phone;
+
+
+    // Location
+    const locationEl = document.getElementById("location-text");
+    locationEl.innerText = report.location;
+
+    if (report.latitude && report.longitude) {
+        locationEl.innerHTML +=
+            `<br>
+            <a href="https://www.google.com/maps?q=${report.latitude},${report.longitude}" target="_blank">
+                View on Google Maps
+            </a>`;
+    }
+
+
+    // Status
+    const status = report.status || "received";
+    document.getElementById("case-status-text").innerHTML =
+        `Status: <span class="tag ${status}">${status}</span>`;
+
+
+    // Image
+    const img = document.getElementById("case-image");
+
+    if (!report.photo_url) {
+        img.style.display = "none";
+    } else {
+        const fullUrl =
+            report.photo_url.startsWith("http") ||
+                report.photo_url.startsWith("data:")
+                ? report.photo_url
+                : API_BASE_URL + "/" + report.photo_url;
+
+        img.src = fullUrl;
+        img.style.display = "block";
+    }
+
+
+    // Field review
+    const reviewInput = document.getElementById("field-review");
+    if (reviewInput && report.field_review) {
+        reviewInput.value = report.field_review;
+    }
+
+    // Rescued location
+    const rescuedInput = document.getElementById("rescued-location");
+    if (rescuedInput && report.rescued_location) {
+        rescuedInput.value = report.rescued_location;
+    }
+
+    // Refresh icons if using Lucide
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+
+    renderTimeline(report);
+}
+
+
+function renderTimeline(report) {
+    const status = report.status || "received";
+    const steps = ["received", "in_progress", "active", "resolved"];
+    const currentIdx = steps.indexOf(status);
+
+    steps.forEach((step, idx) => {
+        const stepEl = document.getElementById(`step-${step}`);
+        if (stepEl && idx <= currentIdx) {
+            stepEl.classList.add("active");
+
+            // Add time for the received step
+            if (step === "received") {
+                document.getElementById("time-received").innerText =
+                    new Date(report.created_at).toLocaleTimeString();
+            }
+
+            // Mocking update times for other steps for dry run visibility
+            if (idx > 0 && idx <= currentIdx) {
+                const timeStr = new Date(report.updated_at).toLocaleTimeString();
+                const timeId = `time-${step === 'in_progress' ? 'dispatched' : step === 'active' ? 'active' : 'resolved'}`;
+                const timeEl = document.getElementById(timeId);
+                if (timeEl) timeEl.innerText = timeStr;
+            }
         }
-    }
-    setText('summary-text', report.description);
-    setText('reporter-name', report.contact_name);
-    setText('reporter-phone', report.contact_phone);
-
-    showStatus(report.status);
-    showImage(report.photo_url);
-
-    // Set field review and rescued location if exists
-    const reviewEl = document.getElementById('field-review');
-    if (reviewEl && report.field_review) {
-        reviewEl.value = report.field_review;
-    }
-
-    const rescuedLocEl = document.getElementById('rescued-location');
-    if (rescuedLocEl && report.rescued_location) {
-        rescuedLocEl.value = report.rescued_location;
-    }
-}
-
-function showStatus(status) {
-    const statusEl = document.getElementById('case-status-text');
-    if (!statusEl) return;
-
-    const displayStatus = status || 'received';
-    statusEl.innerHTML = `Status: <span class="tag ${displayStatus}">${displayStatus}</span>`;
-}
-
-function showImage(photoUrl) {
-    const img = document.getElementById('case-image');
-    if (!img) return;
-
-    if (!photoUrl) {
-        img.style.display = 'none';
-        return;
-    }
-
-    const fullUrl =
-        photoUrl.startsWith('data:') || photoUrl.startsWith('http')
-            ? photoUrl
-            : `${API_BASE_URL}${photoUrl.startsWith('/') ? '' : '/'}${photoUrl}`;
-
-    img.src = fullUrl;
-    img.style.display = 'block';
+    });
 }
 
 
-// ---------------- STATUS UPDATE ----------------
+// ================= UPDATE STATUS =================
 
 function setupStatusUpdate(reportId, currentStatus) {
-    const dropdown = document.getElementById('status-dropdown');
-    const button = document.getElementById('update-btn');
+    const dropdown = document.getElementById("status-dropdown");
+    const button = document.getElementById("update-btn");
 
     if (!dropdown || !button) return;
 
     dropdown.value = currentStatus;
 
     button.onclick = () => {
-        const review = document.getElementById('field-review').value;
-        const rescuedLoc = document.getElementById('rescued-location').value;
-        updateStatusAndReview(reportId, dropdown.value, review, rescuedLoc);
+        const review =
+            document.getElementById("field-review").value;
+
+        const rescuedLocation =
+            document.getElementById("rescued-location").value;
+
+        updateReport(reportId, dropdown.value, review, rescuedLocation);
     };
 }
 
-async function updateStatusAndReview(reportId, newStatus, fieldReview, rescuedLocation) {
+
+async function updateReport(reportId, status, review, rescuedLocation) {
     try {
-        const response = await fetchWithAuth(
+        const res = await fetchWithAuth(
             `${API_BASE_URL}/reports/${reportId}`,
             {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({
-                    status: newStatus,
-                    field_review: fieldReview,
+                    status: status,
+                    field_review: review,
                     rescued_location: rescuedLocation
                 })
             }
         );
 
-        if (!response.ok) {
-            alert('Failed to update case.');
+        if (!res.ok) {
+            alert("Update failed.");
             return;
         }
 
-        alert('Case updated successfully!');
+        alert("Case updated.");
         location.reload();
 
-    } catch (err) {
-        console.error('Update error:', err);
+    } catch (error) {
+        console.error("Update error:", error);
     }
-}
-
-
-// ---------------- UTIL ----------------
-
-function setText(id, text) {
-    const el = document.getElementById(id);
-    if (el) el.innerText = text;
 }

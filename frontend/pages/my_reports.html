@@ -6,39 +6,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Reports - KindSteps</title>
     <link rel="stylesheet" href="../styles/report_list.css">
+    <link rel="stylesheet" href="../styles/globals.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
+    <!-- Background Accents -->
+    <div class="bg-accents">
+        <div class="accent-blob blob-1"></div>
+        <div class="accent-blob blob-2"></div>
+    </div>
+
     <header class="navbar">
         <div class="nav-container">
             <a href="./main.html" class="logo">KindSteps</a>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="./main.html">Home</a></li>
-                    <li><a href="./report.html">Report</a></li>
-                    <li><a href="./my_reports.html" class="active">My Reports</a></li>
-                </ul>
-            </nav>
+            <ul class="nav-links">
+                <li><a href="./main.html">Home</a></li>
+                <li><a href="./report.html">Report</a></li>
+                <li><a href="./my_reports.html" class="active">My Impact</a></li>
+                <li><a href="./about.html">About</a></li>
+                <li><a href="./contact.html">Contact</a></li>
+                <li><a href="./works.html">How it works</a></li>
+                <li><a href="#" class="logout-btn">Logout</a></li>
+            </ul>
         </div>
     </header>
 
     <div class="dashboard-container">
-        <div class="left-content">
-            <div class="welcome-box" data-aos="fade-down" data-aos-duration="1000">
-                <h2>My Reported Cases</h2>
-                <p>Track the status of all your submitted reports in one place.</p>
+        <div class="dashboard-header" data-aos="fade-down">
+            <div class="welcome-box">
+                <span class="badge">Your Impact Journey</span>
+                <h1>Acts of Kindness</h1>
+                <p>A personal record of the hope you've shared. Every report you make is a vital step toward someone's
+                    safety.</p>
             </div>
+            <a href="./main.html" class="back-link">
+                <i data-lucide="arrow-left"></i>
+                Back to Home
+            </a>
+        </div>
 
-            <div class="cases-grid" id="my-reports-grid">
-                <p>Loading your reports...</p>
+        <div class="cases-grid" id="my-reports-grid">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Fetching your reports...</p>
             </div>
         </div>
     </div>
 
     <footer class="footer">
-        <p>© 2025 KindSteps. All rights reserved.</p>
+        <div class="footer-left">
+            <div class="footer-logo">KindSteps</div>
+            <p>© 2025 KindSteps • Humanity First</p>
+        </div>
+
+        <div class="footer-links">
+            <a href="./about.html">About Us</a>
+            <a href="./contact.html">Contact</a>
+            <a href="./works.html">Safety Tips</a>
+        </div>
     </footer>
 
     <script src="../js/config.js"></script>

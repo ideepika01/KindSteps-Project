@@ -1,47 +1,51 @@
-// This file holds all the little helpers we use across the whole app.
+// ================= AUTH SYSTEM =================
 
-// Getting the login token from the user's browser storage
+// Get token
 function getToken() {
-    return localStorage.getItem('access_token');
+    return localStorage.getItem("access_token");
 }
 
-// Saving the secret token so the user stays signed in
+// Save token
 function saveToken(token) {
-    localStorage.setItem('access_token', token);
+    localStorage.setItem("access_token", token);
 }
 
-// Say goodbye: clearing the session and heading home
+// Logout
 function logout() {
-    localStorage.removeItem('access_token');
-    window.location.href = '../index.html';
+    localStorage.removeItem("access_token");
+    // Ensure we go back to the root landing page regardless of where we are
+    const isPage = window.location.pathname.includes("/pages/");
+    window.location.href = isPage ? "../index.html" : "./index.html";
 }
 
-// Checking if the user is logged in. If not, we kindly ask them to sign in.
+// Check login
 function checkLogin() {
     const token = getToken();
 
     if (!token) {
-        alert('Hold on! You need to sign in to see this page.');
-        window.location.href = '../index.html';
+        alert("Please sign in first.");
+        window.location.href = "../index.html";
         return null;
     }
+
     return token;
 }
 
-// A special tool that fetches data and carries our login key for us automatically
+
+// ================= FETCH WITH AUTH =================
+
 async function fetchWithAuth(url, options = {}) {
     const token = getToken();
 
-    // Adding the 'authorization' stamp to our request envelope
-    const headers = {
-        ...options.headers,
-        'Authorization': `Bearer ${token}`
-    };
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            ...options.headers,
+            Authorization: "Bearer " + token
+        }
+    });
 
-    // Sending the request out
-    const response = await fetch(url, { ...options, headers });
-
-    // If the server doesn't recognize our key anymore, we'll log out to keep things safe.
+    // If unauthorized → logout
     if (response.status === 401) {
         logout();
     }
@@ -49,43 +53,105 @@ async function fetchWithAuth(url, options = {}) {
     return response;
 }
 
-// Updating the navbar links based on who is logged in (Admin, Team, or Citizen)
+
+// ================= ROLE DASHBOARD =================
+
+function getDashboardUrl(role) {
+    const insidePages = window.location.pathname.includes("/pages/");
+    const base = insidePages ? "./" : "./pages/";
+
+    if (role === "admin") {
+        return base + "admin_control.html";
+    }
+
+    if (role === "rescue_team") {
+        return base + "rescue_team.html";
+    }
+
+    return base + "main.html";
+}
+
+
+// ================= DYNAMIC NAVBAR =================
+
 async function setupDynamicNavbar() {
+    // Attach logout event to any logout buttons found
+    const logoutBtns = document.querySelectorAll(".logout-btn");
+    logoutBtns.forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            logout();
+        };
+    });
+
     const token = getToken();
     if (!token) return;
 
     try {
-        const response = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
-        if (!response.ok) return;
+        const res = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
+        if (!res.ok) return;
 
-        const user = await response.json();
+        const user = await res.json();
         const dashboardUrl = getDashboardUrl(user.role);
 
-        // Making sure the "Home" and Logo links send you to your specific dashboard
-        document.querySelectorAll('.logo, .brand, .nav-links a').forEach(link => {
+        const links = document.querySelectorAll(
+            ".logo, .brand, .nav-links a"
+        );
+
+        links.forEach(link => {
             const text = link.textContent.toLowerCase();
-            if (text === 'home' || link.classList.contains('logo')) {
+
+            if (text === "home" || link.classList.contains("logo")) {
                 link.href = dashboardUrl;
             }
         });
 
-    } catch (err) {
-        console.warn('Skipping navbar update for now.');
+    } catch (error) {
+        console.error("Navbar setup failed:", error);
     }
 }
 
-// Figuring out which dashboard page belongs to which role
-function getDashboardUrl(role) {
-    const inPages = window.location.pathname.includes('/pages/');
-    const p = inPages ? './' : './pages/';
 
-    if (role === 'admin') return p + 'admin_control.html';
-    if (role === 'rescue_team') return p + 'rescue_team.html';
-    return p + 'main.html';
+// ================= MOBILE MENU =================
+
+function setupMobileMenu() {
+    const navContainer = document.querySelector(".nav-container");
+    const navLinks = document.querySelector(".nav-links");
+
+    if (!navContainer || !navLinks) return;
+
+    // Create btn if it doesn't exist
+    let menuBtn = document.querySelector(".mobile-menu-btn");
+    if (!menuBtn) {
+        menuBtn = document.createElement("button");
+        menuBtn.className = "mobile-menu-btn";
+        menuBtn.innerHTML = "<span></span><span></span><span></span>";
+        navContainer.appendChild(menuBtn);
+    }
+
+    menuBtn.onclick = () => {
+        menuBtn.classList.toggle("active");
+        navLinks.classList.toggle("active");
+        document.body.style.overflow = navLinks.classList.contains("active") ? "hidden" : "";
+    };
+
+    // Close menu when clicking a link
+    navLinks.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", () => {
+            menuBtn.classList.remove("active");
+            navLinks.classList.remove("active");
+            document.body.style.overflow = "";
+        });
+    });
 }
 
-// Running the navbar setup as soon as the page is ready
-document.addEventListener('DOMContentLoaded', setupDynamicNavbar);
 
-// Initialize navbar automatically when the page loads
-document.addEventListener('DOMContentLoaded', setupDynamicNavbar);
+// ================= RUN ON LOAD =================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+        setupDynamicNavbar();
+        setupMobileMenu();
+    }
+);

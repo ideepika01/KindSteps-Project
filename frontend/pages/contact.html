@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact - KindSteps</title>
     <link rel="stylesheet" href="../styles/contact.css">
+    <link rel="stylesheet" href="../styles/globals.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -19,9 +21,11 @@
             <ul class="nav-links">
                 <li><a href="./main.html">Home</a></li>
                 <li><a href="./report.html">Report</a></li>
-                <li><a href="./my_reports.html">My Reports</a></li>
-                <li><a href="./about.html">About Us</a></li>
+                <li><a href="./my_reports.html">My Impact</a></li>
+                <li><a href="./about.html">About</a></li>
+                <li><a href="./contact.html" class="active">Contact</a></li>
                 <li><a href="./works.html">How it works</a></li>
+                <li><a href="#" class="logout-btn">Logout</a></li>
             </ul>
         </div>
     </header>
@@ -38,28 +42,28 @@
 
         <!-- CARD 1 — CALL -->
         <div class="contact-card" data-aos="fade-up" data-aos-delay="100">
-            <img src="https://img.icons8.com/color/96/phone.png" class="contact-icon" />
+            <i data-lucide="phone" class="contact-icon" style="color: #3b82f6; width: 48px; height: 48px;"></i>
             <h3>Emergency Helpline</h3>
             <p>Immediate support for urgent situations.</p>
-            <p><strong>📞 +1 555-901-2234</strong></p>
+            <p><strong>+1 555-901-2234</strong></p>
             <p><strong>Available 24/7</strong></p>
         </div>
 
         <!-- CARD 2 — WHATSAPP -->
         <div class="contact-card" data-aos="fade-up" data-aos-delay="200">
-            <img src="https://img.icons8.com/color/96/whatsapp.png" class="contact-icon" />
+            <i data-lucide="message-circle" class="contact-icon" style="color: #22c55e; width: 48px; height: 48px;"></i>
             <h3>WhatsApp Support</h3>
             <p>For non-urgent inquiries and updates.</p>
-            <p><strong>📱 +1 555-778-4455</strong></p>
+            <p><strong>+1 555-778-4455</strong></p>
             <p><strong>Reply Time: Within 30 minutes</strong></p>
         </div>
 
         <!-- CARD 3 — EMAIL -->
         <div class="contact-card" data-aos="fade-up" data-aos-delay="300">
-            <img src="https://img.icons8.com/color/96/secured-letter.png" class="contact-icon" />
+            <i data-lucide="mail" class="contact-icon" style="color: #6366f1; width: 48px; height: 48px;"></i>
             <h3>Email Support</h3>
             <p>Send us detailed questions or attachments.</p>
-            <p><strong>✉ support@kindsteps.org</strong></p>
+            <p><strong>support@kindsteps.org</strong></p>
             <p><strong>Response: 1–3 hours</strong></p>
         </div>
 
@@ -80,13 +84,13 @@
     <footer class="footer">
         <div class="footer-left">
             <div class="footer-logo">KindSteps</div>
-            <p>© 2025 KindSteps. All rights reserved.</p>
+            <p>© 2025 KindSteps • Humanity First</p>
         </div>
 
         <div class="footer-links">
             <a href="./about.html">About Us</a>
             <a href="./contact.html">Contact</a>
-
+            <a href="./works.html">Safety Tips</a>
         </div>
     </footer>
 
@@ -100,6 +104,11 @@
             once: true,
             mirror: false
         });
+
+        // Initialize icons
+        if (window.lucide) {
+            lucide.createIcons();
+        }
     </script>
 </body>
 

@@ -1,167 +1,162 @@
-// This script runs the dashboard that our rescue heroes use to see their tasks.
-
-document.addEventListener('DOMContentLoaded', () => {
-    checkLogin();           // Checking if the user is a team member
-    loadTeamAssignments();  // Getting all their assigned cases ready to view
+document.addEventListener("DOMContentLoaded", () => {
+    checkLogin();
+    loadAssignments();
 });
 
-// Fetching the list of cases from our database
-async function loadTeamAssignments() {
-    const grid = document.getElementById('rescue-reports-grid');
+
+// ---------------- LOAD DATA ----------------
+
+async function loadAssignments() {
+    const grid = document.getElementById("rescue-reports-grid");
     if (!grid) return;
 
     try {
-        // Use a cache-busting timestamp to ensure we get fresh data from the server
-        const response = await fetchWithAuth(`${API_BASE_URL}/reports/my-assignments?t=${new Date().getTime()}`);
+        const res = await fetchWithAuth(
+            `${API_BASE_URL}/reports/my-assignments`
+        );
 
-        if (!response.ok) {
-            grid.innerHTML = '<p class="error-msg">Hmm, we couldn\'t load your cases right now.</p>';
-            return;
+        if (!res.ok) {
+            return showMessage(grid, "Unable to load cases.");
         }
 
-        const allReports = await response.json();
-        if (!Array.isArray(allReports)) return;
+        const reports = await res.json();
+        if (!Array.isArray(reports)) return;
 
-        console.log(`Fetched ${allReports.length} reports.`);
-        updateStats(allReports); // Crunching the numbers for the dashboard stats
+        updateStats(reports);
+        initFilters(reports, grid);
 
-        const filterSelect = document.getElementById('status-filter');
-        const startDateInput = document.getElementById('start-date');
-        const endDateInput = document.getElementById('end-date');
-
-        const applyFilter = () => {
-            const selectedStatus = (filterSelect.value || "all").toLowerCase().trim();
-            const startVal = startDateInput.value;
-            const endVal = endDateInput.value;
-
-            const startDate = startVal ? new Date(startVal) : null;
-            const endDate = endVal ? new Date(endVal) : null;
-
-            if (startDate) startDate.setHours(0, 0, 0, 0);
-            if (endDate) endDate.setHours(23, 59, 59, 999);
-
-            let filteredList = [...allReports];
-
-            // 1. Filter by Status (Robust case-blind check)
-            if (selectedStatus !== 'all') {
-                filteredList = filteredList.filter(report => {
-                    const rStatus = (report.status || "received").toString().toLowerCase().trim();
-                    const activeGroup = ['active', 'in_progress'];
-
-                    if (selectedStatus === 'in_progress') return activeGroup.includes(rStatus);
-                    return rStatus === selectedStatus;
-                });
-            }
-
-            // 2. Filter by Date Range (Consider both creation and update for safety)
-            if (startDate || endDate) {
-                filteredList = filteredList.filter(report => {
-                    const reportDate = new Date(report.updated_at || report.created_at);
-                    if (isNaN(reportDate.getTime())) return true;
-                    if (startDate && reportDate < startDate) return false;
-                    if (endDate && reportDate > endDate) return false;
-                    return true;
-                });
-            }
-
-            renderGrid(filteredList, grid);
-        };
-
-        filterSelect.onchange = applyFilter;
-        startDateInput.onchange = applyFilter;
-        endDateInput.onchange = applyFilter;
-        applyFilter();
-
-    } catch (err) {
-        console.error('Data Fetch Error:', err);
-        grid.innerHTML = '<p class="error-msg">Looks like we can\'t connect to the server.</p>';
+    } catch {
+        showMessage(grid, "Server connection failed.");
     }
 }
 
-// Updating the big numbers at the top of the dashboard so you can see your impact
-function updateStats(reports) {
-    if (!Array.isArray(reports)) return;
 
-    const counts = {
-        total: reports.length,
-        progress: 0,
-        resolved: 0
-    };
+// ---------------- FILTERS ----------------
+
+function initFilters(reports, grid) {
+    const statusEl = document.getElementById("status-filter");
+    const startEl = document.getElementById("start-date");
+    const endEl = document.getElementById("end-date");
+
+    function apply() {
+        const status = (statusEl.value || "all").toLowerCase();
+        const start = startEl.value ? new Date(startEl.value) : null;
+        const end = endEl.value ? new Date(endEl.value) : null;
+
+        if (start) start.setHours(0, 0, 0, 0);
+        if (end) end.setHours(23, 59, 59, 999);
+
+        const filtered = reports.filter(r => {
+            const s = (r.status || "received").toLowerCase();
+            const date = new Date(r.updated_at || r.created_at);
+
+            if (status !== "all") {
+                if (status === "in_progress" && !(s === "active" || s === "in_progress")) return false;
+                if (status !== "in_progress" && s !== status) return false;
+            }
+
+            if (start && date < start) return false;
+            if (end && date > end) return false;
+
+            return true;
+        });
+
+        renderGrid(filtered, grid);
+    }
+
+    statusEl.onchange = apply;
+    startEl.onchange = apply;
+    endEl.onchange = apply;
+
+    apply();
+}
+
+
+// ---------------- STATS ----------------
+
+function updateStats(reports) {
+    let total = reports.length;
+    let progress = 0;
+    let resolved = 0;
 
     reports.forEach(r => {
-        const s = (r.status || "").toString().toLowerCase().trim();
-        if (s === 'resolved') {
-            counts.resolved++;
-        } else if (s === 'in_progress' || s === 'active') {
-            counts.progress++;
-        }
+        const s = (r.status || "").toLowerCase();
+        if (s === "resolved") resolved++;
+        if (s === "active" || s === "in_progress") progress++;
     });
 
-    // Update the UI with fresh numbers
-    const totalEl = document.getElementById('stat-total');
-    const progressEl = document.getElementById('stat-progress');
-    const resolvedEl = document.getElementById('stat-resolved');
-
-    if (totalEl) totalEl.innerText = counts.total;
-    if (progressEl) progressEl.innerText = counts.progress;
-    if (resolvedEl) resolvedEl.innerText = counts.resolved;
-
-    console.log("Stats Updated - Total:", counts.total, "Resolved:", counts.resolved);
+    setText("stat-total", total);
+    setText("stat-progress", progress);
+    setText("stat-resolved", resolved);
 }
 
-// Clearing the grid and filling it with fresh report cards
-function renderGrid(list, container) {
-    container.innerHTML = ''; // Fresh start
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
 
-    if (list.length === 0) {
-        container.innerHTML = `<div class="empty-state">No cases match your filters! Try changing the status or date.</div>`;
-        return;
+
+// ---------------- RENDER ----------------
+
+function renderGrid(list, container) {
+    container.innerHTML = "";
+
+    if (!list.length) {
+        return showMessage(container, "No matching cases.");
     }
 
-    // Sort by latest activity (updated_at) or creation
-    const sorted = [...list].sort((a, b) => {
-        const dateA = new Date(a.updated_at || a.created_at);
-        const dateB = new Date(b.updated_at || b.created_at);
-        return dateB - dateA;
-    });
-
-    sorted.forEach(report => {
-        const card = createCardElement(report);
-        container.appendChild(card);
-    });
+    list
+        .sort((a, b) =>
+            new Date(b.updated_at || b.created_at) -
+            new Date(a.updated_at || a.created_at)
+        )
+        .forEach(r => container.appendChild(createCard(r)));
 
     if (window.AOS) AOS.refresh();
+    if (window.lucide) lucide.createIcons();
 }
 
-// Designing the actual HTML structure for each individual case card
-function createCardElement(report) {
-    const el = document.createElement('article');
-    el.className = 'case-card';
-    el.setAttribute('data-aos', 'fade-up');
 
-    const rawStatus = (report.status || 'received').toString().toLowerCase();
-    const formattedDate = new Date(report.created_at).toLocaleDateString();
+// ---------------- CARD ----------------
 
-    el.innerHTML = `
+function createCard(r) {
+    const card = document.createElement("article");
+    card.className = "case-card";
+
+    const status = (r.status || "received").toLowerCase();
+    const date = new Date(r.created_at).toLocaleDateString();
+
+    card.innerHTML = `
         <div class="case-top">
-            <div class="case-id">RPT-${String(report.id).padStart(5, '0')}</div>
-            <span class="tag ${rawStatus}">${rawStatus.replace('_', ' ')}</span>
+            <div class="case-id">CASE-${String(r.id).padStart(5, "0")}</div>
+            <span class="tag ${status}">${status.replace("_", " ")}</span>
         </div>
 
-        <h3>${report.condition}</h3>
+        <h3>${r.condition}</h3>
 
-        <ul class="case-details">
-            <li>📍 ${report.location}</li>
-            <li>🕒 Assigned: ${formattedDate}</li>
-            <li>📞 Contact: ${report.contact_name} (${report.contact_phone})</li>
+        <ul class="case-info">
+            <li><i data-lucide="map-pin"></i> ${r.location}</li>
+            <li><i data-lucide="calendar"></i> Assigned: ${date}</li>
+            <li><i data-lucide="user"></i> ${r.contact_name} (${r.contact_phone})</li>
         </ul>
 
         <div class="case-actions">
-            <a href="./view_report.html?id=${report.id}" class="btn-primary small">Update Status</a>
-            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(report.location)}" 
-               target="_blank" class="btn-primary small map-btn">🗺️</a>
+            <a href="./view_report.html?id=${r.id}" class="btn-case btn-update">
+                <i data-lucide="edit-3"></i> Update Case
+            </a>
+            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.location)}"
+               target="_blank" class="btn-case btn-map">
+                <i data-lucide="navigation"></i> Map View
+            </a>
         </div>
     `;
 
-    return el;
+    return card;
+}
+
+
+// ---------------- UTIL ----------------
+
+function showMessage(container, message) {
+    container.innerHTML = `<div class="empty-state">${message}</div>`;
 }

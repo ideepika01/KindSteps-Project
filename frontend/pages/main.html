@@ -6,28 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KindSteps</title>
     <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/globals.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
+    <div class="bg-accents">
+        <div class="accent-blob blob-1"></div>
+        <div class="accent-blob blob-2"></div>
+        <div class="accent-blob blob-3"></div>
+    </div>
 
     <!-- Navbar -->
     <header class="navbar">
         <div class="nav-container">
             <a href="./main.html" class="logo">KindSteps</a>
-            <nav>
-                <ul class="nav-links">
-
-                    <li><a href="./report.html">Report</a></li>
-                    <li><a href="./my_reports.html">My Reports</a></li>
-                    <li><a href="./about.html">About Us</a></li>
-                    <li><a href="./contact.html">Contact</a></li>
-                    <li><a href="./works.html">How it works</a></li>
-                </ul>
-            </nav>
+            <ul class="nav-links">
+                <li><a href="./main.html" class="active">Home</a></li>
+                <li><a href="./report.html">Report</a></li>
+                <li><a href="./my_reports.html">My Impact</a></li>
+                <li><a href="./about.html">About</a></li>
+                <li><a href="./contact.html">Contact</a></li>
+                <li><a href="./works.html">How it works</a></li>
+                <li><a href="#" class="logout-btn">Logout</a></li>
+            </ul>
         </div>
     </header>
 
@@ -46,24 +52,87 @@
         </div>
     </section>
 
-    <!-- How We Help -->
-    <section class="help-section" data-aos="fade-up">
-        <h2>How We Help</h2>
-        <div class="help-cards">
-            <div class="help-card" data-aos="fade-right" data-aos-delay="100">
-
-                <h3>Identification & Reporting</h3>
-                <br />
-                <p>Our platform provides an easy and confidential way for anyone to report vulnerable individuals in
-                    need. Your reports directly lead to intervention.</p>
-            </div>
-
-            <div class="help-card" data-aos="fade-left" data-aos-delay="200">
-
-                <h3>Rescue & Care</h3>
-                <br />
-                <p>Once a report is filed, our network of trained volunteers and partners swiftly mobilizes to provide
-                    immediate assistance, care, and safe placement.</p>
+    <!-- Wall of Kindness -->
+    <section class="kindness-wall" data-aos="fade-up">
+        <h2>Wall of Kindness</h2>
+        <p class="subtext">Real stories of hope and rescue from our community.</p>
+        <div class="carousel-container">
+            <div class="carousel-track">
+                <!-- Original Set -->
+                <div class="story-card">
+                    <div class="quote-icon">❤️</div>
+                    <p>"A child was found disoriented near the metro. Thanks to a quick report and AI description, Team
+                        Alpha reached in 10 minutes. He is now safe with his parents."</p>
+                    <span class="story-meta">Anonymized Case #872 • Bangalore</span>
+                </div>
+                <div class="story-card">
+                    <div class="quote-icon">❤️</div>
+                    <p>"An elderly lady with memory loss was noticed at the city park. KindSteps volunteers coordinated
+                        with local authorities for a smooth rescue."</p>
+                    <span class="story-meta">Anonymized Case #911 • Mumbai</span>
+                </div>
+                <div class="story-card">
+                    <div class="quote-icon">❤️</div>
+                    <p>"The AI Compassion Guide helped me stay calm while waiting for the rescue team. It told me
+                        exactly how to approach the distressed youth safely."</p>
+                    <span class="story-meta">User Feedback • Chennai</span>
+                </div>
+                <!-- New Stories -->
+                <div class="story-card">
+                    <div class="quote-icon">🤝</div>
+                    <p>"I never knew how to help until I found KindSteps. Reporting a homeless veteran was so simple,
+                        and seeing the team arrive brought tears to my eyes."</p>
+                    <span class="story-meta">Volunteer Story • Delhi</span>
+                </div>
+                <div class="story-card">
+                    <div class="quote-icon">🌟</div>
+                    <p>"KindSteps isn't just an app; it's a lifeline. They helped us reunite a lost toddler with her
+                        family in record time. Truly a community effort."</p>
+                    <span class="story-meta">Anonymized Case #1024 • Hyderabad</span>
+                </div>
+                <div class="story-card">
+                    <div class="quote-icon">🛡️</div>
+                    <p>"The precision of the AI analysis in identifying the individual's needs was remarkable. It helped
+                        our rescue team prepare the right assistance."</p>
+                    <span class="story-meta">Rescue Team Alpha • Pune</span>
+                </div>
+                <!-- Duplicate for Loop -->
+                <div class="story-card">
+                    <div class="quote-icon">❤️</div>
+                    <p>"A child was found disoriented near the metro. Thanks to a quick report and AI description, Team
+                        Alpha reached in 10 minutes. He is now safe with his parents."</p>
+                    <span class="story-meta">Anonymized Case #872 • Bangalore</span>
+                </div>
+                <div class="story-card">
+                    <div class="quote-icon">❤️</div>
+                    <p>"An elderly lady with memory loss was noticed at the city park. KindSteps volunteers coordinated
+                        with local authorities for a smooth rescue."</p>
+                    <span class="story-meta">Anonymized Case #911 • Mumbai</span>
+                </div>
+                <div class="story-card">
+                    <div class="quote-icon">❤️</div>
+                    <p>"The AI Compassion Guide helped me stay calm while waiting for the rescue team. It told me
+                        exactly how to approach the distressed youth safely."</p>
+                    <span class="story-meta">User Feedback • Chennai</span>
+                </div>
+                <div class="story-card">
+                    <div class="quote-icon">🤝</div>
+                    <p>"I never knew how to help until I found KindSteps. Reporting a homeless veteran was so simple,
+                        and seeing the team arrive brought tears to my eyes."</p>
+                    <span class="story-meta">Volunteer Story • Delhi</span>
+                </div>
+                <div class="story-card">
+                    <div class="quote-icon">🌟</div>
+                    <p>"KindSteps isn't just an app; it's a lifeline. They helped us reunite a lost toddler with her
+                        family in record time. Truly a community effort."</p>
+                    <span class="story-meta">Anonymized Case #1024 • Hyderabad</span>
+                </div>
+                <div class="story-card">
+                    <div class="quote-icon">🛡️</div>
+                    <p>"The precision of the AI analysis in identifying the individual's needs was remarkable. It helped
+                        our rescue team prepare the right assistance."</p>
+                    <span class="story-meta">Rescue Team Alpha • Pune</span>
+                </div>
             </div>
         </div>
     </section>
@@ -75,60 +144,78 @@
         <div class="impact-stats">
 
             <div class="stat-box" data-aos="zoom-in" data-aos-delay="100">
-
-                <h3>2,145+</h3>
+                <h3 id="stat-total-reports">--</h3>
                 <p>Reports Filed</p>
             </div>
 
             <div class="stat-box" data-aos="zoom-in" data-aos-delay="200">
-
-                <h3>876+</h3>
+                <h3 id="stat-total-rescues">--</h3>
                 <p>Individuals Rescued</p>
             </div>
 
             <div class="stat-box" data-aos="zoom-in" data-aos-delay="300">
-
-                <h3>120+</h3>
-                <p>Active Volunteers</p>
+                <h3 id="stat-active-teams">--</h3>
+                <p>Missions In-Progress</p>
             </div>
         </div>
     </section>
 
-    <!-- Get Involved -->
-    <section class="involved" data-aos="fade-up">
-        <h2>Ways to Get Involved</h2>
+    <!-- How We Help -->
+    <section class="help-section" data-aos="fade-up">
+        <h2>How We Help</h2>
+        <div class="help-path-container">
+            <!-- Decorative connection line -->
+            <div class="help-connector"></div>
 
-        <div class="involved-cards">
+            <div class="help-cards">
+                <div class="help-card step-1" data-aos="fade-up" data-aos-delay="100">
+                    <div class="icon-circle">
+                        <span class="step-number">01</span>
+                        <i data-lucide="shield-check"></i>
+                    </div>
+                    <h3>Identification</h3>
+                    <p>Our platform provides an easy and confidential way for anyone to report vulnerable individuals.
+                        Your reports are the essential first spark for intervention.</p>
+                    <a href="./report.html" class="help-action-btn">Report Now</a>
+                </div>
 
-            <div class="involved-card" data-aos="fade-right" data-aos-delay="100">
+                <div class="help-card step-2" data-aos="fade-up" data-aos-delay="200">
+                    <div class="icon-circle">
+                        <span class="step-number">02</span>
+                        <i data-lucide="truck"></i>
+                    </div>
+                    <h3>Rescue & Care</h3>
+                    <p>Once a report is filed, our network of trained volunteers and partners swiftly mobilizes to
+                        provide immediate assistance, care, and safe placement.</p>
+                    <a href="./my_reports.html" class="help-action-btn">Track Missions</a>
+                </div>
 
-                <h3>About Us</h3>
-                <p>Join our dedicated team and contribute your time and skills to directly impact lives.</p>
-                <a href="../pages/about.html" class="card-btn">Join Us</a>
+                <div class="help-card step-3" data-aos="fade-up" data-aos-delay="300">
+                    <div class="icon-circle">
+                        <span class="step-number">03</span>
+                        <i data-lucide="heart-handshake"></i>
+                    </div>
+                    <h3>Support</h3>
+                    <p>Reintegration is the goal. We facilitate long-term support, family reunification, and
+                        rehabilitation services to ensure a stable and brighter future.</p>
+                    <a href="./about.html" class="help-action-btn">Our Approach</a>
+                </div>
             </div>
-
-            <div class="involved-card" data-aos="fade-left" data-aos-delay="200">
-
-                <h3>Learn & Educate</h3>
-                <p>Discover resources and guidance on how to kindly and safely interact with vulnerable populations in
-                    your community.</p>
-                <a href="./works.html" class="card-btn">Explore Education</a>
-            </div>
-
         </div>
     </section>
+
 
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-left">
             <div class="footer-logo">KindSteps</div>
-            <p>© 2025 KindSteps. All rights reserved.</p>
+            <p>© 2025 KindSteps • Humanity First</p>
         </div>
 
         <div class="footer-links">
             <a href="./about.html">About Us</a>
             <a href="./contact.html">Contact</a>
-
+            <a href="./works.html">Safety Tips</a>
         </div>
     </footer>
 
@@ -140,6 +227,8 @@
         // When the page loads, we'll check if the user is an admin or team member
         // This helps send them straight to their dashboard if they hit the home page
         document.addEventListener('DOMContentLoaded', async () => {
+            loadPublicStats();
+
             const token = getToken();
             if (token) {
                 try {
@@ -153,6 +242,82 @@
             }
         });
 
+        // Quick Tracking Logic
+        // Initialize icons
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+        // Initialize icons
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+        async function loadPublicStats() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/public/stats`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const stats = [
+                        { id: "stat-total-reports", count: data.total_reports },
+                        { id: "stat-total-rescues", count: data.total_rescues },
+                        { id: "stat-active-teams", count: data.active_missions }
+                    ];
+
+                    stats.forEach(s => {
+                        const el = document.getElementById(s.id);
+                        if (!el) return;
+
+                        // Store the target count for re-animation
+                        const box = el.closest('.stat-box');
+                        if (box) {
+                            box.addEventListener('mouseenter', () => {
+                                animateValue(s.id, 0, s.count, 1000);
+                            });
+                        }
+
+                        // Initial animation
+                        animateValue(s.id, 0, s.count, 1500);
+                    });
+                }
+            } catch (err) {
+                console.error("Error loading public stats:", err);
+            }
+        }
+
+        // Store intervals to clear them before restarting animation
+        const counterIntervals = {};
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            if (!obj) return;
+
+            if (counterIntervals[id]) {
+                clearInterval(counterIntervals[id]);
+            }
+
+            if (start === end && start !== 0) {
+                obj.textContent = end + "+";
+                return;
+            }
+
+            const range = end - start;
+            let current = start;
+            const stepTime = 16;
+            const steps = duration / stepTime;
+            const increment = range / steps;
+
+            counterIntervals[id] = setInterval(function () {
+                current += increment;
+                if ((range > 0 && current >= end) || (range < 0 && current <= end)) {
+                    current = end;
+                    clearInterval(counterIntervals[id]);
+                    counterIntervals[id] = null;
+                }
+                obj.textContent = Math.floor(current) + "+";
+            }, stepTime);
+        }
+
         // This little loop cycles through our hero background images every few seconds
         let currentImg = 0;
         const heroImages = document.querySelectorAll('.hero-bg');
@@ -161,7 +326,7 @@
             heroImages[currentImg].classList.remove('active');
             currentImg = (currentImg + 1) % heroImages.length;
             heroImages[currentImg].classList.add('active');
-        }, 5000);
+        }, 3500);
 
         AOS.init({
             duration: 800,

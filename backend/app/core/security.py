@@ -5,7 +5,7 @@ from app.core.config import settings
 
 # Password hashing configuration
 pwd_context = CryptContext(
-    schemes=["pbkdf2_sha256", "bcrypt"],
+    schemes=["pbkdf2_sha256"],
     deprecated="auto"
 )
 
@@ -22,16 +22,18 @@ def verify_password(password: str, hashed_password: str) -> bool:
 
 # ===== JWT TOKEN FUNCTION =====
 
-def create_access_token(data: dict, expires_minutes: int = 15) -> str:
-    payload = data.copy()
+def create_access_token(subject: str) -> str:
+    expire = datetime.utcnow() + timedelta(
+        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
 
-    expire_time = datetime.utcnow() + timedelta(minutes=expires_minutes)
-    payload["exp"] = expire_time
+    payload = {
+        "sub": subject,
+        "exp": expire
+    }
 
-    token = jwt.encode(
+    return jwt.encode(
         payload,
         settings.SECRET_KEY,
         algorithm=settings.ALGORITHM
     )
-
-    return token

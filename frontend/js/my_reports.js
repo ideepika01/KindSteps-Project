@@ -1,91 +1,136 @@
-// User Reports Logic: Fetches and displays cases submitted by the logged-in user.
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", () => {
     checkLogin();
     loadMyReports();
 });
 
+// ---------------- LOAD REPORTS ----------------
+
 async function loadMyReports() {
-    const container = document.getElementById('my-reports-grid');
+    const container = document.getElementById("my-reports-grid");
     if (!container) return;
 
     try {
-        const response = await fetchWithAuth(`${API_BASE_URL}/reports/`);
+        const res = await fetchWithAuth(`${API_BASE_URL}/reports/`);
 
-        if (!response.ok) {
-            container.innerHTML = '<p style="color:red">Error loading reports. Please try again later.</p>';
-            return;
+        if (!res.ok) {
+            return showMessage(container, "Failed to load reports.", true);
         }
 
-        const reports = await response.json();
-        renderMyReports(reports, container);
-        // Refresh AOS for dynamic content
-        if (window.AOS) AOS.refresh();
+        const reports = await res.json();
+        renderReports(reports, container);
 
-    } catch (error) {
-        console.error('My Reports error:', error);
-        container.innerHTML = '<p style="color:red">Error connecting to server.</p>';
+    } catch (err) {
+        console.error("Load reports error:", err);
+        showMessage(container, "Server connection error. Please try again later.", true);
     }
 }
 
-function renderMyReports(reports, container) {
-    container.innerHTML = '';
+// ---------------- RENDER ----------------
 
-    if (reports.length === 0) {
+function renderReports(reports, container) {
+    container.innerHTML = "";
+
+    if (!reports.length) {
         container.innerHTML = `
-            <div style="text-align: center; padding: 40px;">
-                <p>You haven't submitted any reports yet.</p>
-                <a href="./report.html" class="btn-primary" style="display: inline-block; margin-top: 15px; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Report Now</a>
+            <div class="empty-state" data-aos="fade-up">
+                <i data-lucide="heart" style="width: 48px; height: 48px; color: #f87171; margin-bottom: 20px;"></i>
+                <p>The world is waiting for your kindness. No reports yet.</p>
+                <a href="./report.html" class="track-btn" style="max-width: 200px; margin-top: 20px;">Share Care Now</a>
             </div>
         `;
+        if (window.lucide) lucide.createIcons();
         return;
     }
 
-    reports.forEach(report => {
-        container.appendChild(createReportCard(report));
+    reports.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    reports.forEach((report, index) => {
+        const card = createCard(report, index);
+        container.appendChild(card);
     });
+
+    // Initialize icons after all cards are in the DOM
+    if (window.lucide) {
+        lucide.createIcons();
+    }
 }
 
-function createReportCard(report) {
-    const card = document.createElement('article');
-    card.className = 'case-card card';
-    card.setAttribute('data-aos', 'fade-up');
+// ---------------- CARD FACTORY ----------------
 
-    const date = new Date(report.created_at).toLocaleString();
+function createCard(report, index) {
+    const article = document.createElement("article");
+    article.className = "case-card";
+    article.setAttribute("data-aos", "fade-up");
+    article.setAttribute("data-aos-delay", (index * 100) % 500);
 
-    card.innerHTML = `
-        <div class="case-top">
-            <div class="case-id">
-                RSC-${String(report.id).padStart(6, '0')}
-            </div>
-            <span class="pill">${report.priority || 'Medium'}</span>
+    const date = new Date(report.created_at).toLocaleDateString(undefined, {
+        month: 'short', day: 'numeric', year: 'numeric'
+    });
+
+    const statusObj = getStatusLabel(report.status);
+    const priority = report.priority || "Medium";
+
+    article.innerHTML = `
+        <div class="card-header">
+            <span class="report-id">RSC-${String(report.id).padStart(6, "0")}</span>
+            <span class="priority-tag priority-${priority.toLowerCase()}">${priority}</span>
         </div>
 
-        <h3>${report.condition}</h3>
+        <div class="case-body">
+            <h3>${report.condition || "A heart seeking help"}</h3>
+            
+            <div class="meta-info">
+                <div class="meta-item">
+                    <i data-lucide="map-pin"></i>
+                    <span>${report.location || "Waiting for location details..."}</span>
+                </div>
+                <div class="meta-item">
+                    <i data-lucide="calendar"></i>
+                    <span>Shared on ${date}</span>
+                </div>
+                <div class="meta-item">
+                    <i data-lucide="users"></i>
+                    <span>Gently handled by: ${report.assigned_team_name || "Kindness Team Assigned"}</span>
+                </div>
+            </div>
+        </div>
 
-        <ul>
-            <li>📍 Reported At: ${report.location}</li>
-            <li>🕒 Date: ${date}</li>
-            <li>👥 Assigned: ${report.assigned_team_name || 'Assigning soon...'} ${report.assigned_team_phone ? `(${report.assigned_team_phone})` : ''}</li>
-            ${report.status === 'resolved' && report.rescued_location ? `
-            <li style="color: #00C851; font-weight: bold; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
-                ✅ Rescued To: ${report.rescued_location}
-            </li>
-            <li style="color: #00C851; font-size: 0.85rem;">
-                🏁 Closed At: ${new Date(report.updated_at).toLocaleString()}
-            </li>
-            ` : ''}
-        </ul>
+        <div class="status-tracker">
+            <div class="status-badge ${report.status}">
+                <i data-lucide="${statusObj.icon}"></i>
+                ${statusObj.text}
+            </div>
+        </div>
 
-        <span class="tag ${report.status}">
-            ${report.status}
-        </span>
-
-        <div style="margin-top:15px;">
-            <a href="./track_report.html?id=${report.id}" class="btn-primary small" style="padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
-                View Tracker
+        <div class="card-actions">
+            <a href="./track_report.html?id=${report.id}" class="track-btn">
+                <span>Follow the Care Journey</span>
+                <i data-lucide="heart"></i>
             </a>
         </div>
     `;
 
-    return card;
+    return article;
+}
+
+// ---------------- HELPERS ----------------
+
+function getStatusLabel(status) {
+    const config = {
+        received: { text: "Your report is being reviewed with care", icon: "clock" },
+        in_progress: { text: "Kind hands are on their way to help", icon: "heart" },
+        active: { text: "Kind hands are on their way to help", icon: "heart" },
+        resolved: { text: "They are now in safe hands. Thank you.", icon: "check-circle" }
+    };
+    return config[status] || { text: "We are looking into this...", icon: "help-circle" };
+}
+
+function showMessage(container, message, isError = false) {
+    container.innerHTML = `
+        <div class="loading-state" style="color:${isError ? "#ef4444" : "inherit"}">
+            <i data-lucide="${isError ? 'alert-circle' : 'info'}" style="margin-bottom: 20px;"></i>
+            <p>${message}</p>
+        </div>
+    `;
+    if (window.lucide) lucide.createIcons();
 }
