@@ -4,9 +4,24 @@ let rescueTeams = [];
 
 async function init() {
     if (!checkLogin()) return;
+    document.getElementById("repair-db-btn").onclick = repairDB;
     loadStats();
     await loadRescueTeams();
     loadReports();
+}
+
+// ---------- REPAIR DB ----------
+async function repairDB() {
+    if (!confirm("Run database repair? This attempts to add missing columns.")) return;
+
+    try {
+        const res = await fetchWithAuth(`${API_BASE_URL}/admin/fix-db-schema`);
+        const data = await res.json();
+        alert(JSON.stringify(data, null, 2));
+        location.reload();
+    } catch (e) {
+        alert("Repair failed: " + e.message);
+    }
 }
 
 

@@ -169,27 +169,21 @@ def fix_database_schema(
 ):
     require_admin(current_user)
     from sqlalchemy import text
+    from app.db.session import engine
+    from app.models.report import Report
 
-    statements = [
-        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS rescued_location VARCHAR;",
-        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS field_review TEXT;",
-        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS location_details VARCHAR;",
-        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS photo_url VARCHAR;",
-        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS latitude VARCHAR;",
-        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS longitude VARCHAR;",
-        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS assigned_team_id INTEGER REFERENCES users(id);",
-    ]
-
-    results = []
     try:
-        for stmt in statements:
-            try:
-                db.execute(text(stmt))
-                results.append(f"Success: {stmt}")
-            except Exception as e:
-                results.append(f"Skipped/Error: {stmt} | {e}")
-
+        # 1. Drop the reports table (CASCADE will remove dependencies but we only have foreign keys FROM reports TO users)
+        db.execute(text("DROP TABLE IF EXISTS reports CASCADE;"))
         db.commit()
-        return {"status": "Schema update attempt complete", "details": results}
+
+        # 2. Re-create the reports table from the SQLAlchemy Model
+        # This ensures it matches the current code exactly (with all new columns)
+        Report.__table__.create(bind=engine)
+
+        return {
+            "status": "Success",
+            "message": "Reports table deleted and re-created. All report data has been reset.",
+        }
     except Exception as e:
         return {"error": str(e)}
