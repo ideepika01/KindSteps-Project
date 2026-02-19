@@ -164,29 +164,21 @@ function formSubmit() {
 
     const form = new FormData();
 
-    const ids = [
-      "report-condition",
+    const fields = {
+      "report-condition": "condition",
+      "report-description": "description",
+      "report-location": "location",
+      "location_details": "location_details",
+      "contact-name": "contact_name",
+      "contact-phone": "contact_phone",
+      "report-lat": "latitude",
+      "report-lng": "longitude"
+    };
 
-      "report-description",
-
-      "report-location",
-
-      "location_details",
-
-      "contact-name",
-
-      "contact-phone",
-
-      "report-lat",
-
-      "report-lng",
-    ];
-
-    ids.forEach((id) => {
+    for (const [id, apiField] of Object.entries(fields)) {
       const val = document.getElementById(id)?.value;
-
-      if (val) form.append(id.replace("-", "_"), val);
-    });
+      if (val) form.append(apiField, val);
+    }
 
     const photo = document.getElementById("report-photo").files[0];
 
