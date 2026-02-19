@@ -29,9 +29,14 @@ class Settings(BaseSettings):
         # Enforce pg8000 driver for Vercel/Serverless compatibility
         url = self.DATABASE_URL
         if url.startswith("postgres://"):
-            return url.replace("postgres://", "postgresql+pg8000://", 1)
+            url = url.replace("postgres://", "postgresql+pg8000://", 1)
         elif url.startswith("postgresql://"):
-            return url.replace("postgresql://", "postgresql+pg8000://", 1)
+            url = url.replace("postgresql://", "postgresql+pg8000://", 1)
+
+        # Fix for "connect() got an unexpected keyword argument 'pgbouncer'"
+        # pg8000 does not support the 'pgbouncer' query parameter often used with Supabase
+        if "pgbouncer=true" in url:
+            url = url.replace("?pgbouncer=true", "").replace("&pgbouncer=true", "")
 
         return url
 
