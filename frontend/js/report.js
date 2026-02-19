@@ -191,10 +191,20 @@ function formSubmit() {
         body: form,
       });
 
-      if (res.ok) location.href = "./my_reports.html";
-      else alert("Submit failed");
-    } catch {
-      alert("Server error");
+      if (res.ok) {
+        location.href = "./my_reports.html";
+      } else {
+        // Try to get error message from server
+        try {
+          const errorData = await res.json();
+          alert(`Submit failed: ${errorData.detail || "Unknown error"}`);
+        } catch (e) {
+          alert(`Submit failed: ${res.statusText}`);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert(`Server connection error: ${err.message}`);
     }
   };
 }
