@@ -127,11 +127,15 @@ function displayReport(r) {
 
         else {
 
-            img.src =
-                r.photo_url.startsWith("http") ||
-                    r.photo_url.startsWith("data:")
-                    ? r.photo_url
-                    : `${API_BASE_URL}/${r.photo_url}`;
+            if (r.photo_url.startsWith("http") || r.photo_url.startsWith("data:")) {
+                img.src = r.photo_url;
+            } else {
+                // Fallback for old data: assume it's raw base64 if it has no slashes (not a path)
+                // Otherwise treat as relative path
+                img.src = r.photo_url.includes("/")
+                    ? `${API_BASE_URL}/${r.photo_url}`
+                    : `data:image/jpeg;base64,${r.photo_url}`;
+            }
 
             img.style.display = "block";
         }

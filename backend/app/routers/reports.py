@@ -22,8 +22,9 @@ def convert_file_to_base64(photo: UploadFile):
         return None
 
     content = photo.file.read()
-
-    return base64.b64encode(content).decode("utf-8")
+    mime_type = photo.content_type or "image/jpeg"
+    b64_str = base64.b64encode(content).decode("utf-8")
+    return f"data:{mime_type};base64,{b64_str}"
 
 
 def get_default_team(db: Session):
