@@ -158,3 +158,38 @@ def assign_report_to_team(
         "message": f"Assigned to {team.full_name}",
         "report_id": report.id,
     }
+
+
+# -------- SCHEMA FIX (TEMPORARY) --------
+# Run this once in production to add missing columns
+@router.get("/fix-db-schema")
+def fix_database_schema(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    require_admin(current_user)
+    from sqlalchemy import text
+
+    statements = [
+        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS rescued_location VARCHAR;",
+        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS field_review TEXT;",
+        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS location_details VARCHAR;",
+        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS photo_url VARCHAR;",
+        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS latitude VARCHAR;",
+        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS longitude VARCHAR;",
+        "ALTER TABLE reports ADD COLUMN IF NOT EXISTS assigned_team_id INTEGER REFERENCES users(id);",
+    ]
+
+    results = []
+    try:
+        for stmt in statements:
+            try:
+                db.execute(text(stmt))
+                results.append(f"Success: {stmt}")
+            except Exception as e:
+                results.append(f"Skipped/Error: {stmt} | {e}")
+
+        db.commit()
+        return {"status": "Schema update attempt complete", "details": results}
+    except Exception as e:
+        return {"error": str(e)}
