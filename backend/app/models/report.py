@@ -39,10 +39,10 @@ class Report(Base):
     longitude = Column(String, nullable=True)
 
     status = Column(
-        Enum(ReportStatus), default=ReportStatus.received, nullable=False, index=True
+        String, default=ReportStatus.received.value, nullable=False, index=True
     )
     priority = Column(
-        Enum(ReportPriority), default=ReportPriority.medium, nullable=False, index=True
+        String, default=ReportPriority.medium.value, nullable=False, index=True
     )
 
     assigned_team_id = Column(

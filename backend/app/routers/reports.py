@@ -80,31 +80,41 @@ def create_report(
     current_user: User = Depends(get_current_user),
 ):
 
-    photo_data = convert_file_to_base64(photo)
+    try:
+        photo_data = convert_file_to_base64(photo)
 
-    team = get_default_team(db)
+        team = get_default_team(db)
 
-    report = Report(
-        reporter_id=current_user.id,
-        condition=condition,
-        description=description,
-        location=location,
-        location_details=location_details,
-        contact_name=contact_name,
-        contact_phone=contact_phone,
-        priority=priority,
-        latitude=latitude,
-        longitude=longitude,
-        photo_url=photo_data,
-        status=ReportStatus.received,
-        assigned_team_id=team.id if team else None,
-    )
+        report = Report(
+            reporter_id=current_user.id,
+            condition=condition,
+            description=description,
+            location=location,
+            location_details=location_details,
+            contact_name=contact_name,
+            contact_phone=contact_phone,
+            priority=priority.value if hasattr(priority, "value") else priority,
+            latitude=latitude,
+            longitude=longitude,
+            photo_url=photo_data,
+            status=ReportStatus.received.value,
+            assigned_team_id=team.id if team else None,
+        )
 
-    db.add(report)
-    db.commit()
-    db.refresh(report)
+        db.add(report)
+        db.commit()
+        db.refresh(report)
 
-    return report
+        return report
+
+    except Exception as e:
+        print(f"CRITICAL ERROR creating report: {str(e)}")
+        import traceback
+
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500, detail=f"Failed to create report: {str(e)}"
+        )
 
 
 # -------- LIST REPORTS --------
