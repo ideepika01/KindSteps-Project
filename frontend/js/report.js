@@ -177,7 +177,8 @@ function formSubmit() {
 
     for (const [id, apiField] of Object.entries(fields)) {
       const val = document.getElementById(id)?.value;
-      if (val) form.append(apiField, val);
+      // Append even if empty string so backend validation catches it properly
+      if (val !== undefined && val !== null) form.append(apiField, val);
     }
 
     const photo = document.getElementById("report-photo").files[0];
@@ -197,7 +198,7 @@ function formSubmit() {
         // Try to get error message from server
         try {
           const errorData = await res.json();
-          alert(`Submit failed: ${errorData.detail || "Unknown error"}`);
+          alert(`Submit failed:\n${formatError(errorData)}`);
         } catch (e) {
           alert(`Submit failed: ${res.statusText}`);
         }
@@ -207,6 +208,15 @@ function formSubmit() {
       alert(`Server connection error: ${err.message}`);
     }
   };
+}
+
+// Helper to format validation errors
+function formatError(data) {
+  if (typeof data.detail === "string") return data.detail;
+  if (Array.isArray(data.detail)) {
+    return data.detail.map(e => `${e.loc.join(".")} : ${e.msg}`).join("\n");
+  }
+  return JSON.stringify(data);
 }
 
 // -------- MAP --------

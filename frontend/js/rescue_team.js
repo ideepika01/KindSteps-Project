@@ -121,36 +121,59 @@ function filters(reports, grid) {
 // -------- RENDER --------
 
 function render(list, grid) {
-
     grid.innerHTML = "";
+    if (!list.length) return show(grid, "No assigned cases found.");
 
-    if (!list.length) return show(grid, "No cases");
+    list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-    list.sort((a, b) =>
-        new Date(b.created_at) - new Date(a.created_at)
-    );
-
-    list.forEach(r => {
-
+    list.forEach((r, index) => {
         const card = document.createElement("div");
-
         card.className = "case-card";
+        // Staggered animation
+        card.style.animationDelay = `${index * 100}ms`;
 
+        // Determine status badge class
+        const status = r.status.toLowerCase();
+        let statusClass = "received";
+        if (status === "active" || status === "in_progress") statusClass = "in_progress";
+        if (status === "resolved") statusClass = "resolved";
+
+        // Generate HTML
         card.innerHTML = `
+            <div class="case-top">
+                <span class="case-id">#CASE-${String(r.id).padStart(4, "0")}</span>
+                <span class="status-badge ${statusClass}">${r.status.replace("_", " ")}</span>
+            </div>
 
-        CASE-${String(r.id).padStart(5, "0")} <br>
-        ${r.condition} <br>
-        ${r.location} <br>
-        ${r.status} <br>
+            <h3>${r.condition}</h3>
 
-        <a href="./view_report.html?id=${r.id}">Update</a>
+            <ul class="case-info">
+                <li>
+                    <i data-lucide="map-pin"></i>
+                    <span>${r.location}</span>
+                </li>
+                <li>
+                    <i data-lucide="file-text"></i>
+                    <span>${r.description.substring(0, 60)}${r.description.length > 60 ? "..." : ""}</span>
+                </li>
+                <li>
+                    <i data-lucide="calendar"></i>
+                    <span>${new Date(r.created_at).toLocaleDateString()}</span>
+                </li>
+            </ul>
 
+            <div class="case-actions">
+                <a href="./view_report.html?id=${r.id}" class="btn-update">
+                    Update Status <i data-lucide="arrow-right"></i>
+                </a>
+            </div>
         `;
 
         grid.appendChild(card);
-
     });
 
+    // Re-initialize icons for new elements
+    if (window.lucide) lucide.createIcons();
 }
 
 

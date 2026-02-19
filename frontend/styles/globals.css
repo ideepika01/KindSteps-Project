@@ -3,6 +3,12 @@
    Standardized Navbar & Footer
    ========================================= */
 
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 :root {
     --nav-bg: rgba(30, 41, 59, 0.98);
     --nav-text: rgba(255, 255, 255, 0.8);

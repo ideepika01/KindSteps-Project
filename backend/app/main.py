@@ -13,10 +13,16 @@ app = FastAPI(title="KindSteps Support API")
 
 
 # CORS Middleware Configuration
+# CORS Middleware Configuration
+# Allows all localhost ports (http) and the production Vercel app (https)
+origin_regex = (
+    r"https?://(localhost|127\.0\.0\.1)(:\d+)?|https://kindsteps-project\.vercel\.app"
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origin_regex=origin_regex,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -193,7 +193,7 @@ function setupStatusUpdate(id, status) {
 }
 
 
-async function updateReport(id, status, review, location) {
+async function updateReport(id, status, review, rescuedLoc) {
 
     try {
 
@@ -208,7 +208,7 @@ async function updateReport(id, status, review, location) {
                 body: JSON.stringify({
                     status,
                     field_review: review,
-                    rescued_location: location
+                    rescued_location: rescuedLoc
                 })
             }
         );

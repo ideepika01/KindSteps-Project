@@ -73,14 +73,20 @@ function getDashboardUrl(role) {
 async function setupNavbar() {
 
     // Attach logout to ALL .logout-btn elements
+    // Attach logout to ALL .logout-btn elements
     const logoutBtns = document.querySelectorAll(".logout-btn");
 
+    console.log("Found logout buttons:", logoutBtns.length);
+
     logoutBtns.forEach(btn => {
-        btn.onclick = (e) => {
+        // Remove old listener if any (safety)
+        btn.onclick = null;
+
+        btn.addEventListener("click", (e) => {
             e.preventDefault();
-            console.log("Logging out...");
+            console.log("Logout clicked");
             logout();
-        };
+        });
     });
 
     const token = getToken();

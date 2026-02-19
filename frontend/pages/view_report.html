@@ -31,109 +31,124 @@
         </div>
     </header>
 
-    <!-- MAIN CONTENT GRID -->
+    <!-- MAIN CONTENT - SINGLE COLUMN LAYOUT -->
     <div class="case-container">
 
-        <!-- LEFT COLUMN (USER DATA) -->
-        <div class="left-column">
-            <div class="card media-card">
-                <h3 class="card-title">Case Evidence</h3>
-                <img src="../assets/demo.jpg" class="media-img" id="case-image">
-            </div>
+        <!-- 1. IMAGE CENTERED -->
+        <div class="card media-card">
+            <img src="../assets/demo.jpg" class="media-img" id="case-image">
+        </div>
 
-            <div class="card">
-                <h3 class="card-title">Case Overview</h3>
-                <h2 class="case-title" id="case-title">Loading...</h2>
-                <div class="case-meta">
-                    <p class="case-id" id="case-id">ID: ...</p>
-                    <p class="case-date" id="case-date">Reported: ...</p>
+        <!-- 2. USER REPORT DETAILS (Combined) -->
+        <div class="card details-card">
+            <h2 class="section-title">Case Details</h2>
+
+            <div class="details-grid">
+                <!-- Overview -->
+                <div class="detail-group">
+                    <label>Condition</label>
+                    <h2 class="case-title" id="case-title">Loading...</h2>
+                    <div class="case-meta">
+                        <span class="case-id" id="case-id">ID: ...</span>
+                        <span class="case-date" id="case-date">Reported: ...</span>
+                    </div>
                 </div>
-                <p class="case-status" id="case-status-text">Status: <span>Active</span></p>
-            </div>
 
-            <div class="card">
-                <h3 class="card-title">Reporter Details</h3>
-                <p class="reporter-name" id="reporter-name">Loading...</p>
-                <p class="reporter-phone" id="reporter-phone"><i data-lucide="phone"></i> ...</p>
-            </div>
+                <!-- Status -->
+                <div class="detail-group">
+                    <label>Current Status</label>
+                    <div id="case-status-text" class="case-status">Status: ...</div>
+                </div>
 
-            <div class="card">
-                <h3 class="card-title">Incident Location</h3>
-                <p class="location-text" id="location-text">...</p>
-            </div>
+                <!-- Reporter -->
+                <div class="detail-group">
+                    <label>Reporter</label>
+                    <p class="info-text" id="reporter-name">...</p>
+                    <p class="info-text" id="reporter-phone">...</p>
+                </div>
 
-            <div class="card">
-                <h3 class="card-title">Original Summary</h3>
-                <p class="summary-text" id="summary-text">...</p>
+                <!-- Location -->
+                <div class="detail-group">
+                    <label>Location</label>
+                    <p class="info-text location-text" id="location-text">...</p>
+                </div>
+
+                <!-- Description -->
+                <div class="detail-group full-width">
+                    <label>Description</label>
+                    <p class="info-text summary-text" id="summary-text">...</p>
+                </div>
             </div>
         </div>
 
-        <!-- RIGHT COLUMN (TEAM ACTIONS) -->
-        <div class="right-column">
-            <div class="dropdown-card">
-                <h3 class="card-title">Team Command Center</h3>
+        <!-- 3. TEAM ACTIONS & UPDATES -->
+        <div class="card actions-card">
+            <h2 class="section-title">Team Updates</h2>
 
-                <label class="dropdown-label">Update Case Status</label>
-                <select class="case-status-dropdown" id="status-dropdown">
-                    <option disabled selected>Case Status</option>
-                    <option value="received">Received</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="active">Active</option>
-                    <option value="resolved">Resolved</option>
-                </select>
+            <div class="actions-grid">
+                <div class="action-group">
+                    <label class="dropdown-label">Update Status</label>
+                    <select class="case-status-dropdown" id="status-dropdown">
+                        <option disabled selected>Select Status</option>
+                        <option value="received">Received</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="active">Active</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                </div>
 
-                <label class="dropdown-label" style="margin-top: 15px; display: block;">Rescue Destination / Safe
-                    Home</label>
-                <input type="text" id="rescued-location" class="input-field"
-                    placeholder="E.g. Home, Sacred Heart Shelter, etc.">
+                <div class="action-group">
+                    <label class="dropdown-label">Rescue Destination</label>
+                    <input type="text" id="rescued-location" class="input-field" placeholder="E.g. Shelter, Home...">
+                </div>
 
-                <label class="dropdown-label" style="margin-top: 15px; display: block;">Field Review / Team
-                    Notes</label>
-                <textarea id="field-review" class="review-textarea"
-                    placeholder="Add mission logs and field observations here..."></textarea>
+                <div class="action-group full-width">
+                    <label class="dropdown-label">Field Notes</label>
+                    <textarea id="field-review" class="review-textarea" placeholder="Add mission updates..."></textarea>
+                </div>
 
-                <button class="update-btn" id="update-btn" style="width: 100%; margin-top: 20px;">Update Case</button>
+                <div class="action-group full-width">
+                    <button class="update-btn" id="update-btn">Update Case</button>
+                </div>
             </div>
 
-            <!-- RESCUE TIMELINE -->
-            <div class="card timeline-container-card">
-                <h3 class="card-title">Rescue Timeline</h3>
+            <!-- Timeline inside Team Section -->
+            <div class="timeline-section">
+                <h3 class="card-title">Timeline</h3>
                 <div class="timeline-container" id="timeline">
+                    <!-- Steps will be injected here if needed, or static structure -->
                     <div class="timeline-step" id="step-received">
                         <div class="step-icon"><i data-lucide="file-text"></i></div>
                         <div class="step-info">
-                            <h4>Report Received</h4>
-                            <p id="time-received">--</p>
+                            <h4>Received</h4>
                         </div>
                     </div>
                     <div class="timeline-step" id="step-in_progress">
                         <div class="step-icon"><i data-lucide="truck"></i></div>
                         <div class="step-info">
-                            <h4>Team Dispatched</h4>
-                            <p id="time-dispatched">--</p>
+                            <h4>Dispatched</h4>
                         </div>
                     </div>
                     <div class="timeline-step" id="step-active">
                         <div class="step-icon"><i data-lucide="shield"></i></div>
                         <div class="step-info">
-                            <h4>Mission Active</h4>
-                            <p id="time-active">--</p>
+                            <h4>Active</h4>
                         </div>
                     </div>
                     <div class="timeline-step" id="step-resolved">
                         <div class="step-icon"><i data-lucide="check-circle"></i></div>
                         <div class="step-info">
-                            <h4>Safely Rescued</h4>
-                            <p id="time-resolved">--</p>
+                            <h4>Resolved</h4>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <a href="#" class="back-btn" id="back-to-dash">
-                <i data-lucide="arrow-left"></i> Back to Dashboard
-            </a>
         </div>
+
+        <a href="#" class="back-btn" id="back-to-dash">
+            <i data-lucide="arrow-left"></i> Back to Dashboard
+        </a>
+
     </div>
 
 
