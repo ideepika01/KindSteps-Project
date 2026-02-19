@@ -14,7 +14,10 @@ async function init() {
 async function loadStats() {
     try {
         const res = await fetchWithAuth(`${API_BASE_URL}/admin/stats`);
-        if (!res.ok) return;
+        if (!res.ok) {
+            console.error("Stats load failed", res.status);
+            return;
+        }
 
         const d = await res.json();
 
@@ -26,6 +29,7 @@ async function loadStats() {
 
     } catch (e) {
         console.error(e);
+        document.querySelectorAll(".stat-number").forEach(el => el.textContent = "Err");
     }
 }
 
@@ -34,7 +38,11 @@ async function loadStats() {
 async function loadRescueTeams() {
     try {
         const res = await fetchWithAuth(`${API_BASE_URL}/admin/rescue-teams`);
-        if (res.ok) rescueTeams = await res.json();
+        if (res.ok) {
+            rescueTeams = await res.json();
+        } else {
+            console.error("Failed to load teams", res.status);
+        }
     } catch (e) {
         console.error(e);
     }
@@ -45,10 +53,23 @@ async function loadRescueTeams() {
 async function loadReports() {
     try {
         const res = await fetchWithAuth(`${API_BASE_URL}/admin/reports`);
-        if (!res.ok) return;
+
+        if (!res.ok) {
+            document.getElementById("report-table-body").innerHTML =
+                `<tr><td colspan="7" style="color:red; text-align:center;">
+                    Error loading reports: ${res.status} ${res.statusText}
+                </td></tr>`;
+            return;
+        }
+
         setupFilters(await res.json());
+
     } catch (e) {
         console.error(e);
+        document.getElementById("report-table-body").innerHTML =
+            `<tr><td colspan="7" style="color:red; text-align:center;">
+                Network/Server Error: ${e.message}
+            </td></tr>`;
     }
 }
 

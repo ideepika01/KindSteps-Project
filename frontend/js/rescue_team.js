@@ -17,7 +17,7 @@ async function load() {
 
     try {
 
-        const res = await fetchWithAuth(`${API_BASE_URL}/reports/my-assignments`);
+        const res = await fetchWithAuth(`${API_BASE_URL}/reports`);
 
         if (!res.ok) return show(grid, "Unable to load cases");
 
