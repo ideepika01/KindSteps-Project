@@ -22,13 +22,18 @@ class Settings(BaseSettings):
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         # Pydantic-settings handles the .env loading into self.DATABASE_URL
         if not self.DATABASE_URL:
+            print("WARNING: No DATABASE_URL found. Using default localhost connection.")
             # Fallback for local dev if .env is missing or DATABASE_URL is empty
             return "postgresql+pg8000://postgres:AcademyRootPassword@localhost:5432/kindsteps_fullstack_db"
 
-        if self.DATABASE_URL.startswith("postgres"):
-            return self.DATABASE_URL.replace("postgres://", "postgresql://", 1)
+        # Enforce pg8000 driver for Vercel/Serverless compatibility
+        url = self.DATABASE_URL
+        if url.startswith("postgres://"):
+            return url.replace("postgres://", "postgresql+pg8000://", 1)
+        elif url.startswith("postgresql://"):
+            return url.replace("postgresql://", "postgresql+pg8000://", 1)
 
-        return self.DATABASE_URL
+        return url
 
 
 settings = Settings()
