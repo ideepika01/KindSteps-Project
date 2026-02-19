@@ -15,19 +15,7 @@
     ],
     "routes": [
         {
-            "src": "/auth/(.*)",
-            "dest": "backend/app/main.py"
-        },
-        {
-            "src": "/reports/(.*)",
-            "dest": "backend/app/main.py"
-        },
-        {
-            "src": "/admin/(.*)",
-            "dest": "backend/app/main.py"
-        },
-        {
-            "src": "/health",
+            "src": "/(auth|reports|admin|health|docs|openapi.json)(/.*)?",
             "dest": "backend/app/main.py"
         },
         {
