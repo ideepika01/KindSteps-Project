@@ -4,17 +4,30 @@ from app.core.config import settings
 
 
 # Create database engine using database URL
+connect_args = {}
+if "pg8000" in settings.SQLALCHEMY_DATABASE_URI:
+    try:
+        import ssl
+
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        connect_args["ssl_context"] = ssl_context
+    except ImportError:
+        pass
+
 engine = create_engine(
-    settings.SQLALCHEMY_DATABASE_URI,  # Database connection string
-    pool_pre_ping=True,                # Check connection before using it
+    settings.SQLALCHEMY_DATABASE_URI,
+    pool_pre_ping=True,
+    connect_args=connect_args,
 )
 
 
 # Create session factory
 SessionLocal = sessionmaker(
-    bind=engine,        # Connect session to engine
-    autocommit=False,   # Changes must be committed manually
-    autoflush=False,    # Don't auto-save before commit
+    bind=engine,  # Connect session to engine
+    autocommit=False,  # Changes must be committed manually
+    autoflush=False,  # Don't auto-save before commit
 )
 
 
@@ -24,8 +37,8 @@ Base = declarative_base()
 
 # Dependency for getting database session in FastAPI
 def get_db():
-    db = SessionLocal()   # Create new database session
+    db = SessionLocal()  # Create new database session
     try:
-        yield db          # Use session
+        yield db  # Use session
     finally:
-        db.close()        # Close session after request
+        db.close()  # Close session after request

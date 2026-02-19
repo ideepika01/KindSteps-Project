@@ -34,9 +34,29 @@ class Settings(BaseSettings):
             url = url.replace("postgresql://", "postgresql+pg8000://", 1)
 
         # Fix for "connect() got an unexpected keyword argument 'pgbouncer'"
-        # pg8000 does not support the 'pgbouncer' query parameter often used with Supabase
         if "pgbouncer=true" in url:
-            url = url.replace("?pgbouncer=true", "").replace("&pgbouncer=true", "")
+            try:
+                from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+
+                parsed = urlparse(url)
+                qs = parse_qs(parsed.query, keep_blank_values=True)
+                if "pgbouncer" in qs:
+                    del qs["pgbouncer"]
+                new_query = urlencode(qs, doseq=True)
+                url = urlunparse(
+                    (
+                        parsed.scheme,
+                        parsed.netloc,
+                        parsed.path,
+                        parsed.params,
+                        new_query,
+                        parsed.fragment,
+                    )
+                )
+            except Exception as e:
+                print(f"Error checking pgbouncer param: {e}")
+                # Fallback to simple replace if parsing fails
+                url = url.replace("?pgbouncer=true", "").replace("&pgbouncer=true", "")
 
         return url
 
