@@ -136,14 +136,19 @@ function aiScan() {
         body: form,
       });
 
-      if (!res.ok) return alert("AI failed");
+      if (!res.ok) {
+        const err = await res.json();
+        alert(`AI Analysis Failed: ${err.detail || res.statusText}`);
+        return;
+      }
 
       const data = await res.json();
 
       if (data.description)
         document.getElementById("report-description").value = data.description;
-    } catch {
-      alert("Server error");
+    } catch (e) {
+      console.error(e);
+      alert(`AI Connection Error: ${e.message}`);
     }
 
     btn.disabled = false;
