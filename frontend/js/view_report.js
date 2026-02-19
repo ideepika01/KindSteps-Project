@@ -1,234 +1,247 @@
-document.addEventListener("DOMContentLoaded", start);
+document.addEventListener("DOMContentLoaded", init);
 
-async function start() {
+async function init() {
+
     checkLogin();
 
-    const reportId = new URLSearchParams(window.location.search).get("id");
+    const id = new URLSearchParams(location.search).get("id");
 
-    if (!reportId) {
-        alert("No Report ID found.");
-        window.location.href = "./main.html";
-        return;
-    }
+    if (!id) return redirect("./main.html");
 
     setupBackButton();
-    loadReport(reportId);
+    loadReport(id);
 }
 
 
 // ================= BACK BUTTON =================
 
 function setupBackButton() {
-    const backBtn = document.getElementById("back-to-dash");
-    if (!backBtn) return;
 
-    backBtn.onclick = async (e) => {
+    const btn = document.getElementById("back-to-dash");
+    if (!btn) return;
+
+    btn.onclick = async e => {
+
         e.preventDefault();
 
         try {
+
             const res = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
-            if (!res.ok) {
-                window.location.href = "./main.html";
-                return;
-            }
+            if (!res.ok) return redirect("./main.html");
 
             const user = await res.json();
 
-            if (user.role === "admin") {
-                window.location.href = "./admin_control.html";
-                return;
-            }
+            const routes = {
+                admin: "./admin_control.html",
+                rescue_team: "./rescue_team.html",
+                user: "./my_reports.html"
+            };
 
-            if (user.role === "rescue_team") {
-                window.location.href = "./rescue_team.html";
-                return;
-            }
-
-            window.location.href = "./my_reports.html";
+            redirect(routes[user.role] || "./main.html");
 
         } catch {
-            window.location.href = "./main.html";
+
+            redirect("./main.html");
+
         }
     };
 }
 
 
-// ================= LOAD REPORT =================
+// ================= LOAD =================
 
-async function loadReport(reportId) {
+async function loadReport(id) {
+
     try {
-        const res = await fetchWithAuth(`${API_BASE_URL}/reports/${reportId}`);
 
-        if (!res.ok) {
-            alert("Report not found.");
-            return;
-        }
+        const res = await fetchWithAuth(`${API_BASE_URL}/reports/${id}`);
+
+        if (!res.ok) return alert("Report not found.");
 
         const report = await res.json();
+
         displayReport(report);
+
         setupStatusUpdate(report.id, report.status);
 
-    } catch (error) {
-        console.error("Load error:", error);
+    } catch (e) {
+
+        console.error(e);
+
     }
 }
 
 
-// ================= DISPLAY REPORT =================
+// ================= DISPLAY =================
 
-function displayReport(report) {
+function displayReport(r) {
 
-    // Basic info
-    document.getElementById("case-title").innerText = report.condition;
-    document.getElementById("case-id").innerText =
-        "ID: RSC-" + String(report.id).padStart(6, "0");
+    setText("case-title", r.condition);
 
-    document.getElementById("case-date").innerText =
-        "Reported: " + new Date(report.created_at).toLocaleString();
+    setText("case-id",
+        "ID: RSC-" + String(r.id).padStart(6, "0")
+    );
 
-    document.getElementById("summary-text").innerText =
-        report.description;
+    setText("case-date",
+        "Reported: " + new Date(r.created_at).toLocaleString()
+    );
 
-    document.getElementById("reporter-name").innerText =
-        report.contact_name;
+    setText("summary-text", r.description);
 
-    document.getElementById("reporter-phone").innerText =
-        report.contact_phone;
+    setText("reporter-name", r.contact_name);
+
+    setText("reporter-phone", r.contact_phone);
 
 
     // Location
-    const locationEl = document.getElementById("location-text");
-    locationEl.innerText = report.location;
 
-    if (report.latitude && report.longitude) {
-        locationEl.innerHTML +=
-            `<br>
-            <a href="https://www.google.com/maps?q=${report.latitude},${report.longitude}" target="_blank">
-                View on Google Maps
-            </a>`;
+    const loc = document.getElementById("location-text");
+
+    if (loc) {
+
+        loc.innerHTML =
+            r.location +
+            (r.latitude
+                ? `<br><a target="_blank"
+                href="https://www.google.com/maps?q=${r.latitude},${r.longitude}">
+                View on Map</a>`
+                : "");
     }
 
 
     // Status
-    const status = report.status || "received";
-    document.getElementById("case-status-text").innerHTML =
-        `Status: <span class="tag ${status}">${status}</span>`;
+
+    setHTML("case-status-text",
+        `Status: <span class="tag ${r.status}">
+        ${r.status}</span>`
+    );
 
 
     // Image
+
     const img = document.getElementById("case-image");
 
-    if (!report.photo_url) {
-        img.style.display = "none";
-    } else {
-        const fullUrl =
-            report.photo_url.startsWith("http") ||
-                report.photo_url.startsWith("data:")
-                ? report.photo_url
-                : API_BASE_URL + "/" + report.photo_url;
+    if (img) {
 
-        img.src = fullUrl;
-        img.style.display = "block";
+        if (!r.photo_url) img.style.display = "none";
+
+        else {
+
+            img.src =
+                r.photo_url.startsWith("http") ||
+                    r.photo_url.startsWith("data:")
+                    ? r.photo_url
+                    : `${API_BASE_URL}/${r.photo_url}`;
+
+            img.style.display = "block";
+        }
     }
 
 
-    // Field review
-    const reviewInput = document.getElementById("field-review");
-    if (reviewInput && report.field_review) {
-        reviewInput.value = report.field_review;
-    }
+    setValue("field-review", r.field_review);
 
-    // Rescued location
-    const rescuedInput = document.getElementById("rescued-location");
-    if (rescuedInput && report.rescued_location) {
-        rescuedInput.value = report.rescued_location;
-    }
+    setValue("rescued-location", r.rescued_location);
 
-    // Refresh icons if using Lucide
-    if (window.lucide) {
-        lucide.createIcons();
-    }
 
-    renderTimeline(report);
+    renderTimeline(r);
+
+    if (window.lucide) lucide.createIcons();
 }
 
 
-function renderTimeline(report) {
-    const status = report.status || "received";
-    const steps = ["received", "in_progress", "active", "resolved"];
-    const currentIdx = steps.indexOf(status);
+// ================= TIMELINE =================
 
-    steps.forEach((step, idx) => {
-        const stepEl = document.getElementById(`step-${step}`);
-        if (stepEl && idx <= currentIdx) {
-            stepEl.classList.add("active");
+function renderTimeline(r) {
 
-            // Add time for the received step
-            if (step === "received") {
-                document.getElementById("time-received").innerText =
-                    new Date(report.created_at).toLocaleTimeString();
-            }
+    const steps =
+        ["received", "in_progress", "active", "resolved"];
 
-            // Mocking update times for other steps for dry run visibility
-            if (idx > 0 && idx <= currentIdx) {
-                const timeStr = new Date(report.updated_at).toLocaleTimeString();
-                const timeId = `time-${step === 'in_progress' ? 'dispatched' : step === 'active' ? 'active' : 'resolved'}`;
-                const timeEl = document.getElementById(timeId);
-                if (timeEl) timeEl.innerText = timeStr;
-            }
-        }
+    const current = steps.indexOf(r.status);
+
+    steps.forEach((s, i) => {
+
+        const el = document.getElementById(`step-${s}`);
+
+        if (el && i <= current)
+            el.classList.add("active");
     });
 }
 
 
-// ================= UPDATE STATUS =================
+// ================= UPDATE =================
 
-function setupStatusUpdate(reportId, currentStatus) {
-    const dropdown = document.getElementById("status-dropdown");
-    const button = document.getElementById("update-btn");
+function setupStatusUpdate(id, status) {
 
-    if (!dropdown || !button) return;
+    const drop = document.getElementById("status-dropdown");
+    const btn = document.getElementById("update-btn");
 
-    dropdown.value = currentStatus;
+    if (!drop || !btn) return;
 
-    button.onclick = () => {
-        const review =
-            document.getElementById("field-review").value;
+    drop.value = status;
 
-        const rescuedLocation =
-            document.getElementById("rescued-location").value;
-
-        updateReport(reportId, dropdown.value, review, rescuedLocation);
-    };
+    btn.onclick = () =>
+        updateReport(
+            id,
+            drop.value,
+            getValue("field-review"),
+            getValue("rescued-location")
+        );
 }
 
 
-async function updateReport(reportId, status, review, rescuedLocation) {
+async function updateReport(id, status, review, location) {
+
     try {
+
         const res = await fetchWithAuth(
-            `${API_BASE_URL}/reports/${reportId}`,
+            `${API_BASE_URL}/reports/${id}`,
             {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+
+                headers:
+                    { "Content-Type": "application/json" },
+
                 body: JSON.stringify({
-                    status: status,
+                    status,
                     field_review: review,
-                    rescued_location: rescuedLocation
+                    rescued_location: location
                 })
             }
         );
 
-        if (!res.ok) {
-            alert("Update failed.");
-            return;
-        }
+        if (!res.ok)
+            return alert("Update failed");
 
-        alert("Case updated.");
+        alert("Case updated");
+
         location.reload();
 
-    } catch (error) {
-        console.error("Update error:", error);
+    }
+    catch {
+
+        alert("Server error");
+
     }
 }
+
+
+// ================= HELPERS =================
+
+const setText = (id, text) =>
+    document.getElementById(id).innerText = text;
+
+const setHTML = (id, html) =>
+    document.getElementById(id).innerHTML = html;
+
+const setValue = (id, val) => {
+
+    const el = document.getElementById(id);
+
+    if (el && val) el.value = val;
+};
+
+const getValue = id =>
+    document.getElementById(id)?.value || "";
+
+const redirect = url =>
+    location.href = url;

@@ -1,158 +1,185 @@
-document.addEventListener("DOMContentLoaded", start);
+document.addEventListener("DOMContentLoaded", init);
 
-function start() {
+// ================= INIT =================
+
+function init() {
     const token = checkLogin();
     if (!token) return;
 
-    const id = new URLSearchParams(window.location.search).get("id");
+    const reportId = new URLSearchParams(window.location.search).get("id");
 
-    if (!id) {
+    if (!reportId) {
         window.location.href = "./my_reports.html";
         return;
     }
 
-    const input = document.getElementById("tracking-id-input");
-    const button = document.getElementById("track-btn");
+    document.getElementById("tracking-id-input").value = reportId;
+    document.getElementById("track-btn").addEventListener("click", trackReport);
 
-    if (input) {
-        input.value = id;
-    }
-
-    if (button) {
-        button.addEventListener("click", trackReport);
-    }
-
-    if (id) {
-        trackReport();
-    }
+    trackReport();
 }
+
 
 // ================= TRACK REPORT =================
 
 async function trackReport() {
-    const id = document
-        .getElementById("tracking-id-input")
-        .value.trim();
+
+    const idInput = document.getElementById("tracking-id-input");
+    const statusMsg = document.getElementById("status-message");
+    const progress = document.getElementById("progress-container");
+    const details = document.getElementById("detailed-info");
+
+    const id = idInput.value.trim();
 
     if (!id) {
         alert("Enter tracking ID");
         return;
     }
 
-    const statusMessage = document.getElementById("status-message");
-    const progress = document.getElementById("progress-container");
-    const details = document.getElementById("detailed-info");
-
-    statusMessage.textContent = "Searching...";
-    statusMessage.style.color = "white";
+    // Reset UI
+    statusMsg.textContent = "Searching...";
+    statusMsg.style.color = "white";
     progress.style.display = "none";
     details.style.display = "none";
 
     try {
-        const res = await fetchWithAuth(
-            `${API_BASE_URL}/reports/track/${id}`
-        );
+
+        const res = await fetchWithAuth(`${API_BASE_URL}/reports/track/${id}`);
 
         if (res.status === 403) {
-            statusMessage.textContent = "Access denied";
-            statusMessage.style.color = "orange";
+            showError("Access denied", "orange");
             return;
         }
 
         if (!res.ok) {
-            statusMessage.textContent = "Report not found";
-            statusMessage.style.color = "red";
+            showError("Report not found", "red");
             return;
         }
 
         const report = await res.json();
+
         updateUI(report);
 
     } catch {
-        statusMessage.textContent =
-            "Server error. Try again later.";
-        statusMessage.style.color = "red";
+        showError("Server error. Try again later.", "red");
     }
 }
+
 
 // ================= UPDATE UI =================
 
 function updateUI(report) {
-    const statusMessage = document.getElementById("status-message");
-    const statusBadge = document.getElementById("status-badge");
-    const progress = document.getElementById("progress-container");
-    const details = document.getElementById("detailed-info");
 
-    progress.style.display = "flex";
-    details.style.display = "grid";
+    const status = (report.status || "received").toLowerCase();
 
-    const status = (report.status || "").toLowerCase();
+    showBasicInfo(status, report);
+    updateProgress(status);
+    updateTeam(report);
+    updateDates(status, report);
+    updateExtra(report);
 
-    // ===== Status Badge & Message =====
-    statusBadge.textContent = status.replace("_", " ");
-    statusBadge.style.background = status === "resolved" ? "#dcfce7" : "#eff6ff";
-    statusBadge.style.color = status === "resolved" ? "#166534" : "#2563eb";
+    if (window.lucide) lucide.createIcons();
+}
 
-    // ===== Progress Bar =====
 
-    const stepReceived = document.getElementById("status-received");
-    const stepProgress = document.getElementById("status-inprogress");
-    const stepResolved = document.getElementById("status-resolved");
+// ================= BASIC INFO =================
 
-    const steps = [stepReceived, stepProgress, stepResolved];
+function showBasicInfo(status, report) {
 
-    steps.forEach(step => {
-        step.classList.remove("highlight");
-        step.style.opacity = "0.3";
-    });
+    const statusMsg = document.getElementById("status-message");
+    const badge = document.getElementById("status-badge");
 
-    if (status === "received") {
-        highlight(stepReceived);
+    document.getElementById("progress-container").style.display = "flex";
+    document.getElementById("detailed-info").style.display = "grid";
+
+    badge.textContent = status.replace("_", " ");
+
+    if (status === "resolved") {
+        badge.style.background = "#dcfce7";
+        badge.style.color = "#166534";
+    } else {
+        badge.style.background = "#eff6ff";
+        badge.style.color = "#2563eb";
     }
 
-    if (status === "in_progress" || status === "active") {
-        highlight(stepReceived);
-        highlight(stepProgress);
+    const messages = {
+        received: "Your report has been received.",
+        in_progress: "Rescue team is on the way.",
+        active: "Rescue team is on the way.",
+        resolved: "Rescue completed successfully."
+    };
+
+    statusMsg.textContent = messages[status] || status;
+}
+
+
+// ================= PROGRESS =================
+
+function updateProgress(status) {
+
+    const received = document.getElementById("status-received");
+    const progress = document.getElementById("status-inprogress");
+    const resolved = document.getElementById("status-resolved");
+
+    resetStep(received);
+    resetStep(progress);
+    resetStep(resolved);
+
+    highlight(received);
+
+    if (status === "in_progress" || status === "active" || status === "resolved") {
+        highlight(progress);
     }
 
     if (status === "resolved") {
-        highlight(stepReceived);
-        highlight(stepProgress);
-        highlight(stepResolved);
+        highlight(highlight(resolved));
     }
+}
 
-    // ===== Status Message =====
+function resetStep(step) {
+    step.style.opacity = "0.3";
+}
 
-    const statusLabels = {
-        received: "Your report has been received. We're currently reviewing it with care.",
-        in_progress: "Our kind volunteers are on their way to help.",
-        active: "Our kind volunteers are on their way to help.",
-        resolved: "The rescue was successful, and they are now in safe hands."
-    };
+function highlight(step) {
+    step.style.opacity = "1";
+    step.style.fontWeight = "bold";
+}
 
-    statusMessage.textContent = statusLabels[status] || "Current Status: " + status;
-    const statusLabelEl = document.getElementById("info-status-label");
-    if (statusLabelEl) {
-        statusLabelEl.textContent = status.charAt(0).toUpperCase() + status.slice(1).replace("_", " ");
-    }
 
-    // ===== Team Info =====
+// ================= TEAM =================
+
+function updateTeam(report) {
 
     document.getElementById("info-team-name").textContent =
-        report.assigned_team_name || "Assigning Your Team Soon";
+        report.assigned_team_name || "Assigning Team Soon";
 
-    const phoneEl = document.getElementById("info-team-phone");
-    phoneEl.textContent = report.assigned_team_phone
-        ? "You can reach them at: " + report.assigned_team_phone
-        : "Contact info will be shared soon";
+    document.getElementById("info-team-phone").textContent =
+        report.assigned_team_phone
+            ? "Phone: " + report.assigned_team_phone
+            : "Phone not available";
+}
 
-    // ===== Last Update =====
 
-    const updateLabel = status === "resolved" ? "Completed on" : "Last updated on";
+// ================= DATE =================
+
+function updateDates(status, report) {
+
+    const date = new Date(report.updated_at);
+
+    const label =
+        status === "resolved"
+            ? "Completed on: "
+            : "Last updated on: ";
+
     document.getElementById("info-updated").textContent =
-        updateLabel + ": " + new Date(report.updated_at).toLocaleDateString() + " at " + new Date(report.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        label + date.toLocaleDateString() + " " +
+        date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
 
-    // ===== Field Review =====
+
+// ================= EXTRA =================
+
+function updateExtra(report) {
 
     const reviewBox = document.getElementById("field-review-container");
     const reviewText = document.getElementById("info-field-review");
@@ -164,24 +191,19 @@ function updateUI(report) {
         reviewBox.style.display = "none";
     }
 
-    // ===== Rescue Location =====
-
-    const locationText = document.getElementById("info-rescue-location");
-    if (report.rescued_location) {
-        locationText.textContent = "Safe at " + report.rescued_location;
-    } else {
-        locationText.textContent = "Coordinating Rescue Location";
-    }
-
-    // Initialize Lucide icons
-    if (window.lucide) {
-        lucide.createIcons();
-    }
+    document.getElementById("info-rescue-location").textContent =
+        report.rescued_location
+            ? "Safe at " + report.rescued_location
+            : "Rescue location pending";
 }
 
-// ================= SMALL HELPER =================
 
-function highlight(element) {
-    element.style.opacity = "1";
-    element.style.fontWeight = "bold";
+// ================= ERROR =================
+
+function showError(message, color) {
+
+    const statusMsg = document.getElementById("status-message");
+
+    statusMsg.textContent = message;
+    statusMsg.style.color = color;
 }

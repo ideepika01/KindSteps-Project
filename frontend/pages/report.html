@@ -111,6 +111,30 @@
                             </div>
                         </div>
 
+                        <!-- CAMERA SECTION -->
+                        <div id="camera-section" style="margin-top: 10px; text-align: center;">
+                            <button type="button" id="start-camera-btn" class="secondary-btn"
+                                style="width: 100%; padding: 10px; background: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i data-lucide="camera"></i> Use Camera
+                            </button>
+
+                            <div id="camera-container" style="display: none; margin-top: 10px; position: relative;">
+                                <video id="camera-feed" autoplay playsinline
+                                    style="width: 100%; border-radius: 8px; border: 2px solid #cbd5e1;"></video>
+                                <canvas id="camera-canvas" style="display: none;"></canvas>
+                                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 5px;">
+                                    <button type="button" id="capture-btn" class="primary-btn"
+                                        style="background: #ef4444; color: white; padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer;">
+                                        <i data-lucide="aperture"></i> Capture
+                                    </button>
+                                    <button type="button" id="stop-camera-btn" class="secondary-btn"
+                                        style="background: #94a3b8; color: white; padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer;">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- AI AUTO DESCRIBE BUTTON -->
                         <div id="ai-scan-container" style="margin-top: 15px; display: none;">
                             <button type="button" id="ai-scan-btn" class="ai-btn"

@@ -1,136 +1,111 @@
 document.addEventListener("DOMContentLoaded", () => {
     checkLogin();
-    loadMyReports();
+    loadReports();
 });
 
-// ---------------- LOAD REPORTS ----------------
 
-async function loadMyReports() {
-    const container = document.getElementById("my-reports-grid");
-    if (!container) return;
+// ---------- LOAD ----------
+async function loadReports() {
+
+    const box = document.getElementById("my-reports-grid");
+
+    if (!box) return;
 
     try {
+
         const res = await fetchWithAuth(`${API_BASE_URL}/reports/`);
 
-        if (!res.ok) {
-            return showMessage(container, "Failed to load reports.", true);
-        }
+        if (!res.ok)
+            return show(box, "Failed to load reports", true);
 
         const reports = await res.json();
-        renderReports(reports, container);
 
-    } catch (err) {
-        console.error("Load reports error:", err);
-        showMessage(container, "Server connection error. Please try again later.", true);
+        display(reports, box);
+
+    }
+    catch {
+
+        show(box, "Server error", true);
     }
 }
 
-// ---------------- RENDER ----------------
 
-function renderReports(reports, container) {
-    container.innerHTML = "";
+// ---------- DISPLAY ----------
+function display(reports, box) {
 
-    if (!reports.length) {
-        container.innerHTML = `
-            <div class="empty-state" data-aos="fade-up">
-                <i data-lucide="heart" style="width: 48px; height: 48px; color: #f87171; margin-bottom: 20px;"></i>
-                <p>The world is waiting for your kindness. No reports yet.</p>
-                <a href="./report.html" class="track-btn" style="max-width: 200px; margin-top: 20px;">Share Care Now</a>
-            </div>
-        `;
-        if (window.lucide) lucide.createIcons();
-        return;
-    }
+    box.innerHTML = "";
 
-    reports.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    if (!reports.length)
+        return show(box, "No reports yet");
 
-    reports.forEach((report, index) => {
-        const card = createCard(report, index);
-        container.appendChild(card);
-    });
+    reports
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .forEach((r, i) => box.appendChild(card(r, i)));
 
-    // Initialize icons after all cards are in the DOM
-    if (window.lucide) {
-        lucide.createIcons();
-    }
+    lucide?.createIcons();
 }
 
-// ---------------- CARD FACTORY ----------------
 
-function createCard(report, index) {
-    const article = document.createElement("article");
-    article.className = "case-card";
-    article.setAttribute("data-aos", "fade-up");
-    article.setAttribute("data-aos-delay", (index * 100) % 500);
+// ---------- CARD ----------
+function card(r, i) {
 
-    const date = new Date(report.created_at).toLocaleDateString(undefined, {
-        month: 'short', day: 'numeric', year: 'numeric'
-    });
+    const el = document.createElement("article");
 
-    const statusObj = getStatusLabel(report.status);
-    const priority = report.priority || "Medium";
+    const status = statusInfo(r.status);
 
-    article.innerHTML = `
-        <div class="card-header">
-            <span class="report-id">RSC-${String(report.id).padStart(6, "0")}</span>
-            <span class="priority-tag priority-${priority.toLowerCase()}">${priority}</span>
-        </div>
+    el.className = "case-card";
 
-        <div class="case-body">
-            <h3>${report.condition || "A heart seeking help"}</h3>
-            
-            <div class="meta-info">
-                <div class="meta-item">
-                    <i data-lucide="map-pin"></i>
-                    <span>${report.location || "Waiting for location details..."}</span>
-                </div>
-                <div class="meta-item">
-                    <i data-lucide="calendar"></i>
-                    <span>Shared on ${date}</span>
-                </div>
-                <div class="meta-item">
-                    <i data-lucide="users"></i>
-                    <span>Gently handled by: ${report.assigned_team_name || "Kindness Team Assigned"}</span>
-                </div>
-            </div>
-        </div>
+    el.setAttribute("data-aos", "fade-up");
 
-        <div class="status-tracker">
-            <div class="status-badge ${report.status}">
-                <i data-lucide="${statusObj.icon}"></i>
-                ${statusObj.text}
-            </div>
-        </div>
+    el.setAttribute("data-aos-delay", (i * 100) % 500);
 
-        <div class="card-actions">
-            <a href="./track_report.html?id=${report.id}" class="track-btn">
-                <span>Follow the Care Journey</span>
-                <i data-lucide="heart"></i>
-            </a>
-        </div>
+    el.innerHTML = `
+
+    <div class="card-header">
+        <span>RSC-${String(r.id).padStart(6, "0")}</span>
+        <span>${r.priority || "Medium"}</span>
+    </div>
+
+    <h3>${r.condition || "No description"}</h3>
+
+    <p>${r.location || "No location"}</p>
+
+    <p>${new Date(r.created_at).toLocaleDateString()}</p>
+
+    <div class="${r.status}">
+        <i data-lucide="${status.icon}"></i>
+        ${status.text}
+    </div>
+
+    <a href="./track_report.html?id=${r.id}">
+        Track
+    </a>
     `;
 
-    return article;
+    return el;
 }
 
-// ---------------- HELPERS ----------------
 
-function getStatusLabel(status) {
-    const config = {
-        received: { text: "Your report is being reviewed with care", icon: "clock" },
-        in_progress: { text: "Kind hands are on their way to help", icon: "heart" },
-        active: { text: "Kind hands are on their way to help", icon: "heart" },
-        resolved: { text: "They are now in safe hands. Thank you.", icon: "check-circle" }
-    };
-    return config[status] || { text: "We are looking into this...", icon: "help-circle" };
+// ---------- STATUS ----------
+function statusInfo(s) {
+
+    return {
+
+        received: { text: "Checking", icon: "clock" },
+
+        active: { text: "Helping", icon: "heart" },
+
+        in_progress: { text: "Helping", icon: "heart" },
+
+        resolved: { text: "Safe", icon: "check-circle" }
+
+    }[s] || { text: "Pending", icon: "help-circle" };
 }
 
-function showMessage(container, message, isError = false) {
-    container.innerHTML = `
-        <div class="loading-state" style="color:${isError ? "#ef4444" : "inherit"}">
-            <i data-lucide="${isError ? 'alert-circle' : 'info'}" style="margin-bottom: 20px;"></i>
-            <p>${message}</p>
-        </div>
-    `;
-    if (window.lucide) lucide.createIcons();
+
+// ---------- MESSAGE ----------
+function show(box, msg, error = false) {
+
+    box.innerHTML =
+        `<p style="color:${error ? "red" : "black"}">${msg}</p>`;
 }

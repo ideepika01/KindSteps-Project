@@ -51,8 +51,6 @@
                         <div class="password-container">
                             <input type="password" id="login-password" placeholder="••••••••" class="input-field"
                                 required>
-                            <button type="button" class="toggle-password" id="pw-toggle"><i
-                                    data-lucide="eye"></i></button>
                         </div>
                     </div>
 
@@ -75,19 +73,6 @@
     <script>
         // AOS Animation Init
         AOS.init({ duration: 1000, once: true });
-
-        // Password Toggle Feature
-        const pwInput = document.getElementById('login-password');
-        const pwToggle = document.getElementById('pw-toggle');
-        if (pwToggle) {
-            pwToggle.addEventListener('click', () => {
-                const type = pwInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                pwInput.setAttribute('type', type);
-                // Update icon based on state
-                pwToggle.innerHTML = type === 'password' ? '<i data-lucide="eye"></i>' : '<i data-lucide="eye-off"></i>';
-                lucide.createIcons();
-            });
-        }
 
         // Sequential Kindness Quotes
         const quotes = [

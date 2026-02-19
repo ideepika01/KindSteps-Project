@@ -1,30 +1,32 @@
-// ================= AUTH SYSTEM =================
+// ================= TOKEN =================
 
-// Get token
-function getToken() {
-    return localStorage.getItem("access_token");
-}
+const getToken = () => localStorage.getItem("access_token");
 
-// Save token
-function saveToken(token) {
+const saveToken = token =>
     localStorage.setItem("access_token", token);
-}
 
-// Logout
 function logout() {
     localStorage.removeItem("access_token");
-    // Ensure we go back to the root landing page regardless of where we are
-    const isPage = window.location.pathname.includes("/pages/");
-    window.location.href = isPage ? "../index.html" : "./index.html";
+
+    // Determine redirect path
+    const isPages = window.location.pathname.includes("/pages/");
+    const base = isPages ? "../" : "./";
+
+    window.location.href = base + "index.html";
 }
 
-// Check login
 function checkLogin() {
     const token = getToken();
 
     if (!token) {
-        alert("Please sign in first.");
-        window.location.href = "../index.html";
+        // Only alert if we ARE on a protected page
+        const isProtected = window.location.pathname.includes("/pages/") &&
+            !window.location.pathname.includes("login.html");
+
+        if (isProtected) {
+            alert("Please sign in first.");
+            logout();
+        }
         return null;
     }
 
@@ -32,54 +34,51 @@ function checkLogin() {
 }
 
 
-// ================= FETCH WITH AUTH =================
+// ================= FETCH =================
 
 async function fetchWithAuth(url, options = {}) {
-    const token = getToken();
 
-    const response = await fetch(url, {
+    const res = await fetch(url, {
         ...options,
         headers: {
             ...options.headers,
-            Authorization: "Bearer " + token
+            Authorization: "Bearer " + getToken()
         }
     });
 
-    // If unauthorized → logout
-    if (response.status === 401) {
-        logout();
-    }
+    if (res.status === 401) logout();
 
-    return response;
+    return res;
 }
 
 
-// ================= ROLE DASHBOARD =================
+// ================= DASHBOARD =================
 
 function getDashboardUrl(role) {
-    const insidePages = window.location.pathname.includes("/pages/");
-    const base = insidePages ? "./" : "./pages/";
+    const isPages = window.location.pathname.includes("/pages/");
+    const base = isPages ? "./" : "./pages/";
 
-    if (role === "admin") {
-        return base + "admin_control.html";
-    }
+    const pages = {
+        admin: "admin_control.html",
+        rescue_team: "rescue_team.html",
+        user: "main.html"
+    };
 
-    if (role === "rescue_team") {
-        return base + "rescue_team.html";
-    }
-
-    return base + "main.html";
+    return base + (pages[role] || "main.html");
 }
 
 
-// ================= DYNAMIC NAVBAR =================
+// ================= NAVBAR =================
 
-async function setupDynamicNavbar() {
-    // Attach logout event to any logout buttons found
+async function setupNavbar() {
+
+    // Attach logout to ALL .logout-btn elements
     const logoutBtns = document.querySelectorAll(".logout-btn");
+
     logoutBtns.forEach(btn => {
         btn.onclick = (e) => {
             e.preventDefault();
+            console.log("Logging out...");
             logout();
         };
     });
@@ -88,26 +87,24 @@ async function setupDynamicNavbar() {
     if (!token) return;
 
     try {
+
         const res = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
         if (!res.ok) return;
 
         const user = await res.json();
-        const dashboardUrl = getDashboardUrl(user.role);
+        const dashboard = getDashboardUrl(user.role);
 
-        const links = document.querySelectorAll(
-            ".logo, .brand, .nav-links a"
-        );
+        document.querySelectorAll(".logo, .brand, .nav-links a")
+            .forEach(link => {
 
-        links.forEach(link => {
-            const text = link.textContent.toLowerCase();
+                const text = link.textContent.toLowerCase();
 
-            if (text === "home" || link.classList.contains("logo")) {
-                link.href = dashboardUrl;
-            }
-        });
+                if (text === "home" || link.classList.contains("logo"))
+                    link.href = dashboard;
+            });
 
-    } catch (error) {
-        console.error("Navbar setup failed:", error);
+    } catch (err) {
+        console.error("Navbar error:", err);
     }
 }
 
@@ -115,43 +112,45 @@ async function setupDynamicNavbar() {
 // ================= MOBILE MENU =================
 
 function setupMobileMenu() {
-    const navContainer = document.querySelector(".nav-container");
-    const navLinks = document.querySelector(".nav-links");
 
-    if (!navContainer || !navLinks) return;
+    const nav = document.querySelector(".nav-container");
+    const links = document.querySelector(".nav-links");
 
-    // Create btn if it doesn't exist
-    let menuBtn = document.querySelector(".mobile-menu-btn");
-    if (!menuBtn) {
-        menuBtn = document.createElement("button");
-        menuBtn.className = "mobile-menu-btn";
-        menuBtn.innerHTML = "<span></span><span></span><span></span>";
-        navContainer.appendChild(menuBtn);
+    if (!nav || !links) return;
+
+    let btn = document.querySelector(".mobile-menu-btn");
+
+    if (!btn) {
+        btn = document.createElement("button");
+        btn.className = "mobile-menu-btn";
+        btn.innerHTML = "<span></span><span></span><span></span>";
+        nav.appendChild(btn);
     }
 
-    menuBtn.onclick = () => {
-        menuBtn.classList.toggle("active");
-        navLinks.classList.toggle("active");
-        document.body.style.overflow = navLinks.classList.contains("active") ? "hidden" : "";
+    btn.onclick = () => {
+
+        btn.classList.toggle("active");
+        links.classList.toggle("active");
+
+        document.body.style.overflow =
+            links.classList.contains("active") ? "hidden" : "";
     };
 
-    // Close menu when clicking a link
-    navLinks.querySelectorAll("a").forEach(link => {
-        link.addEventListener("click", () => {
-            menuBtn.classList.remove("active");
-            navLinks.classList.remove("active");
+    links.querySelectorAll("a").forEach(link =>
+        link.onclick = () => {
+            btn.classList.remove("active");
+            links.classList.remove("active");
             document.body.style.overflow = "";
-        });
-    });
+        }
+    );
 }
 
 
-// ================= RUN ON LOAD =================
+// ================= INIT =================
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-        setupDynamicNavbar();
-        setupMobileMenu();
-    }
-);
+document.addEventListener("DOMContentLoaded", () => {
+
+    setupNavbar();
+    setupMobileMenu();
+
+});

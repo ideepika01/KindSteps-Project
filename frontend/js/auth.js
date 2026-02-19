@@ -1,142 +1,126 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const loginForm = document.getElementById("login-form");
-    const signupForm = document.getElementById("signup-form");
+document.addEventListener("DOMContentLoaded", init);
 
-    if (loginForm) loginForm.addEventListener("submit", login);
-    if (signupForm) signupForm.addEventListener("submit", signup);
-});
+function init() {
+    document.getElementById("login-form")?.addEventListener("submit", login);
+    document.getElementById("signup-form")?.addEventListener("submit", signup);
+}
 
 
-// ---------------- LOGIN ----------------
-
+// ---------- LOGIN ----------
 async function login(e) {
+
     e.preventDefault();
 
-    const email = getValue("login-email");
-    const password = getValue("login-password");
+    const email = get("login-email");
+    const password = get("login-password");
 
-    if (!email || !password) {
-        return alert("Enter email and password.");
-    }
+    if (!email || !password)
+        return alert("Enter email and password");
 
-    try {
-        const body = new URLSearchParams({ username: email, password });
+    const data = await send("/auth/login",
+        new URLSearchParams({ username: email, password }),
+        "application/x-www-form-urlencoded"
+    );
 
-        const data = await postForm("/auth/login", body);
-        if (!data) return;
+    if (!data) return;
 
-        saveToken(data.access_token);
-        redirectUser();
+    saveToken(data.access_token);
 
-    } catch {
-        alert("Unable to connect to server.");
-    }
+    redirectUser();
 }
 
 
-// ---------------- SIGNUP ----------------
-
+// ---------- SIGNUP ----------
 async function signup(e) {
+
     e.preventDefault();
 
-    const full_name = getValue("signup-name");
-    const email = getValue("signup-email");
-    const phone = getValue("signup-phone");
-    const password = getValue("signup-password");
-    const role = document.querySelector('input[name="role"]:checked')?.value || "user";
+    const data = await send("/auth/signup", {
 
-    if (!full_name || !email || !password) {
-        return alert("Fill required fields.");
-    }
+        full_name: get("signup-name"),
+        email: get("signup-email"),
+        phone: get("signup-phone"),
+        password: get("signup-password"),
+        role: document.querySelector('input[name="role"]:checked')?.value || "user"
 
-    try {
-        const data = await postJSON("/auth/signup", {
-            full_name,
-            email,
-            phone,
-            password,
-            role
-        });
+    });
 
-        if (!data) return;
+    if (!data) return;
 
-        alert("Account created. Please login.");
-        window.location.href = "../index.html";
+    alert("Account created");
 
-    } catch {
-        alert("Server error. Try again.");
-    }
+    location.href = "../index.html";
 }
 
 
-// ---------------- REDIRECT ----------------
-
+// ---------- REDIRECT ----------
 async function redirectUser() {
+
     try {
+
         const res = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
+
         if (!res.ok) return goHome();
 
         const user = await res.json();
 
-        const routes = {
+        const pages = {
             admin: "./pages/admin_control.html",
             rescue_team: "./pages/rescue_team.html"
         };
 
-        window.location.href = routes[user.role] || "./pages/main.html";
+        location.href = pages[user.role] || "./pages/main.html";
 
-    } catch {
+    }
+    catch {
         goHome();
     }
 }
 
 function goHome() {
-    window.location.href = "./pages/main.html";
+
+    location.href = "./pages/main.html";
 }
 
 
-// ---------------- HELPERS ----------------
+// ---------- COMMON SEND ----------
+async function send(endpoint, body, type = "application/json") {
 
-function getValue(id) {
-    return document.getElementById(id)?.value.trim();
-}
-
-async function postForm(endpoint, body) {
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body
-    });
-
-    if (!res.ok) {
-        const error = await safeJSON(res);
-        alert(error?.detail || error?.error || "Request failed.");
-        return null;
-    }
-
-    return res.json();
-}
-
-async function postJSON(endpoint, data) {
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-    });
-
-    if (!res.ok) {
-        const error = await safeJSON(res);
-        alert(error?.detail || "Request failed.");
-        return null;
-    }
-
-    return res.json();
-}
-
-async function safeJSON(res) {
     try {
-        return await res.json();
-    } catch {
+
+        const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+
+            method: "POST",
+
+            headers: { "Content-Type": type },
+
+            body: type === "application/json"
+                ? JSON.stringify(body)
+                : body
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+
+            alert(data?.detail || data?.error || "Failed");
+
+            return null;
+        }
+
+        return data;
+    }
+    catch {
+
+        alert("Server error");
+
         return null;
     }
+}
+
+
+// ---------- HELPER ----------
+function get(id) {
+
+    return document.getElementById(id)?.value.trim();
 }

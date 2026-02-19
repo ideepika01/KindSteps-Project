@@ -187,6 +187,11 @@ body {
     transition: var(--transition);
     position: relative;
     background: #f8fafc;
+    overflow: hidden;
+}
+
+#report-photo {
+    display: none;
 }
 
 .upload-box:hover {

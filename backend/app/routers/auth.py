@@ -12,33 +12,48 @@ from app.schemas.token import Token
 router = APIRouter()
 
 
-# -------- Signup --------
+# -------- HELPER FUNCTIONS --------
 
-@router.post("/signup", response_model=UserResponse)
-def signup(user: UserCreate, db: Session = Depends(get_db)):
 
-    # Check if email already exists
-    existing_user = db.query(User).filter(User.email == user.email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+def get_user_by_email(db: Session, email: str):
+    """Find user using email"""
+    return db.query(User).filter(User.email == email).first()
 
-    # Create new user
+
+def create_user(db: Session, user: UserCreate):
+    """Create and save new user"""
+
     new_user = User(
         full_name=user.full_name,
         email=user.email,
         phone=user.phone,
         role=user.role,
-        hashed_password=hash_password(user.password),  # Hash password before saving
+        hashed_password=hash_password(user.password),
     )
 
-    db.add(new_user)      # Add to database
-    db.commit()           # Save changes
-    db.refresh(new_user)  # Get updated data (like id)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
 
     return new_user
 
 
-# -------- Login --------
+# -------- SIGNUP --------
+
+
+@router.post("/signup", response_model=UserResponse)
+def signup(user: UserCreate, db: Session = Depends(get_db)):
+
+    existing_user = get_user_by_email(db, user.email)
+
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    return create_user(db, user)
+
+
+# -------- LOGIN --------
+
 
 @router.post("/login", response_model=Token)
 def login(
@@ -46,18 +61,16 @@ def login(
     db: Session = Depends(get_db),
 ):
 
-    # Find user by email (username field contains email)
-    user = db.query(User).filter(User.email == form_data.username).first()
+    user = get_user_by_email(db, form_data.username)
 
-    # Check if user exists and password matches
-    if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    # Create JWT token
+    password_valid = verify_password(form_data.password, user.hashed_password)
+
+    if not password_valid:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
     access_token = create_access_token(subject=user.email)
 
     return {
@@ -66,9 +79,10 @@ def login(
     }
 
 
-# -------- Current User --------
+# -------- CURRENT USER --------
+
 
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
-    # Return logged-in user
+
     return current_user

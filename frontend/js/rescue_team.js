@@ -1,162 +1,163 @@
 document.addEventListener("DOMContentLoaded", () => {
+
     checkLogin();
-    loadAssignments();
+
+    load();
+
 });
 
 
-// ---------------- LOAD DATA ----------------
+// -------- LOAD --------
 
-async function loadAssignments() {
+async function load() {
+
     const grid = document.getElementById("rescue-reports-grid");
+
     if (!grid) return;
 
     try {
-        const res = await fetchWithAuth(
-            `${API_BASE_URL}/reports/my-assignments`
-        );
 
-        if (!res.ok) {
-            return showMessage(grid, "Unable to load cases.");
-        }
+        const res = await fetchWithAuth(`${API_BASE_URL}/reports/my-assignments`);
+
+        if (!res.ok) return show(grid, "Unable to load cases");
 
         const reports = await res.json();
-        if (!Array.isArray(reports)) return;
 
-        updateStats(reports);
-        initFilters(reports, grid);
+        stats(reports);
 
-    } catch {
-        showMessage(grid, "Server connection failed.");
+        filters(reports, grid);
+
     }
+    catch {
+
+        show(grid, "Server error");
+
+    }
+
 }
 
 
-// ---------------- FILTERS ----------------
+// -------- STATS --------
 
-function initFilters(reports, grid) {
-    const statusEl = document.getElementById("status-filter");
-    const startEl = document.getElementById("start-date");
-    const endEl = document.getElementById("end-date");
+function stats(reports) {
 
-    function apply() {
-        const status = (statusEl.value || "all").toLowerCase();
-        const start = startEl.value ? new Date(startEl.value) : null;
-        const end = endEl.value ? new Date(endEl.value) : null;
-
-        if (start) start.setHours(0, 0, 0, 0);
-        if (end) end.setHours(23, 59, 59, 999);
-
-        const filtered = reports.filter(r => {
-            const s = (r.status || "received").toLowerCase();
-            const date = new Date(r.updated_at || r.created_at);
-
-            if (status !== "all") {
-                if (status === "in_progress" && !(s === "active" || s === "in_progress")) return false;
-                if (status !== "in_progress" && s !== status) return false;
-            }
-
-            if (start && date < start) return false;
-            if (end && date > end) return false;
-
-            return true;
-        });
-
-        renderGrid(filtered, grid);
-    }
-
-    statusEl.onchange = apply;
-    startEl.onchange = apply;
-    endEl.onchange = apply;
-
-    apply();
-}
-
-
-// ---------------- STATS ----------------
-
-function updateStats(reports) {
-    let total = reports.length;
-    let progress = 0;
-    let resolved = 0;
+    let total = reports.length,
+        progress = 0,
+        resolved = 0;
 
     reports.forEach(r => {
-        const s = (r.status || "").toLowerCase();
+
+        const s = r.status?.toLowerCase();
+
         if (s === "resolved") resolved++;
+
         if (s === "active" || s === "in_progress") progress++;
+
     });
 
-    setText("stat-total", total);
-    setText("stat-progress", progress);
-    setText("stat-resolved", resolved);
+    text("stat-total", total);
+
+    text("stat-progress", progress);
+
+    text("stat-resolved", resolved);
+
 }
 
-function setText(id, value) {
+function text(id, val) {
+
     const el = document.getElementById(id);
-    if (el) el.textContent = value;
+
+    if (el) el.textContent = val;
+
 }
 
 
-// ---------------- RENDER ----------------
+// -------- FILTER --------
 
-function renderGrid(list, container) {
-    container.innerHTML = "";
+function filters(reports, grid) {
 
-    if (!list.length) {
-        return showMessage(container, "No matching cases.");
+    const status = document.getElementById("status-filter");
+
+    const start = document.getElementById("start-date");
+
+    const end = document.getElementById("end-date");
+
+    function apply() {
+
+        const s = status.value;
+
+        const sDate = start.value ? new Date(start.value) : null;
+
+        const eDate = end.value ? new Date(end.value) : null;
+
+        const list = reports.filter(r => {
+
+            const rs = r.status;
+
+            const d = new Date(r.updated_at || r.created_at);
+
+            if (s !== "all" && rs !== s && !(s === "in_progress" && rs === "active"))
+                return false;
+
+            if (sDate && d < sDate) return false;
+
+            if (eDate && d > eDate) return false;
+
+            return true;
+
+        });
+
+        render(list, grid);
+
     }
 
-    list
-        .sort((a, b) =>
-            new Date(b.updated_at || b.created_at) -
-            new Date(a.updated_at || a.created_at)
-        )
-        .forEach(r => container.appendChild(createCard(r)));
+    status.onchange = start.onchange = end.onchange = apply;
 
-    if (window.AOS) AOS.refresh();
-    if (window.lucide) lucide.createIcons();
+    apply();
+
 }
 
 
-// ---------------- CARD ----------------
+// -------- RENDER --------
 
-function createCard(r) {
-    const card = document.createElement("article");
-    card.className = "case-card";
+function render(list, grid) {
 
-    const status = (r.status || "received").toLowerCase();
-    const date = new Date(r.created_at).toLocaleDateString();
+    grid.innerHTML = "";
 
-    card.innerHTML = `
-        <div class="case-top">
-            <div class="case-id">CASE-${String(r.id).padStart(5, "0")}</div>
-            <span class="tag ${status}">${status.replace("_", " ")}</span>
-        </div>
+    if (!list.length) return show(grid, "No cases");
 
-        <h3>${r.condition}</h3>
+    list.sort((a, b) =>
+        new Date(b.created_at) - new Date(a.created_at)
+    );
 
-        <ul class="case-info">
-            <li><i data-lucide="map-pin"></i> ${r.location}</li>
-            <li><i data-lucide="calendar"></i> Assigned: ${date}</li>
-            <li><i data-lucide="user"></i> ${r.contact_name} (${r.contact_phone})</li>
-        </ul>
+    list.forEach(r => {
 
-        <div class="case-actions">
-            <a href="./view_report.html?id=${r.id}" class="btn-case btn-update">
-                <i data-lucide="edit-3"></i> Update Case
-            </a>
-            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.location)}"
-               target="_blank" class="btn-case btn-map">
-                <i data-lucide="navigation"></i> Map View
-            </a>
-        </div>
-    `;
+        const card = document.createElement("div");
 
-    return card;
+        card.className = "case-card";
+
+        card.innerHTML = `
+
+        CASE-${String(r.id).padStart(5, "0")} <br>
+        ${r.condition} <br>
+        ${r.location} <br>
+        ${r.status} <br>
+
+        <a href="./view_report.html?id=${r.id}">Update</a>
+
+        `;
+
+        grid.appendChild(card);
+
+    });
+
 }
 
 
-// ---------------- UTIL ----------------
+// -------- MESSAGE --------
 
-function showMessage(container, message) {
-    container.innerHTML = `<div class="empty-state">${message}</div>`;
+function show(grid, msg) {
+
+    grid.innerHTML = msg;
+
 }

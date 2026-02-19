@@ -12,25 +12,42 @@ from app.schemas.report import ReportResponse
 router = APIRouter()
 
 
-# -------- Public Impact Stats --------
+# -------- ROLE CHECK HELPERS --------
+
+
+def require_admin(user: User):
+    if user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Admins only")
+
+
+def require_admin_or_rescue(user: User):
+    if user.role not in [UserRole.admin, UserRole.rescue_team]:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+
+# -------- PUBLIC STATS --------
 
 
 @router.get("/public/stats")
 def get_public_stats(db: Session = Depends(get_db)):
-    """Anonymized stats for the home page."""
+
+    total_reports = db.query(Report).count()
+
+    total_rescues = db.query(Report).filter(Report.status == "resolved").count()
+
+    active_missions = db.query(Report).filter(Report.status == "in_progress").count()
+
+    volunteers_online = db.query(User).filter(User.role == UserRole.rescue_team).count()
+
     return {
-        "total_reports": db.query(Report).count(),
-        "total_rescues": db.query(Report).filter(Report.status == "resolved").count(),
-        "active_missions": db.query(Report)
-        .filter(Report.status == "in_progress")
-        .count(),
-        "volunteers_online": db.query(User)
-        .filter(User.role == UserRole.rescue_team)
-        .count(),
+        "total_reports": total_reports,
+        "total_rescues": total_rescues,
+        "active_missions": active_missions,
+        "volunteers_online": volunteers_online,
     }
 
 
-# -------- Dashboard Stats --------
+# -------- DASHBOARD STATS --------
 
 
 @router.get("/stats")
@@ -38,13 +55,12 @@ def get_dashboard_stats(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # Allow only admin or rescue team
-    if current_user.role not in [UserRole.admin, UserRole.rescue_team]:
-        raise HTTPException(status_code=403, detail="Access denied")
+
+    require_admin_or_rescue(current_user)
 
     return {
         "reports": {
-            "total": db.query(Report).count(),  # Total reports
+            "total": db.query(Report).count(),
             "resolved": db.query(Report).filter(Report.status == "resolved").count(),
             "active": db.query(Report).filter(Report.status == "active").count(),
             "in_progress": db.query(Report)
@@ -53,7 +69,7 @@ def get_dashboard_stats(
             "received": db.query(Report).filter(Report.status == "received").count(),
         },
         "users": {
-            "total": db.query(User).count(),  # Total users
+            "total": db.query(User).count(),
             "volunteers": db.query(User)
             .filter(User.role == UserRole.rescue_team)
             .count(),
@@ -61,7 +77,7 @@ def get_dashboard_stats(
     }
 
 
-# -------- Get All Users --------
+# -------- USERS --------
 
 
 @router.get("/users", response_model=List[UserResponse])
@@ -69,14 +85,13 @@ def get_all_users(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # Allow only admin
-    if current_user.role != UserRole.admin:
-        raise HTTPException(status_code=403, detail="Admins only")
+
+    require_admin(current_user)
 
     return db.query(User).all()
 
 
-# -------- Get All Reports --------
+# -------- REPORTS --------
 
 
 @router.get("/reports", response_model=List[ReportResponse])
@@ -84,14 +99,13 @@ def get_all_reports(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # Allow only admin
-    if current_user.role != UserRole.admin:
-        raise HTTPException(status_code=403, detail="Admins only")
+
+    require_admin(current_user)
 
     return db.query(Report).all()
 
 
-# -------- Team Dispatch --------
+# -------- RESCUE TEAMS --------
 
 
 @router.get("/rescue-teams", response_model=List[UserResponse])
@@ -99,11 +113,15 @@ def get_rescue_teams(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Fetch all available rescue teams."""
-    if current_user.role != UserRole.admin:
-        raise HTTPException(status_code=403, detail="Admins only")
 
-    return db.query(User).filter(User.role == UserRole.rescue_team).all()
+    require_admin(current_user)
+
+    teams = db.query(User).filter(User.role == UserRole.rescue_team).all()
+
+    return teams
+
+
+# -------- ASSIGN REPORT --------
 
 
 @router.post("/reports/{report_id}/assign")
@@ -113,11 +131,11 @@ def assign_report_to_team(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Assigns a rescue team to a report and sets status to in_progress."""
-    if current_user.role != UserRole.admin:
-        raise HTTPException(status_code=403, detail="Admins only")
+
+    require_admin(current_user)
 
     report = db.query(Report).filter(Report.id == report_id).first()
+
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
 
@@ -126,15 +144,17 @@ def assign_report_to_team(
         .filter(User.id == team_id, User.role == UserRole.rescue_team)
         .first()
     )
+
     if not team:
         raise HTTPException(status_code=400, detail="Invalid team ID")
 
     report.assigned_team_id = team_id
-    report.status = "in_progress"  # Direct string since Enum handled by SQLAlchemy
+    report.status = "in_progress"
 
     db.commit()
     db.refresh(report)
+
     return {
-        "message": f"Successfully assigned report to {team.full_name}",
+        "message": f"Assigned to {team.full_name}",
         "report_id": report.id,
     }

@@ -1,202 +1,239 @@
 document.addEventListener("DOMContentLoaded", () => {
-    checkLogin();
-    initPhotoPreview();
-    initForm();
-    initMap();
+  checkLogin();
+
+  photoPreview();
+
+  cameraInit();
+
+  aiScan();
+
+  formSubmit();
+
+  mapInit();
 });
 
+// -------- PHOTO --------
 
-// ---------------- PHOTO PREVIEW ----------------
+function photoPreview() {
+  const input = document.getElementById("report-photo");
 
-function initPhotoPreview() {
-    const input = document.getElementById("report-photo");
-    const display = document.querySelector(".upload-content");
-    const aiContainer = document.getElementById("ai-scan-container");
+  const box = document.querySelector(".upload-box");
 
-    if (!input || !display) return;
+  const content = document.querySelector(".upload-content");
 
-    input.addEventListener("change", () => {
-        const file = input.files[0];
-        display.innerHTML = file
-            ? `<p>Selected: <strong>${file.name}</strong></p>`
-            : `<p>Drag & drop or click to upload</p>`;
+  const ai = document.getElementById("ai-scan-container");
 
-        if (file && aiContainer) {
-            aiContainer.style.display = "block";
-        } else if (aiContainer) {
-            aiContainer.style.display = "none";
-        }
-    });
+  if (!input || !box) return;
 
-    initAIScan();
+  box.onclick = () => input.click();
+
+  input.onchange = () => {
+    const file = input.files[0];
+
+    content.innerHTML = file ? `Selected: ${file.name}` : "Click to upload";
+
+    if (ai) ai.style.display = file ? "block" : "none";
+  };
 }
 
+// -------- CAMERA --------
 
-// ---------------- AI SCAN ----------------
+function cameraInit() {
+  const startBtn = document.getElementById("start-camera-btn");
+  const stopBtn = document.getElementById("stop-camera-btn");
+  const captureBtn = document.getElementById("capture-btn");
+  const cameraContainer = document.getElementById("camera-container");
+  const video = document.getElementById("camera-feed");
+  const canvas = document.getElementById("camera-canvas");
+  const input = document.getElementById("report-photo");
 
-function initAIScan() {
-    const btn = document.getElementById("ai-scan-btn");
-    if (!btn) return;
+  if (!startBtn || !cameraContainer || !video || !canvas || !input) return;
 
-    btn.addEventListener("click", async () => {
-        const photo = document.getElementById("report-photo")?.files[0];
-        if (!photo) return alert("Please select a photo first.");
+  let stream = null;
 
-        const status = document.getElementById("ai-status");
-        const descriptionField = document.getElementById("report-description");
-
-        btn.disabled = true;
-        if (status) status.style.display = "block";
-
-        const formData = new FormData();
-        formData.append("photo", photo);
-
-        try {
-            const res = await fetchWithAuth(`${API_BASE_URL}/reports/ai-analyze`, {
-                method: "POST",
-                body: formData
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-
-                // Populate description
-                if (data && data.description) {
-                    descriptionField.value = data.description;
-                }
-
-                // Populate Compassion Card
-                const card = document.getElementById("ai-compassion-card");
-                const list = document.getElementById("ai-advice-list");
-                if (card && list && data.advice) {
-                    list.innerHTML = data.advice.map(item => `<li>${item}</li>`).join("");
-                    card.style.display = "block";
-                }
-            } else {
-                alert("AI analysis failed.");
-            }
-        } catch (err) {
-            console.error(err);
-            alert("Error connecting to AI service.");
-        } finally {
-            btn.disabled = false;
-            if (status) status.style.display = "none";
-        }
-    });
-}
-
-
-// ---------------- FORM SUBMIT ----------------
-
-function initForm() {
-    const btn = document.getElementById("submit-report-btn");
-    if (!btn) return;
-
-    btn.addEventListener("click", submitReport);
-}
-
-async function submitReport(e) {
-    e.preventDefault();
-
-    const condition = getVal("report-condition");
-    const description = getVal("report-description");
-    const location = getVal("report-location");
-    const location_details = getVal("location_details");
-    const contact_name = getVal("contact-name");
-    const contact_phone = getVal("contact-phone");
-    const latitude = getVal("report-lat");
-    const longitude = getVal("report-lng");
-
-    if (!condition || !location || !contact_name) {
-        return alert("Condition, location, and name are required.");
+  startBtn.onclick = async () => {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+      });
+      video.srcObject = stream;
+      cameraContainer.style.display = "block";
+      startBtn.style.display = "none";
+    } catch (err) {
+      alert("Camera access denied or not available.");
+      console.error(err);
     }
+  };
 
-    const formData = new FormData();
-    [
-        ["condition", condition],
-        ["description", description],
-        ["location", location],
-        ["location_details", location_details],
-        ["contact_name", contact_name],
-        ["contact_phone", contact_phone],
-        ["latitude", latitude],
-        ["longitude", longitude]
-    ].forEach(([key, value]) => {
-        if (value) formData.append(key, value);
-    });
+  stopBtn.onclick = () => stopCamera();
 
-    const photo = document.getElementById("report-photo")?.files[0];
-    if (photo) formData.append("photo", photo);
+  function stopCamera() {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      stream = null;
+    }
+    cameraContainer.style.display = "none";
+    startBtn.style.display = "flex";
+  }
+
+  captureBtn.onclick = () => {
+    if (!stream) return;
+
+    // Set canvas dimensions to match video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Draw video frame to canvas
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Convert to blob/file
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const file = new File([blob], `capture_${Date.now()}.jpg`, {
+        type: "image/jpeg",
+      });
+
+      // Create DataTransfer to simulate user selection
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      input.files = dataTransfer.files;
+
+      // Trigger change event so photoPreview picks it up
+      input.dispatchEvent(new Event("change"));
+
+      stopCamera();
+    }, "image/jpeg");
+  };
+}
+
+// -------- AI --------
+
+function aiScan() {
+  const btn = document.getElementById("ai-scan-btn");
+
+  const statusObj = document.getElementById("ai-status");
+
+  if (!btn) return;
+
+  btn.onclick = async () => {
+    const photo = document.getElementById("report-photo").files[0];
+
+    if (!photo) return alert("Select photo");
+
+    const form = new FormData();
+
+    form.append("photo", photo);
+
+    btn.disabled = true;
+
+    if (statusObj) statusObj.style.display = "block";
 
     try {
-        const res = await fetchWithAuth(`${API_BASE_URL}/reports/`, {
-            method: "POST",
-            body: formData
-        });
+      const res = await fetchWithAuth(`${API_BASE_URL}/reports/ai-analyze`, {
+        method: "POST",
 
-        if (res.ok) {
-            window.location.href = "./my_reports.html";
-        } else {
-            const data = await safeJSON(res);
-            alert(data?.detail || "Submission failed.");
-        }
+        body: form,
+      });
 
+      if (!res.ok) return alert("AI failed");
+
+      const data = await res.json();
+
+      if (data.description)
+        document.getElementById("report-description").value = data.description;
     } catch {
-        alert("Server error.");
-    }
-}
-
-function getVal(id) {
-    return document.getElementById(id)?.value.trim() || "";
-}
-
-async function safeJSON(res) {
-    try { return await res.json(); }
-    catch { return null; }
-}
-
-
-// ---------------- MAP ----------------
-
-function initMap() {
-    const mapDiv = document.getElementById("report-map");
-    if (!mapDiv) return;
-
-    let marker;
-
-    const map = L.map("report-map").setView([12.9716, 77.5946], 13);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap"
-    }).addTo(map);
-
-    map.on("click", e => setMarker(e.latlng.lat, e.latlng.lng));
-
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-            const { latitude, longitude } = pos.coords;
-            map.setView([latitude, longitude], 15);
-            setMarker(latitude, longitude);
-        });
+      alert("Server error");
     }
 
-    function setMarker(lat, lng) {
-        if (marker) {
-            marker.setLatLng([lat, lng]);
-        } else {
-            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-            marker.on("dragend", () => {
-                const pos = marker.getLatLng();
-                saveCoords(pos.lat, pos.lng);
-            });
-        }
-        saveCoords(lat, lng);
-    }
+    btn.disabled = false;
+
+    if (statusObj) statusObj.style.display = "none";
+  };
 }
 
-function saveCoords(lat, lng) {
-    const latInput = document.getElementById("report-lat");
-    const lngInput = document.getElementById("report-lng");
-    if (latInput) latInput.value = lat;
-    if (lngInput) lngInput.value = lng;
+// -------- SUBMIT --------
+
+function formSubmit() {
+  const btn = document.getElementById("submit-report-btn");
+
+  if (!btn) return;
+
+  btn.onclick = async (e) => {
+    e.preventDefault();
+
+    const form = new FormData();
+
+    const ids = [
+      "report-condition",
+
+      "report-description",
+
+      "report-location",
+
+      "location_details",
+
+      "contact-name",
+
+      "contact-phone",
+
+      "report-lat",
+
+      "report-lng",
+    ];
+
+    ids.forEach((id) => {
+      const val = document.getElementById(id)?.value;
+
+      if (val) form.append(id.replace("-", "_"), val);
+    });
+
+    const photo = document.getElementById("report-photo").files[0];
+
+    if (photo) form.append("photo", photo);
+
+    try {
+      const res = await fetchWithAuth(`${API_BASE_URL}/reports/`, {
+        method: "POST",
+
+        body: form,
+      });
+
+      if (res.ok) location.href = "./my_reports.html";
+      else alert("Submit failed");
+    } catch {
+      alert("Server error");
+    }
+  };
+}
+
+// -------- MAP --------
+
+function mapInit() {
+  const div = document.getElementById("report-map");
+
+  if (!div) return;
+
+  let marker;
+
+  const map = L.map(div).setView([13.0827, 80.2707], 13);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+  map.onclick = (e) => set(e.latlng);
+
+  navigator.geolocation?.getCurrentPosition((pos) => set(pos.coords));
+
+  function set(p) {
+    const lat = p.lat || p.latitude;
+
+    const lng = p.lng || p.longitude;
+
+    if (!marker) marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+    else marker.setLatLng([lat, lng]);
+
+    document.getElementById("report-lat").value = lat;
+
+    document.getElementById("report-lng").value = lng;
+  }
 }
