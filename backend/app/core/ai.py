@@ -56,10 +56,14 @@ def is_valid_api_key() -> bool:
     """Check if API key is valid."""
     api_key = settings.GEMINI_API_KEY
 
+    print(f"DEBUG: Checking API Key: '{api_key}'")  # DEBUG PRINT
+
     if not api_key:
+        print("DEBUG: API Key is empty or None")
         return False
 
     if "your_gemini_api_key" in api_key:
+        print("DEBUG: API Key contains placeholder text")
         return False
 
     return True

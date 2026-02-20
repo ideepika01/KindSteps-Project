@@ -101,6 +101,8 @@ body {
     margin-bottom: 1.5rem;
     background: linear-gradient(to bottom, #fff, rgba(255, 255, 255, 0.8));
     -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     -webkit-text-fill-color: transparent;
 }
 
@@ -484,6 +486,26 @@ section h2 {
 
     .stat-box h3 {
         font-size: 2.2rem;
+    }
+
+    .stat-box h3 {
+        font-size: 2.2rem;
+    }
+}
+
+/* Small detailed adjustments for very small screens */
+@media (max-width: 480px) {
+    .hero {
+        min-height: 350px;
+        padding: 3rem 1rem;
+    }
+
+    .hero-content h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero-content {
+        padding: 0 1rem;
     }
 }
 
