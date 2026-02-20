@@ -320,31 +320,8 @@ body {
   transform: translateY(-5px);
 }
 
-/* FOOTER */
-.footer {
-  background: #334155;
-  padding: 30px 5%;
-  display: flex;
-  justify-content: space-between;
-  border-top: 1px solid #e5e5e5;
-  color: #64748b;
-}
-
-.footer-logo {
-  font-size: 20px;
-  font-weight: 700;
-  color: #64748b;
-}
-
-.footer-links a {
-  margin-left: 20px;
-  color: #64748b;
-  text-decoration: none;
-}
-
-.footer-links a:hover {
-  color: black;
-}
+/* FOOTER (Handled by globals.css) */
+/* .footer styles removed to prevent conflict with globals.css */
 
 /* RESPONSIVE */
 @media (max-width: 1024px) {
@@ -385,15 +362,9 @@ body {
   }
 }
 
+/* Mobile Media Query for specific adjustments if needed, 
+   but Navbar/Footer are now handled globally. */
 @media (max-width: 768px) {
-  .nav-links {
-    display: none;
-  }
-
-  .navbar::after {
-    content: "☰";
-    color: #fff;
-    font-size: 26px;
-    margin-right: 20px;
-  }
+  /* No special navbar hiding needed here as globals.js handles the toggle 
+     and globals.css handles the layout */
 }

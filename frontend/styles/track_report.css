@@ -312,10 +312,5 @@ body {
     }
 }
 
-.footer {
-    background: var(--primary);
-    color: rgba(255, 255, 255, 0.6);
-    padding: 3rem 0;
-    text-align: center;
-    margin-top: auto;
-}
+/* FOOTER (Handled by globals.css) */
+/* .footer styles removed to prevent conflict with globals.css */

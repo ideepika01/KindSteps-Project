@@ -128,33 +128,9 @@ body {
     border-color: #ffffff;
 }
 
-/* FOOTER */
-.footer {
-    margin-top: 80px;
-    padding: 30px 5%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #334155;
-    color: rgba(255, 255, 255, 0.7);
-}
+/* FOOTER (Handled by globals.css) */
+/* .footer styles removed to prevent conflict with globals.css */
 
-.footer-logo {
-    font-size: 20px;
-    font-weight: 700;
-}
-
-.footer-links a {
-    margin-left: 20px;
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    font-size: 14px;
-    transition: 0.25s;
-}
-
-.footer-links a:hover {
-    color: #ffffff;
-}
 
 /* RESPONSIVE */
 @media (max-width: 900px) {
@@ -168,30 +144,16 @@ body {
     }
 }
 
+/* Mobile Media Query for specific adjustments if needed, 
+   but Navbar/Footer are now handled globally. */
 @media (max-width: 768px) {
-
-    .nav-links {
-        display: none;
-    }
-
-    .navbar::after {
-        content: "☰";
-        color: #fff;
-        font-size: 26px;
-        margin-right: 20px;
-        cursor: pointer;
-    }
-
     .inquiries {
         width: 90%;
         padding: 35px;
     }
 
-    .footer {
-        flex-direction: column;
-        text-align: center;
-        gap: 12px;
-    }
+    /* No special navbar hiding needed here as globals.js handles the toggle 
+       and globals.css handles the layout */
 }
 
 /* 3-column grid and centered page width */

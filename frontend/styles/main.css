@@ -437,33 +437,9 @@ section h2 {
 }
 
 /* ========================
-   FOOTER
+   FOOTER (Handled by globals.css)
 ======================== */
-.footer {
-    background: #334155;
-    padding: 60px 5%;
-    color: rgba(255, 255, 255, 0.7);
-    display: flex;
-    justify-content: space-between;
-}
-
-.footer-logo {
-    font-size: 24px;
-    font-weight: 700;
-    color: #ffffff;
-}
-
-.footer-links a {
-    margin-left: 20px;
-    color: rgba(255, 255, 255, 0.6);
-    text-decoration: none;
-    font-weight: 500;
-    transition: 0.3s;
-}
-
-.footer-links a:hover {
-    color: #ffffff;
-}
+/* .footer styles removed to prevent conflict with globals.css */
 
 /* ========================
    RESPONSIVE
@@ -487,8 +463,9 @@ section h2 {
 /* Mobile Menu */
 @media (max-width: 768px) {
     .hero {
-        height: 50vh;
+        height: auto;
         min-height: 400px;
+        padding: 4rem 0;
     }
 
     .hero-content h1 {

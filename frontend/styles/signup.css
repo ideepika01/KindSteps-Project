@@ -228,3 +228,9 @@ body {
         padding: 8rem 1.5rem 4rem;
     }
 }
+
+@media (max-width: 600px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}

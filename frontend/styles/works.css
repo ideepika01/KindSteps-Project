@@ -136,33 +136,8 @@ body {
   line-height: 1.7;
 }
 
-/* FOOTER */
-.footer {
-  margin-top: 40px;
-  padding: 35px 5%;
-  border-top: 1px solid #e5e5e5;
-  background: #334155;
-  color: #64748b;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.footer-logo {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.footer-links a {
-  margin-left: 25px;
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
-  transition: 0.2s;
-}
-
-.footer-links a:hover {
-  color: #ffffff;
-}
+/* FOOTER (Handled by globals.css) */
+/* .footer styles removed to prevent conflict with globals.css */
 
 /* RESPONSIVE */
 @media (max-width: 1100px) {
@@ -172,19 +147,9 @@ body {
   }
 }
 
+/* Mobile Media Query for specific adjustments if needed, 
+   but Navbar/Footer are now handled globally. */
 @media (max-width: 768px) {
-
-  .nav-links {
-    display: none;
-  }
-
-  .navbar::after {
-    content: "☰";
-    color: #64748b;
-    font-size: 26px;
-    margin-right: 20px;
-  }
-
   .hero h1 {
     font-size: 2.8rem;
   }
@@ -195,11 +160,5 @@ body {
 
   .tip-card {
     padding: 3rem 2rem;
-  }
-
-  .footer {
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
   }
 }
