@@ -45,125 +45,131 @@
 
             <form id="report-form" class="report-grid">
 
-                <!-- LEFT COLUMN: INCIDENT & CONTACT -->
-                <div class="form-column">
-                    <div class="section-block">
-                        <h2><i data-lucide="info"></i> Incident Details</h2>
-                        <p class="desc">Tell us about the individual's current condition.</p>
+                <!-- SECTION: INCIDENT -->
+                <div class="section-block area-incident">
+                    <h2><i data-lucide="info"></i> Incident Details</h2>
+                    <p class="desc">Tell us about the individual's current condition.</p>
 
-                        <label class="label">Condition <span style="color:red">*</span></label>
-                        <select id="report-condition" class="input-field" required>
-                            <option value="">Select condition</option>
-                            <option value="child">Young Child</option>
-                            <option value="mentally-challenged">Mentally Challenged</option>
-                            <option value="elderly">Elderly Person</option>
-                            <option value="beggar">Beggar</option>
-                            <option value="injured">Injured Person</option>
-                            <option value="disabled">Disabled Individual</option>
-                        </select>
+                    <label class="label">Condition <span style="color:red">*</span></label>
+                    <select id="report-condition" class="input-field" required>
+                        <option value="">Select condition</option>
+                        <option value="child">Young Child</option>
+                        <option value="mentally-challenged">Mentally Challenged</option>
+                        <option value="elderly">Elderly Person</option>
+                        <option value="beggar">Beggar</option>
+                        <option value="injured">Injured Person</option>
+                        <option value="disabled">Disabled Individual</option>
+                    </select>
 
-                        <label class="label">Detailed Observation <span style="color:red">*</span></label>
-                        <textarea id="report-description" class="textarea-field"
-                            placeholder="Describe appearance, age, clothing..." required></textarea>
+                    <label class="label">Detailed Observation <span style="color:red">*</span></label>
+                    <textarea id="report-description" class="textarea-field"
+                        placeholder="Describe appearance, age, clothing..." required></textarea>
 
-                        <!-- AI COMPASSION GUIDE CARD -->
-                        <div id="ai-compassion-card" class="ai-compassion-card"
-                            style="display: none; margin-top: 15px; background: #fff9e6; border-left: 5px solid #ffcc00; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                            <h4
-                                style="margin: 0 0 10px 0; color: #856404; display: flex; align-items: center; gap: 8px;">
-                                <i data-lucide="heart" style="width: 18px;"></i> AI Compassion Guide
-                            </h4>
-                            <ul id="ai-advice-list"
-                                style="margin: 0; padding-left: 20px; color: #856404; font-size: 0.9rem; line-height: 1.6;">
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="section-block">
-                        <h2><i data-lucide="user"></i> Your Contact Info</h2>
-                        <p class="desc">Needed for verification and follow-ups.</p>
-
-                        <label class="label">Full Name <span style="color:red">*</span></label>
-                        <input id="contact-name" type="text" class="input-field" required>
-
-                        <label class="label">Email Address <span style="color:red">*</span></label>
-                        <input id="contact-email" type="email" class="input-field" required>
-
-                        <label class="label">Phone Number <span style="color:red">*</span></label>
-                        <input id="contact-phone" type="tel" class="input-field" required>
-                    </div>
-
-                    <button id="submit-report-btn" class="submit-btn" type="submit">Submit Rescue Report</button>
-                </div>
-
-                <!-- RIGHT COLUMN: VISUALS & LOCATION -->
-                <div class="form-column">
-                    <div class="section-block">
-                        <h2><i data-lucide="camera"></i> Visual & Location</h2>
-                        <p class="desc">A photo helps us identify the individual quickly.</p>
-
-                        <div class="upload-box">
-                            <input id="report-photo" type="file" accept="image/*" required>
-                            <div class="upload-content">
-                                <i data-lucide="image-plus"></i>
-                                <p>Drag & drop or Click to upload</p>
-                                <span style="font-size: 0.8rem; color: #64748b;">(Max 5MB • JPG/PNG)</span>
-                            </div>
-                        </div>
-
-                        <!-- CAMERA SECTION -->
-                        <div id="camera-section" style="margin-top: 10px; text-align: center;">
-                            <button type="button" id="start-camera-btn" class="secondary-btn"
-                                style="width: 100%; padding: 10px; background: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                <i data-lucide="camera"></i> Use Camera
-                            </button>
-
-                            <div id="camera-container" style="display: none; margin-top: 10px; position: relative;">
-                                <video id="camera-feed" autoplay playsinline
-                                    style="width: 100%; border-radius: 8px; border: 2px solid #cbd5e1;"></video>
-                                <canvas id="camera-canvas" style="display: none;"></canvas>
-                                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 5px;">
-                                    <button type="button" id="capture-btn" class="primary-btn"
-                                        style="background: #ef4444; color: white; padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer;">
-                                        <i data-lucide="aperture"></i> Capture
-                                    </button>
-                                    <button type="button" id="stop-camera-btn" class="secondary-btn"
-                                        style="background: #94a3b8; color: white; padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer;">
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- AI AUTO DESCRIBE BUTTON -->
-                        <div id="ai-scan-container" style="margin-top: 15px; display: none;">
-                            <button type="button" id="ai-scan-btn" class="ai-btn"
-                                style="width: 100%; padding: 12px; background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">
-                                <i data-lucide="sparkles" style="width: 18px;"></i> Auto-Describe with AI
-                            </button>
-                            <p id="ai-status"
-                                style="font-size: 0.85rem; color: #666; margin-top: 10px; display: none; text-align: center;">
-                                AI is analyzing... please wait.</p>
-                        </div>
-                    </div>
-
-                    <div class="section-block">
-                        <label class="label">Pin Point Location</label>
-                        <div id="report-map"></div>
-                        <input type="hidden" id="report-lat">
-                        <input type="hidden" id="report-lng">
-
-                        <label class="label" style="margin-top: 1.5rem;">Street Address / Landmark <span
-                                style="color:red">*</span></label>
-                        <input id="report-location" type="text" class="input-field"
-                            placeholder="E.g. Near Central Park gateway..." required>
-
-                        <label class="label" style="margin-top: 1rem;">Specific Location Details (Floor, Landmark,
-                            Behind...)</label>
-                        <input id="location_details" type="text" class="input-field"
-                            placeholder="e.g. 2nd Floor, near the blue gate, behind the pillar">
+                    <!-- AI COMPASSION GUIDE CARD -->
+                    <div id="ai-compassion-card" class="ai-compassion-card"
+                        style="display: none; margin-top: 15px; background: #fff9e6; border-left: 5px solid #ffcc00; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                        <h4 style="margin: 0 0 10px 0; color: #856404; display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="heart" style="width: 18px;"></i> AI Compassion Guide
+                        </h4>
+                        <ul id="ai-advice-list"
+                            style="margin: 0; padding-left: 20px; color: #856404; font-size: 0.9rem; line-height: 1.6;">
+                        </ul>
                     </div>
                 </div>
+
+                <!-- SECTION: CONTACT -->
+                <div class="section-block area-contact">
+                    <h2><i data-lucide="user"></i> Your Contact Info</h2>
+                    <p class="desc">Needed for verification and follow-ups.</p>
+
+                    <label class="label">Full Name <span style="color:red">*</span></label>
+                    <input id="contact-name" type="text" class="input-field" required>
+
+                    <label class="label">Email Address <span style="color:red">*</span></label>
+                    <input id="contact-email" type="email" class="input-field" required>
+
+                    <label class="label">Phone Number <span style="color:red">*</span></label>
+                    <input id="contact-phone" type="tel" class="input-field" required>
+                </div>
+
+                <!-- SECTION: VISUAL -->
+                <div class="section-block area-visual">
+                    <h2><i data-lucide="camera"></i> Visual & Location</h2>
+                    <p class="desc">A photo helps us identify the individual quickly.</p>
+
+                    <div class="upload-box">
+                        <input id="report-photo" type="file" accept="image/*" required>
+                        <div class="upload-content">
+                            <i data-lucide="image-plus"></i>
+                            <p>Drag & drop or Click to upload</p>
+                            <span style="font-size: 0.8rem; color: #64748b;">(Max 5MB • JPG/PNG)</span>
+                        </div>
+                    </div>
+
+                    <!-- AI HELPER TEXT -->
+                    <p
+                        style="font-size: 0.9rem; color: #6366f1; margin: 10px 0 5px; text-align: center; font-weight: 500;">
+                        <i data-lucide="sparkles" style="width: 14px; vertical-align: middle;"></i>
+                        We have AI analysis feature for the image, upload and describe the situation with AI.
+                    </p>
+
+                    <!-- CAMERA SECTION -->
+                    <div id="camera-section" style="margin-top: 10px; text-align: center;">
+                        <button type="button" id="start-camera-btn" class="secondary-btn"
+                            style="width: 100%; padding: 10px; background: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i data-lucide="camera"></i> Use Camera
+                        </button>
+
+                        <div id="camera-container" style="display: none; margin-top: 10px; position: relative;">
+                            <video id="camera-feed" autoplay playsinline
+                                style="width: 100%; border-radius: 8px; border: 2px solid #cbd5e1;"></video>
+                            <canvas id="camera-canvas" style="display: none;"></canvas>
+                            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 5px;">
+                                <button type="button" id="capture-btn" class="primary-btn"
+                                    style="background: #ef4444; color: white; padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer;">
+                                    <i data-lucide="aperture"></i> Capture
+                                </button>
+                                <button type="button" id="stop-camera-btn" class="secondary-btn"
+                                    style="background: #94a3b8; color: white; padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer;">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI AUTO DESCRIBE BUTTON -->
+                    <div id="ai-scan-container" style="margin-top: 15px; display: none;">
+                        <button type="button" id="ai-scan-btn" class="ai-btn"
+                            style="width: 100%; padding: 12px; background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">
+                            <i data-lucide="sparkles" style="width: 18px;"></i> Auto-Describe with AI
+                        </button>
+                        <p id="ai-status"
+                            style="font-size: 0.85rem; color: #666; margin-top: 10px; display: none; text-align: center;">
+                            AI is analyzing... please wait.</p>
+                    </div>
+                </div>
+
+                <!-- SECTION: LOCATION -->
+                <div class="section-block area-location">
+                    <label class="label">Pin Point Location</label>
+                    <div id="report-map"></div>
+                    <input type="hidden" id="report-lat">
+                    <input type="hidden" id="report-lng">
+
+                    <label class="label" style="margin-top: 1.5rem;">Street Address / Landmark <span
+                            style="color:red">*</span></label>
+                    <input id="report-location" type="text" class="input-field"
+                        placeholder="E.g. Near Central Park gateway..." required>
+
+                    <label class="label" style="margin-top: 1rem;">Specific Location Details (Floor, Landmark,
+                        Behind...)</label>
+                    <input id="location_details" type="text" class="input-field"
+                        placeholder="e.g. 2nd Floor, near the blue gate, behind the pillar">
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+                <button id="submit-report-btn" class="submit-btn area-submit" type="submit">Submit Rescue
+                    Report</button>
 
             </form>
         </div>
