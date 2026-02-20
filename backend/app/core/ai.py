@@ -7,11 +7,11 @@ import json
 # -------- DEFAULT RESPONSE --------
 
 DEFAULT_AI_RESPONSE = {
-    "description": "AI analysis is currently unavailable. Please provide a manual description.",
+    "description": "AI analysis is currently unavailable. This usually means the GEMINI_API_KEY is not set in the production environment variables (Vercel).",
     "advice": [
-        "Maintain a safe distance and speak calmly.",
-        "Check for any immediate medical needs.",
-        "Stay with the person until help arrives.",
+        "Check Vercel Dashboard -> Settings -> Environment Variables",
+        "Ensure GEMINI_API_KEY is added with a valid API key",
+        "Redeploy the application for changes to take effect",
     ],
 }
 
@@ -30,7 +30,7 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
         client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
         response = client.models.generate_content(
-            model="gemini-flash-lite-latest",
+            model="gemini-1.5-flash",
             contents=[
                 get_prompt(),
                 types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
