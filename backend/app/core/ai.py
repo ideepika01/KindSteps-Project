@@ -30,7 +30,7 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
         client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
         response = client.models.generate_content(
-            model="gemini-flash-latest",
+            model="gemini-1.5-flash",
             contents=[
                 get_prompt(),
                 types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
@@ -42,8 +42,11 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
 
     except Exception as error:
         print("AI Error:", error)
-
-        return DEFAULT_AI_RESPONSE
+        # Return the actual error for debugging
+        return {
+            "description": f"AI Error: {str(error)}",
+            "advice": ["Check API Key", "Check Model Availability", "Check Logs"],
+        }
 
 
 # -------- HELPER FUNCTIONS --------
