@@ -7,8 +7,11 @@
     <title>Case Details</title>
     <link rel="stylesheet" href="../styles/view_report.css">
     <link rel="stylesheet" href="../styles/globals.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 
 <body>
@@ -19,9 +22,9 @@
     <!-- TOP BAR -->
     <header class="navbar">
         <div class="nav-container">
-            <a  class="logo">KindSteps</a>
+            <a class="logo">KindSteps</a>
             <ul class="nav-links">
-                
+
                 <li><a href="#" class="logout-btn">Logout</a></li>
             </ul>
         </div>
@@ -64,9 +67,12 @@
                 </div>
 
                 <!-- Location -->
-                <div class="detail-group">
-                    <label>Location</label>
+                <div class="detail-group full-width">
+                    <label>Reported Location</label>
                     <p class="info-text location-text" id="location-text">...</p>
+                    <div id="view-map"
+                        style="height: 300px; border-radius: 16px; margin-top: 15px; border: 2px solid #e2e8f0; z-index: 1;">
+                    </div>
                 </div>
 
                 <!-- Description -->
@@ -108,37 +114,8 @@
                 </div>
             </div>
 
-            <!-- Timeline inside Team Section -->
-            <div class="timeline-section">
-                <h3 class="card-title">Timeline</h3>
-                <div class="timeline-container" id="timeline">
-                    <!-- Steps will be injected here if needed, or static structure -->
-                    <div class="timeline-step" id="step-received">
-                        <div class="step-icon"><i data-lucide="file-text"></i></div>
-                        <div class="step-info">
-                            <h4>Received</h4>
-                        </div>
-                    </div>
-                    <div class="timeline-step" id="step-in_progress">
-                        <div class="step-icon"><i data-lucide="truck"></i></div>
-                        <div class="step-info">
-                            <h4>Dispatched</h4>
-                        </div>
-                    </div>
-                    <div class="timeline-step" id="step-active">
-                        <div class="step-icon"><i data-lucide="shield"></i></div>
-                        <div class="step-info">
-                            <h4>Active</h4>
-                        </div>
-                    </div>
-                    <div class="timeline-step" id="step-resolved">
-                        <div class="step-icon"><i data-lucide="check-circle"></i></div>
-                        <div class="step-info">
-                            <h4>Resolved</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+
         </div>
 
         <a href="#" class="back-btn" id="back-to-dash">
@@ -155,7 +132,7 @@
             <p>© 2025 KindSteps • Humanity First</p>
         </div>
 
-       
+
     </footer>
     <script src="../js/config.js"></script>
     <script src="../js/utils.js"></script>

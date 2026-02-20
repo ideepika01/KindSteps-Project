@@ -3,12 +3,12 @@
    ========================================= */
 :root {
     --primary: #1e293b;
-    --accent: #6366f1;
+    --accent: #1e293b;
     --bg-soft: #ffffff;
     --card-bg: #ffffff;
     --text-main: #1e293b;
     --text-muted: #64748b;
-    --success: #10b981;
+    --success: #1e293b;
     --glass: rgba(255, 255, 255, 0.95);
     --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
     --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -6px rgba(0, 0, 0, 0.1);
@@ -18,7 +18,7 @@
     --white: #ffffff;
     --shadow-xl: 0 20px 50px -10px rgba(0, 0, 0, 0.1), 0 10px 20px -5px rgba(0, 0, 0, 0.05);
     --glass-border: rgba(255, 255, 255, 0.3);
-    --accent-gradient: linear-gradient(45deg, #6366f1, #8b5cf6);
+    --accent-gradient: linear-gradient(135deg, #334155, #1e293b);
     --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
@@ -139,9 +139,13 @@ body {
 }
 
 .area-submit {
-    grid-column: 1;
+    grid-column: 1 / span 2;
     grid-row: 3;
     margin-top: 1rem;
+    justify-self: center;
+    /* Center in Grid (Desktop) */
+    align-self: center;
+    /* Center in Flex (Mobile) */
 }
 
 /* FORM SECTIONS */
@@ -193,7 +197,7 @@ body {
     outline: none;
     border-color: var(--accent);
     background: #fff;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 4px rgba(30, 41, 59, 0.1);
 }
 
 .textarea-field {
@@ -246,6 +250,7 @@ body {
 /* SUBMIT BUTTON */
 .submit-btn {
     width: 100%;
+    max-width: 400px;
     padding: 1.25rem;
     background: var(--accent-gradient);
     color: #fff;
@@ -261,7 +266,7 @@ body {
 
 .submit-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 15px 30px -5px rgba(30, 41, 59, 0.4);
 }
 
 /* MAP */

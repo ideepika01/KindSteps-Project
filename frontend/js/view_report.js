@@ -95,17 +95,27 @@ function displayReport(r) {
 
     // Location
 
+    // Location
     const loc = document.getElementById("location-text");
-
     if (loc) {
+        loc.innerHTML = r.location;
+    }
 
-        loc.innerHTML =
-            r.location +
-            (r.latitude
-                ? `<br><a target="_blank"
-                href="https://www.google.com/maps?q=${r.latitude},${r.longitude}">
-                View on Map</a>`
-                : "");
+    // Initialize Map for Team
+    if (r.latitude && r.longitude) {
+        const mapDiv = document.getElementById("view-map");
+        if (mapDiv) {
+            const map = L.map('view-map').setView([r.latitude, r.longitude], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            L.marker([r.latitude, r.longitude]).addTo(map)
+                .bindPopup(`<b>Reported Spot</b><br>${r.location}`)
+                .openPopup();
+        }
+    } else {
+        const mapDiv = document.getElementById("view-map");
+        if (mapDiv) mapDiv.style.display = "none";
     }
 
 
@@ -175,12 +185,10 @@ function renderTimeline(r) {
 // ================= UPDATE =================
 
 function setupStatusUpdate(id, status) {
-
     const drop = document.getElementById("status-dropdown");
     const btn = document.getElementById("update-btn");
 
     if (!drop || !btn) return;
-
     drop.value = status;
 
     btn.onclick = () =>
@@ -192,19 +200,23 @@ function setupStatusUpdate(id, status) {
         );
 }
 
-
 async function updateReport(id, status, review, rescuedLoc) {
+    // Final QA validation: If resolving, require details
+    if (status === "resolved") {
+        if (!review || review.trim().length < 10) {
+            return alert("To resolve a case, please provide a brief Field Review (min 10 characters) summarizing the rescue.");
+        }
+        if (!rescuedLoc || rescuedLoc.trim().length < 5) {
+            return alert("Please provide the Rescued/Safe Location detail.");
+        }
+    }
 
     try {
-
         const res = await fetchWithAuth(
             `${API_BASE_URL}/reports/${id}`,
             {
                 method: "PUT",
-
-                headers:
-                    { "Content-Type": "application/json" },
-
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     status,
                     field_review: review,
@@ -213,21 +225,16 @@ async function updateReport(id, status, review, rescuedLoc) {
             }
         );
 
-        if (!res.ok)
-            return alert("Update failed");
+        if (!res.ok) return alert("Update failed");
 
         alert("Case updated");
-
         location.reload();
 
-    }
-    catch {
-
+    } catch (e) {
+        console.error(e);
         alert("Server error");
-
     }
 }
-
 
 // ================= HELPERS =================
 
@@ -238,9 +245,7 @@ const setHTML = (id, html) =>
     document.getElementById(id).innerHTML = html;
 
 const setValue = (id, val) => {
-
     const el = document.getElementById(id);
-
     if (el && val) el.value = val;
 };
 

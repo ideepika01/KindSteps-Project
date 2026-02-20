@@ -158,32 +158,3 @@ def assign_report_to_team(
         "message": f"Assigned to {team.full_name}",
         "report_id": report.id,
     }
-
-
-# -------- SCHEMA FIX (TEMPORARY) --------
-# Run this once in production to add missing columns
-@router.get("/fix-db-schema")
-def fix_database_schema(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    require_admin(current_user)
-    from sqlalchemy import text
-    from app.db.session import engine
-    from app.models.report import Report
-
-    try:
-        # 1. Drop the reports table (CASCADE will remove dependencies but we only have foreign keys FROM reports TO users)
-        db.execute(text("DROP TABLE IF EXISTS reports CASCADE;"))
-        db.commit()
-
-        # 2. Re-create the reports table from the SQLAlchemy Model
-        # This ensures it matches the current code exactly (with all new columns)
-        Report.__table__.create(bind=engine)
-
-        return {
-            "status": "Success",
-            "message": "Reports table deleted and re-created. All report data has been reset.",
-        }
-    except Exception as e:
-        return {"error": str(e)}

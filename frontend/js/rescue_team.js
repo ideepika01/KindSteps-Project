@@ -94,14 +94,24 @@ function filters(reports, grid) {
 
             const rs = r.status;
 
-            const d = new Date(r.updated_at || r.created_at);
+            const reportDate = new Date(r.updated_at || r.created_at);
+            const reportMidnight = new Date(reportDate);
+            reportMidnight.setHours(0, 0, 0, 0);
 
             if (s !== "all" && rs !== s && !(s === "in_progress" && rs === "active"))
                 return false;
 
-            if (sDate && d < sDate) return false;
+            if (sDate) {
+                const startMidnight = new Date(sDate);
+                startMidnight.setHours(0, 0, 0, 0);
+                if (reportMidnight < startMidnight) return false;
+            }
 
-            if (eDate && d > eDate) return false;
+            if (eDate) {
+                const endMidnight = new Date(eDate);
+                endMidnight.setHours(0, 0, 0, 0);
+                if (reportMidnight > endMidnight) return false;
+            }
 
             return true;
 

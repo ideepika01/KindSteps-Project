@@ -3,7 +3,7 @@
    ========================================= */
 :root {
     --primary: #334155;
-    --accent: #6366f1;
+    --accent: #1e293b;
     --bg-gradient: #ffffff;
     --card-bg: rgba(255, 255, 255, 0.95);
     --glass-border: rgba(0, 0, 0, 0.05);
@@ -189,7 +189,7 @@ body {
     display: inline-block;
     padding: 6px 16px;
     background: #eff6ff;
-    color: #2563eb;
+    color: #1e293b;
     border-radius: 100px;
     font-size: 0.85rem;
     font-weight: 700;
@@ -224,11 +224,11 @@ body {
 }
 
 .team-card {
-    border-left: 4px solid #6366f1;
+    border-left: 4px solid #1e293b;
 }
 
 .update-card {
-    border-left: 4px solid #2563eb;
+    border-left: 4px solid #1e293b;
 }
 
 .location-card {
@@ -237,7 +237,7 @@ body {
 
 .field-notes-card {
     grid-column: 1 / -1;
-    border-left: 4px solid #8b5cf6;
+    border-left: 4px solid #334155;
     align-items: flex-start;
 }
 

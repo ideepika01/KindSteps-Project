@@ -187,6 +187,33 @@ function formSubmit() {
     }
 
     const photo = document.getElementById("report-photo").files[0];
+    const phone = document.getElementById("contact-phone")?.value.trim();
+    const desc = document.getElementById("report-description")?.value.trim();
+    const lat = document.getElementById("report-lat")?.value;
+    const lng = document.getElementById("report-lng")?.value;
+
+    // 1. Photo Validation
+    if (!photo) return alert("Please upload or capture a photo of the individual.");
+    if (photo.size > 5 * 1024 * 1024) return alert("Image size exceeds 5MB. Please upload a smaller image.");
+    if (!['image/jpeg', 'image/png', 'image/jpg'].includes(photo.type)) {
+      return alert("Only JPG and PNG images are allowed.");
+    }
+
+    // 2. Description Quality
+    if (!desc || desc.length < 15) {
+      return alert("Please provide a more detailed description (at least 15 characters) to help our rescue teams.");
+    }
+
+    // 3. Phone Validation
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phone)) {
+      return alert("Please enter a valid 10-digit phone number for contact.");
+    }
+
+    // 4. Map Location Pin
+    if (!lat || !lng || lat === "0" || lng === "0") {
+      return alert("Please select a precise location on the map by clicking or using your GPS.");
+    }
 
     if (photo) form.append("photo", photo);
 
@@ -237,7 +264,7 @@ function mapInit() {
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-  map.onclick = (e) => set(e.latlng);
+  map.on('click', (e) => set(e.latlng));
 
   navigator.geolocation?.getCurrentPosition((pos) => set(pos.coords));
 
@@ -246,11 +273,17 @@ function mapInit() {
 
     const lng = p.lng || p.longitude;
 
-    if (!marker) marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-    else marker.setLatLng([lat, lng]);
+    if (!marker) {
+      marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+      marker.on("dragend", () => {
+        const pos = marker.getLatLng();
+        set(pos);
+      });
+    } else {
+      marker.setLatLng([lat, lng]);
+    }
 
     document.getElementById("report-lat").value = lat;
-
     document.getElementById("report-lng").value = lng;
   }
 }

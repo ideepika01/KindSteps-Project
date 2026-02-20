@@ -11,8 +11,21 @@ async function login(e) {
 
     e.preventDefault();
 
-    const email = get("login-email");
-    const password = get("login-password");
+    const rawEmail = document.getElementById("login-email")?.value || "";
+    const email = rawEmail.trim();
+    const password = document.getElementById("login-password")?.value || "";
+
+    // Validation: No whitespace allowed in "username" (email)
+    if (rawEmail !== email || email.includes(" ")) {
+        return alert("Email should not contain any spaces or whitespace.");
+    }
+
+    // Validation: Strict Email Format (no extra special chars except @ and .)
+    // Allows alphanumeric, dots, underscores, plus, and hyphens before @
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+        return alert("Please enter a valid email address (e.g. user@example.com). Extra special characters are not allowed.");
+    }
 
     if (!email || !password)
         return alert("Enter email and password");
@@ -49,14 +62,40 @@ async function signup(e) {
 
     e.preventDefault();
 
+    const fullName = get("signup-name");
+    const email = get("signup-email");
+    const phone = get("signup-phone");
+    const password = get("signup-password");
+    const role = document.querySelector('input[name="role"]:checked')?.value || "user";
+
+    // Strict Email Validation for Signup too
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+        return alert("Invalid email format. Special characters other than @, dot, underscore, and hyphen are not permitted.");
+    }
+
+    // Full Name whitespace validation
+    if (!fullName || fullName.trim().split(" ").length < 1) {
+        return alert("Please enter your full name.");
+    }
+
+    // Password Strength
+    if (!password || password.length < 6) {
+        return alert("Password must be at least 6 characters long.");
+    }
+
+    // Phone Validation (basic 10 digit check)
+    const phoneRegex = /^[0-9]{10}$/;
+    if (phone && !phoneRegex.test(phone)) {
+        return alert("Please enter a valid 10-digit phone number without spaces or symbols.");
+    }
+
     const data = await send("/auth/signup", {
-
-        full_name: get("signup-name"),
-        email: get("signup-email"),
-        phone: get("signup-phone"),
-        password: get("signup-password"),
-        role: document.querySelector('input[name="role"]:checked')?.value || "user"
-
+        full_name: fullName,
+        email: email,
+        phone: phone,
+        password: password,
+        role: role
     });
 
     if (!data) return;

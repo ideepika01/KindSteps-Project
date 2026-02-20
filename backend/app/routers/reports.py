@@ -56,10 +56,12 @@ async def ai_analyze_report(
     photo: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
 ):
-
+    print(f"DEBUG: AI Analyze endpoint hit by user: {current_user.email}")
     content = await photo.read()
 
-    return analyze_image_for_description(content)
+    result = analyze_image_for_description(content)
+    print(f"DEBUG: AI Analysis Result: {str(result)[:200]}...")
+    return result
 
 
 # -------- CREATE REPORT --------

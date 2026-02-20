@@ -30,7 +30,7 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
         client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-flash-lite-latest",
             contents=[
                 get_prompt(),
                 types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
@@ -38,10 +38,25 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
             config=types.GenerateContentConfig(response_mime_type="application/json"),
         )
 
+        print(f"DEBUG: AI Response text: {response.text}")  # DEBUG LOG
+
         return parse_response(response)
 
     except Exception as error:
         print("AI Error:", error)
+
+        # Check for 503 specifically
+        error_str = str(error).upper()
+        if "503" in error_str or "UNAVAILABLE" in error_str:
+            return {
+                "description": "AI analysis is temporarily overloaded due to high demand. Please try again in a few moments or provide a manual description.",
+                "advice": [
+                    "Try again in 30 seconds",
+                    "Describe the situation manually",
+                    "Ensure the image is clear",
+                ],
+            }
+
         # Return the actual error for debugging
         return {
             "description": f"AI Error: {str(error)}",
@@ -79,13 +94,27 @@ def get_prompt() -> str:
 
 
 def parse_response(response) -> dict:
-    """Convert AI response to dictionary."""
+    """Convert AI response to dictionary, handling potential markdown wrapping."""
 
     if hasattr(response, "parsed") and response.parsed:
         return response.parsed
 
-    try:
-        return json.loads(response.text)
+    raw_text = response.text.strip()
 
-    except Exception:
+    # Handle markdown code blocks if the model included them
+    if raw_text.startswith("```"):
+        # Remove starting ```json or ```
+        lines = raw_text.split("\n")
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        # Remove ending ```
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        raw_text = "\n".join(lines).strip()
+
+    try:
+        return json.loads(raw_text)
+
+    except Exception as e:
+        print(f"JSON Parse Error: {e} | Raw text: {raw_text[:100]}...")
         return DEFAULT_AI_RESPONSE

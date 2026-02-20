@@ -16,7 +16,14 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
 
     class Config:
-        env_file = ".env"
+        import os
+
+        env_file = os.path.join(
+            os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            ),
+            ".env",
+        )
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:

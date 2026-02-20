@@ -1,27 +1,9 @@
 document.addEventListener("DOMContentLoaded", init);
 
-let rescueTeams = [];
-
 async function init() {
     if (!checkLogin()) return;
-    document.getElementById("repair-db-btn").onclick = repairDB;
     loadStats();
-    await loadRescueTeams();
     loadReports();
-}
-
-// ---------- REPAIR DB ----------
-async function repairDB() {
-    if (!confirm("Run database repair? This attempts to add missing columns.")) return;
-
-    try {
-        const res = await fetchWithAuth(`${API_BASE_URL}/admin/fix-db-schema`);
-        const data = await res.json();
-        alert(JSON.stringify(data, null, 2));
-        location.reload();
-    } catch (e) {
-        alert("Repair failed: " + e.message);
-    }
 }
 
 
@@ -45,21 +27,6 @@ async function loadStats() {
     } catch (e) {
         console.error(e);
         document.querySelectorAll(".stat-number").forEach(el => el.textContent = "Err");
-    }
-}
-
-
-// ---------- LOAD TEAMS ----------
-async function loadRescueTeams() {
-    try {
-        const res = await fetchWithAuth(`${API_BASE_URL}/admin/rescue-teams`);
-        if (res.ok) {
-            rescueTeams = await res.json();
-        } else {
-            console.error("Failed to load teams", res.status);
-        }
-    } catch (e) {
-        console.error(e);
     }
 }
 
@@ -103,10 +70,22 @@ function setupFilters(reports) {
 
             if (status.value !== "all" && r.status !== status.value) return false;
 
-            const date = new Date(r.created_at);
+            const reportDate = new Date(r.created_at);
+            // Set time to midnight for simple date comparison
+            const reportMidnight = new Date(reportDate);
+            reportMidnight.setHours(0, 0, 0, 0);
 
-            if (start.value && date < new Date(start.value)) return false;
-            if (end.value && date > new Date(end.value)) return false;
+            if (start.value) {
+                const startDate = new Date(start.value);
+                startDate.setHours(0, 0, 0, 0);
+                if (reportMidnight < startDate) return false;
+            }
+
+            if (end.value) {
+                const endDate = new Date(end.value);
+                endDate.setHours(0, 0, 0, 0);
+                if (reportMidnight > endDate) return false;
+            }
 
             const s = search.value.toLowerCase();
 
@@ -144,22 +123,9 @@ function renderTable(reports) {
     }
 
     body.innerHTML = reports.map(r => {
-
-        let action = `<button onclick="viewDetails(${r.id})">View</button>`;
-
-        if (r.status === "received") {
-
-            const options = rescueTeams.map(t =>
-                `<option value="${t.id}">${t.full_name}</option>`
-            ).join("");
-
-            action += `
-            <select id="team-${r.id}">
-                <option value="">Choose Team</option>
-                ${options}
-            </select>
-            <button onclick="dispatchTeam(${r.id})">Dispatch</button>`;
-        }
+        const notes = r.field_review
+            ? `<div class="team-note">${r.field_review.substring(0, 50)}${r.field_review.length > 50 ? '...' : ''}</div>`
+            : '<div class="no-note">No updates yet</div>';
 
         return `
         <tr>
@@ -167,35 +133,19 @@ function renderTable(reports) {
             <td>${r.contact_name}</td>
             <td>${r.location}</td>
             <td><span class="${getStatusClass(r.status)}">${r.status}</span></td>
-            <td>${r.assigned_team_name || "Unassigned"}</td>
-            <td>${new Date(r.updated_at || r.created_at).toLocaleString()}</td>
-            <td>${action}</td>
+            <td>${r.assigned_team_name || "Team Alpha"}</td>
+            <td>
+                <div class="update-time">${new Date(r.updated_at || r.created_at).toLocaleString()}</div>
+                ${notes}
+            </td>
+            <td>
+                <button class="view-btn" onclick="viewDetails(${r.id})" 
+                    style="background: #1e293b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                    View
+                </button>
+            </td>
         </tr>`;
     }).join("");
-}
-
-
-// ---------- DISPATCH ----------
-async function dispatchTeam(id) {
-
-    const team = document.getElementById(`team-${id}`).value;
-
-    if (!team) return alert("Select team first");
-
-    if (!confirm("Confirm dispatch?")) return;
-
-    try {
-        const res = await fetchWithAuth(
-            `${API_BASE_URL}/admin/reports/${id}/assign?team_id=${team}`,
-            { method: "POST" }
-        );
-
-        if (res.ok) location.reload();
-        else alert("Dispatch failed");
-
-    } catch {
-        alert("Connection error");
-    }
 }
 
 

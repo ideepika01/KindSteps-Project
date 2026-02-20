@@ -76,8 +76,6 @@ async function setupNavbar() {
     // Attach logout to ALL .logout-btn elements
     const logoutBtns = document.querySelectorAll(".logout-btn");
 
-    console.log("Found logout buttons:", logoutBtns.length);
-
     logoutBtns.forEach(btn => {
         // Remove old listener if any (safety)
         btn.onclick = null;
