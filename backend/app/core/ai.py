@@ -7,11 +7,11 @@ import json
 # -------- DEFAULT RESPONSE --------
 
 DEFAULT_AI_RESPONSE = {
-    "description": "AI analysis is currently unavailable. This usually means the GEMINI_API_KEY is not set in the production environment variables (Vercel).",
+    "description": "AI analysis is currently unavailable. Please describe the situation manually.",
     "advice": [
-        "Check Vercel Dashboard -> Settings -> Environment Variables",
-        "Ensure GEMINI_API_KEY is added with a valid API key",
-        "Redeploy the application for changes to take effect",
+        "Maintain a safe distance and speak calmly.",
+        "Check for any immediate medical needs.",
+        "Stay with the person until help arrives.",
     ],
 }
 
@@ -30,15 +30,13 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
         client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-flash-latest",
             contents=[
                 get_prompt(),
                 types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
             ],
             config=types.GenerateContentConfig(response_mime_type="application/json"),
         )
-
-        print(f"DEBUG: AI Response text: {response.text}")  # DEBUG LOG
 
         return parse_response(response)
 
@@ -71,14 +69,10 @@ def is_valid_api_key() -> bool:
     """Check if API key is valid."""
     api_key = settings.GEMINI_API_KEY
 
-    print(f"DEBUG: Checking API Key: '{api_key}'")  # DEBUG PRINT
-
     if not api_key:
-        print("DEBUG: API Key is empty or None")
         return False
 
     if "your_gemini_api_key" in api_key:
-        print("DEBUG: API Key contains placeholder text")
         return False
 
     return True
