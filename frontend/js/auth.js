@@ -17,16 +17,30 @@ async function login(e) {
     if (!email || !password)
         return alert("Enter email and password");
 
-    const data = await send("/auth/login",
-        new URLSearchParams({ username: email, password }),
-        "application/x-www-form-urlencoded"
-    );
+    const btn = document.getElementById("login-btn");
+    const originalText = btn.innerHTML;
 
-    if (!data) return;
+    // Show Loading
+    btn.innerHTML = '<span class="loader"></span>';
+    btn.disabled = true;
 
-    saveToken(data.access_token);
+    try {
+        const data = await send("/auth/login",
+            new URLSearchParams({ username: email, password }),
+            "application/x-www-form-urlencoded"
+        );
 
-    redirectUser();
+        if (!data) throw new Error("Login failed");
+
+        saveToken(data.access_token);
+        redirectUser();
+        // Keep loading state during redirect
+
+    } catch (err) {
+        // Reset on error
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
 }
 
 
