@@ -2,7 +2,6 @@ fastapi
 uvicorn
 sqlalchemy
 pg8000
-psycopg2-binary
 pydantic
 pydantic[email]
 pydantic-settings
