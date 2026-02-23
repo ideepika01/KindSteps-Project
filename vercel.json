@@ -1,6 +1,7 @@
 {
     "version": 2,
     "cleanUrls": true,
+    "_deploy_version": "v3-fix-routes",
     "builds": [
         {
             "src": "backend/app/main.py",
@@ -14,34 +15,34 @@
             "use": "@vercel/static"
         }
     ],
-    "rewrites": [
+    "routes": [
         {
-            "source": "/(auth|reports|admin|health|docs|openapi.json)(/.*)?",
-            "destination": "/backend/app/main.py"
+            "src": "/(auth|reports|admin|health|docs|openapi.json)(/.*)?",
+            "dest": "backend/app/main.py"
         },
         {
-            "source": "/about",
-            "destination": "/frontend/pages/about.html"
+            "src": "/about",
+            "dest": "/frontend/pages/about.html"
         },
         {
-            "source": "/contact",
-            "destination": "/frontend/pages/contact.html"
+            "src": "/contact",
+            "dest": "/frontend/pages/contact.html"
         },
         {
-            "source": "/works",
-            "destination": "/frontend/pages/works.html"
+            "src": "/works",
+            "dest": "/frontend/pages/works.html"
         },
         {
-            "source": "/how-it-works",
-            "destination": "/frontend/pages/works.html"
+            "src": "/how-it-works",
+            "dest": "/frontend/pages/works.html"
         },
         {
-            "source": "/",
-            "destination": "/frontend/index.html"
+            "src": "/",
+            "dest": "/frontend/index.html"
         },
         {
-            "source": "/(.*)",
-            "destination": "/frontend/$1"
+            "src": "/(.*)",
+            "dest": "/frontend/$1"
         }
     ]
 }
