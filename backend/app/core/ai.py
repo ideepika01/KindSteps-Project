@@ -27,77 +27,72 @@ def analyze_image_for_description(
     if not is_valid_api_key():
         return DEFAULT_AI_RESPONSE
 
-    # Exhaustive list of model variations to bypass regional/legacy restrictions
-    # We try both prefixed and non-prefixed versions.
-    potential_models = [
-        "gemini-1.5-flash",
-        "models/gemini-1.5-flash",
-        "gemini-2.0-flash",
-        "gemini-1.5-flash-latest",
-        "gemini-1.5-pro",
-        "models/gemini-1.5-pro",
-        "gemini-1.0-pro-vision-latest",
-    ]
+    # Try both v1 and v1beta API versions
+    api_versions = ["v1", "v1beta"]
+    potential_models = ["gemini-1.5-flash", "gemini-2.0-flash"]
 
     last_error = "No models attempted"
 
-    for model_id in potential_models:
-        try:
-            print(f"DEBUG: Attempting AI Analysis with model: {model_id}")
-            client = genai.Client(api_key=settings.GEMINI_API_KEY)
+    for version in api_versions:
+        for model_id in potential_models:
+            try:
+                print(
+                    f"DEBUG: Attempting AI Analysis with model: {model_id} (API: {version})"
+                )
 
-            response = client.models.generate_content(
-                model=model_id,
-                contents=[
-                    get_prompt(),
-                    types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
-                ],
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json", temperature=0.1
-                ),
-            )
+                # Force specific API version
+                client = genai.Client(
+                    api_key=settings.GEMINI_API_KEY,
+                    http_options={"api_version": version},
+                )
 
-            result = parse_response(response)
-            if result and (result.get("description") or result.get("advice")):
-                print(f"DEBUG: AI Analysis SUCCESS with model: {model_id}")
-                return result
+                response = client.models.generate_content(
+                    model=model_id,
+                    contents=[
+                        get_prompt(),
+                        types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
+                    ],
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json", temperature=0.1
+                    ),
+                )
 
-            raise ValueError("Invalid structure")
+                result = parse_response(response)
+                if result and (result.get("description") or result.get("advice")):
+                    print(
+                        f"DEBUG: AI Analysis SUCCESS with model: {model_id} ({version})"
+                    )
+                    return result
 
-        except Exception as error:
-            last_error = str(error)
-            print(f"DEBUG: Model {model_id} failed: {last_error[:100]}")
+                raise ValueError("Invalid structure")
 
-            # Stop if the key is definitely wrong
-            if any(kw in last_error.upper() for kw in ["401", "API_KEY_INVALID"]):
-                break
+            except Exception as error:
+                last_error = str(error)
+                print(f"DEBUG: Model {model_id} ({version}) failed: {last_error[:100]}")
 
-            # Continue to next model if it's 404 or 403
-            continue
+                if any(kw in last_error.upper() for kw in ["401", "API_KEY_INVALID"]):
+                    return {
+                        "description": "AI KEY INVALID (401). Your Vercel environment variable might be incorrect.",
+                        "advice": [
+                            "Check the key in Vercel Settings",
+                            "Ensure no extra spaces",
+                            "Redeploy after change",
+                        ],
+                    }
 
-    # Final error handling
+                continue
+
+    # Final error handling if all fail
     error_str = last_error.upper()
     error_hint = last_error[:150] + "..." if len(last_error) > 150 else last_error
 
-    if "403" in error_str or "PERMISSION_DENIED" in error_str:
-        return {
-            "description": f"AI FORBIDDEN ({error_hint}). Please check permissions.",
-            "advice": [
-                "1. Go to console.cloud.google.com/apis/credentials",
-                "2. Ensure the key has NO restrictions (or includes Gemini API)",
-                "3. Verify billing is attached if required for this region",
-            ],
-        }
-
     return {
-        "description": f"AI SERVICE ISSUE ({error_hint}).",
+        "description": f"AI SERVICE MISMATCH ({error_hint}).",
         "advice": [
-            "Wait another few minutes (Google propagation can be slow)",
-            "Try a smaller image",
-            "Ensure the API key in Vercel is exactly: "
-            + settings.GEMINI_API_KEY[:4]
-            + "..."
-            + settings.GEMINI_API_KEY[-4:],
+            "1. Visit https://aistudio.google.com/app/apikey",
+            "2. Ensure your key is 'Unrestricted' OR tied to the correct Cloud Project",
+            "3. Verify that the Project shows 'Generative Language API' as ENABLED",
+            f"Technical Trace: {error_hint}",
         ],
     }
 
