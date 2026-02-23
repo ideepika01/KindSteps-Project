@@ -1,6 +1,7 @@
 {
     "version": 2,
     "cleanUrls": true,
+    "_deploy_tag": "v5-final-clean-structure",
     "builds": [
         {
             "src": "backend/app/main.py",
