@@ -13,10 +13,23 @@
             "use": "@vercel/static"
         }
     ],
+    "cleanUrls": true,
     "routes": [
         {
             "src": "/(auth|reports|admin|health|docs|openapi.json)(/.*)?",
             "dest": "backend/app/main.py"
+        },
+        {
+            "src": "/about(.html)?",
+            "dest": "/frontend/pages/about.html"
+        },
+        {
+            "src": "/contact(.html)?",
+            "dest": "/frontend/pages/contact.html"
+        },
+        {
+            "src": "/(works|how-it-works)(.html)?",
+            "dest": "/frontend/pages/works.html"
         },
         {
             "src": "/",

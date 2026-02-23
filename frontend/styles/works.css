@@ -1,0 +1,164 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+/* =========================================
+   PREMIUM SAFETY TIPS SYSTEM (How it Works)
+   ========================================= */
+
+body {
+  background: var(--bg-accent);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.bg-accents {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.accent-blob {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.04) 0%, rgba(99, 102, 241, 0) 70%);
+  filter: blur(80px);
+}
+
+.blob-1 {
+  top: -200px;
+  right: -100px;
+}
+
+.blob-2 {
+  bottom: -100px;
+  left: -100px;
+}
+
+/* NAVBAR Standardized in globals.css */
+
+/* HERO */
+.hero {
+  padding: 100px 20px;
+  text-align: center;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.hero h1 {
+  font-size: 3.8rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  letter-spacing: -2px;
+  line-height: 1.1;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 800px;
+  margin: auto;
+}
+
+/* TIPS SECTION */
+.tips-section {
+  padding: 80px 0 120px;
+}
+
+/* GRID */
+.tips-grid {
+  width: 90%;
+  max-width: 1400px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+}
+
+/* TIP CARD */
+.tip-card {
+  background: var(--white);
+  padding: 4rem 2.5rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 32px;
+  transition: var(--transition);
+  text-align: left;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+.tip-card:hover {
+  transform: translateY(-12px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--accent);
+}
+
+.icon {
+  width: 64px;
+  height: 64px;
+  background: #f1f5f9;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  margin-bottom: 2rem;
+  transition: var(--transition);
+}
+
+.tip-card:hover .icon {
+  background: var(--accent);
+  color: #fff;
+  transform: scale(1.1) rotate(5deg);
+}
+
+.tip-card h3 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.5px;
+}
+
+.tip-card p {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* FOOTER (Handled by globals.css) */
+/* .footer styles removed to prevent conflict with globals.css */
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .tips-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+}
+
+/* Mobile Media Query for specific adjustments if needed, 
+   but Navbar/Footer are now handled globally. */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.8rem;
+  }
+
+  .tips-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tip-card {
+    padding: 3rem 2rem;
+  }
+}

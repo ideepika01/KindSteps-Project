@@ -1,0 +1,231 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+}
+
+body {
+    background: #ffffff;
+}
+
+/* NAVBAR Standardized in globals.css */
+
+/* HERO */
+.hero {
+    text-align: center;
+    padding: 60px 20px 40px;
+}
+
+.hero h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 15px;
+    color: #555;
+}
+
+/* CONTACT OPTIONS */
+.contact-options {
+    width: 90%;
+    margin: 50px auto;
+    display: flex;
+    justify-content: center;
+    gap: 35px;
+}
+
+.contact-card {
+    width: 300px;
+    padding: 25px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e5e5;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: 0.3s;
+}
+
+.contact-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.10);
+}
+
+.icon {
+    font-size: 35px;
+    margin-bottom: 12px;
+}
+
+.contact-card h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.contact-card p {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 15px;
+}
+
+.contact-card p {
+    margin: 6px 0;
+    color: #555;
+}
+
+/* BUTTON */
+.btn-primary {
+    background: #334155;
+    color: #fff;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.btn-primary:hover {
+    background: #0668d6;
+}
+
+/* GENERAL INQUIRIES */
+.inquiries {
+    width: 85%;
+    margin: 50px auto;
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    text-align: center;
+    padding: 45px;
+    border-radius: 12px;
+}
+
+.inquiries h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.inquiries p {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 25px;
+}
+
+.email-btn {
+    background: #fff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.email-btn:hover {
+    background: #f8fafc;
+    border-color: #ffffff;
+}
+
+/* FOOTER (Handled by globals.css) */
+/* .footer styles removed to prevent conflict with globals.css */
+
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .contact-options {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .contact-card {
+        width: 90%;
+    }
+}
+
+/* Mobile Media Query for specific adjustments if needed, 
+   but Navbar/Footer are now handled globally. */
+@media (max-width: 768px) {
+    .inquiries {
+        width: 90%;
+        padding: 35px;
+    }
+
+    /* No special navbar hiding needed here as globals.js handles the toggle 
+       and globals.css handles the layout */
+}
+
+/* 3-column grid and centered page width */
+.contact-card-container {
+    width: 90%;
+    /* adjust to match your layout */
+    max-width: 1100px;
+    margin: 40px auto;
+    /* center block on page */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    /* space between cards */
+    align-items: start;
+    /* keep grid items aligned to top */
+}
+
+/* Make each card equal height and center its content */
+.contact-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 22px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* center icon and headings horizontally */
+    justify-content: flex-start;
+    /* keep content from stretching odd ways */
+    min-height: 300px;
+    /* forces uniform card height — adjust if needed */
+    box-sizing: border-box;
+}
+
+/* Icon sizing and spacing */
+.contact-card .contact-icon {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    margin-bottom: 18px;
+}
+
+/* Title and description */
+.contact-card h3 {
+    font-size: 20px;
+    margin: 0 0 8px;
+    text-align: center;
+}
+
+.contact-card p {
+    margin: 6px 0;
+    color: #555;
+    text-align: center;
+    line-height: 1.3;
+}
+
+/* Make sure phone/email lines stand out but remain centered */
+.contact-card p strong {
+    color: #222;
+    display: block;
+    margin-top: 6px;
+    font-weight: 700;
+}
+
+/* On narrow screens stack the cards */
+@media (max-width: 980px) {
+    .contact-card-container {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .contact-card {
+        min-height: auto;
+    }
+}
