@@ -22,7 +22,7 @@
         },
         {
             "src": "/about(.html)?",
-            "dest": "/frontend/pages/about.html"
+            "dest": "/frontend/pages/signup.html"
         },
         {
             "src": "/contact(.html)?",
