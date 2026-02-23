@@ -1,7 +1,6 @@
 {
     "version": 2,
     "cleanUrls": true,
-    "_deploy_version": "v3-fix-routes",
     "builds": [
         {
             "src": "backend/app/main.py",
@@ -22,23 +21,23 @@
         },
         {
             "src": "/about",
-            "dest": "/frontend/pages/about.html"
+            "dest": "/pages/about"
         },
         {
             "src": "/contact",
-            "dest": "/frontend/pages/contact.html"
+            "dest": "/pages/contact"
         },
         {
             "src": "/works",
-            "dest": "/frontend/pages/works.html"
+            "dest": "/pages/works"
         },
         {
             "src": "/how-it-works",
-            "dest": "/frontend/pages/works.html"
+            "dest": "/pages/works"
         },
         {
             "src": "/",
-            "dest": "/frontend/index.html"
+            "dest": "/index"
         },
         {
             "src": "/(.*)",
