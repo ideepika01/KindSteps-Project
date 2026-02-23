@@ -76,10 +76,10 @@ def analyze_image_for_description(
     # Handle Quota / Resource Exhausted
     if any(kw in error_str for kw in ["429", "QUOTA", "EXHAUSTED", "LIMIT"]):
         return {
-            "description": "AI Quota Exceeded: All available models have reached their free tier limit. Please describe the situation manually for now.",
+            "description": f"AI QUOTA EXCEEDED ({error_hint}). All models are at capacity. Please describe manually.",
             "advice": [
                 "Try again in 5-10 minutes",
-                "The free tier daily limit has likely been reached",
+                "The free tier limit has been reached",
                 f"Service Info: {error_hint}",
             ],
         }
@@ -87,7 +87,7 @@ def analyze_image_for_description(
     # Handle Overload / Service Unavailable
     if any(kw in error_str for kw in ["503", "UNAVAILABLE", "OVERLOADED", "TIMEOUT"]):
         return {
-            "description": "AI Service Busy: The AI service is currently receiving too many requests. Please try again in 30 seconds.",
+            "description": f"AI SERVICE BUSY ({error_hint}). Please try again in 30 seconds.",
             "advice": [
                 "Wait a moment and click 'Auto-describe' again",
                 "The server is temporarily overloaded",
@@ -97,7 +97,7 @@ def analyze_image_for_description(
 
     # Catch-all for API Key errors or Regional restrictions
     return {
-        "description": "AI analysis is temporarily limited for your API key. Please describe the situation manually.",
+        "description": f"AI KEY/SERVICE LIMIT ({error_hint}). Please describe manually.",
         "advice": [
             "Check if your API key is restricted in AI Studio",
             "Try creating a NEW API key in a NEW project",
