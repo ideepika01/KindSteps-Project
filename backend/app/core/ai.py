@@ -27,13 +27,16 @@ def analyze_image_for_description(
     if not is_valid_api_key():
         return DEFAULT_AI_RESPONSE
 
-    # Ordered list of models to try. We try stable, then latest, then specific versions.
+    # Exhaustive list of model variations to bypass regional/legacy restrictions
+    # We try both prefixed and non-prefixed versions.
     potential_models = [
-        "gemini-2.0-flash",  # Fastest stable
-        "gemini-1.5-flash",  # Standard stable
-        "gemini-1.5-flash-latest",  # Latest alias
-        "gemini-1.5-flash-8b",  # Small model (high availability)
-        "gemini-1.5-pro",  # High quality fallback
+        "gemini-1.5-flash",
+        "models/gemini-1.5-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-flash-latest",
+        "gemini-1.5-pro",
+        "models/gemini-1.5-pro",
+        "gemini-1.0-pro-vision-latest",
     ]
 
     last_error = "No models attempted"
@@ -59,53 +62,42 @@ def analyze_image_for_description(
                 print(f"DEBUG: AI Analysis SUCCESS with model: {model_id}")
                 return result
 
-            raise ValueError("Empty or invalid response structure")
+            raise ValueError("Invalid structure")
 
         except Exception as error:
             last_error = str(error)
-            print(f"DEBUG: Model {model_id} failed: {last_error[:120]}")
+            print(f"DEBUG: Model {model_id} failed: {last_error[:100]}")
 
-            # If it's a 401/403 (Auth), we stop entirely as no model will work
-            if any(
-                kw in last_error.upper()
-                for kw in ["401", "403", "KEY_INVALID", "PERMISSION_DENIED"]
-            ):
+            # Stop if the key is definitely wrong
+            if any(kw in last_error.upper() for kw in ["401", "API_KEY_INVALID"]):
                 break
 
-            # For 404 or other errors, continue to the next model
+            # Continue to next model if it's 404 or 403
             continue
 
-    # If we get here, all models failed
+    # Final error handling
     error_str = last_error.upper()
-    error_hint = last_error[:120] + "..." if len(last_error) > 120 else last_error
+    error_hint = last_error[:150] + "..." if len(last_error) > 150 else last_error
 
-    # Categorize the final failure for the user
-    if "404" in error_str or "NOT_FOUND" in error_str:
+    if "403" in error_str or "PERMISSION_DENIED" in error_str:
         return {
-            "description": f"AI ACTIVATION PENDING ({error_hint}). Please wait 5 minutes.",
+            "description": f"AI FORBIDDEN ({error_hint}). Please check permissions.",
             "advice": [
-                "You recently enabled the API, Google takes time to propagate.",
-                "Refresh this page in a few minutes.",
-                "Ensure your Vercel API key matches the Project you enabled.",
-            ],
-        }
-
-    if "429" in error_str or "QUOTA" in error_str:
-        return {
-            "description": f"AI QUOTA LIMIT ({error_hint}). Please describe manually.",
-            "advice": [
-                "Retry in 60 seconds",
-                "Check your daily limit in AI Studio",
-                "Manual entry is recommended for now",
+                "1. Go to console.cloud.google.com/apis/credentials",
+                "2. Ensure the key has NO restrictions (or includes Gemini API)",
+                "3. Verify billing is attached if required for this region",
             ],
         }
 
     return {
-        "description": f"AI SERVICE ERROR ({error_hint}). Please describe manually.",
+        "description": f"AI SERVICE ISSUE ({error_hint}).",
         "advice": [
-            "Ensure the photo is clear and under 5MB",
-            "Try again later",
-            f"Technical Note: {error_hint}",
+            "Wait another few minutes (Google propagation can be slow)",
+            "Try a smaller image",
+            "Ensure the API key in Vercel is exactly: "
+            + settings.GEMINI_API_KEY[:4]
+            + "..."
+            + settings.GEMINI_API_KEY[-4:],
         ],
     }
 
@@ -124,7 +116,7 @@ def is_valid_api_key() -> bool:
 def get_prompt() -> str:
     """Return AI prompt."""
     return (
-        "Analyze this image of a person in potential distress. "
+        "Analyze this image of a person in distress. "
         "Strictly return JSON: {'description': 'A compassionate 1-2 sentence description', 'advice': ['step 1', 'step 2', 'step 3']}"
     )
 
@@ -134,10 +126,7 @@ def parse_response(response) -> dict:
     try:
         if hasattr(response, "parsed") and response.parsed:
             return response.parsed
-
         raw_text = response.text.strip()
-
-        # Clean markdown code blocks
         if raw_text.startswith("```"):
             lines = raw_text.split("\n")
             if lines[0].startswith("```"):
@@ -145,9 +134,7 @@ def parse_response(response) -> dict:
             if lines and lines[-1].strip() == "```":
                 lines = lines[:-1]
             raw_text = "\n".join(lines).strip()
-
         return json.loads(raw_text)
-
     except Exception as e:
         print(f"DEBUG: Parse Error: {e}")
         return DEFAULT_AI_RESPONSE
