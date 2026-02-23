@@ -29,8 +29,8 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
     try:
         client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-        # Using gemini-2.0-flash as it is the current high-performance stable model
-        model_id = "gemini-2.0-flash"
+        # Reverting to 1.5 Flash which has the most reliable free tier quota
+        model_id = "gemini-1.5-flash"
 
         response = client.models.generate_content(
             model=model_id,
@@ -47,13 +47,37 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
         error_msg = str(error)
         print(f"AI ERROR [{type(error).__name__}]: {error_msg}")
 
-        # Temporary: Return the EXACT error message to the user for debugging
+        error_str = error_msg.upper()
+
+        # Handle Quota / Resource Exhausted
+        if "429" in error_str or "QUOTA" in error_str or "EXHAUSTED" in error_str:
+            return {
+                "description": "AI Quota Exceeded: The free tier has reached its daily or per-minute limit. Please provide a manual description for now.",
+                "advice": [
+                    "Try again in 60 seconds",
+                    "The AI service is currently at capacity",
+                    "Manual descriptions are always accepted",
+                ],
+            }
+
+        # Handle Overload / Service Unavailable
+        if "503" in error_str or "UNAVAILABLE" in error_str:
+            return {
+                "description": "AI Overloaded: The service is currently receiving too many requests. Please try again in 30 seconds.",
+                "advice": [
+                    "Wait a moment and retry",
+                    "Check your internet connection",
+                    "Use a smaller image if possible",
+                ],
+            }
+
+        # Catch-all for other errors
         return {
-            "description": f"DEBUG INFO: {error_msg}",
+            "description": "AI analysis is temporarily unavailable. Please describe the situation manually.",
             "advice": [
-                "Please report the 'DEBUG INFO' above to the development team.",
-                "Ensure your API key is active in the Google AI Studio console.",
-                "Try a smaller image or a different file format (JPG/PNG).",
+                "Ensure the photo is clear and under 5MB",
+                "Try a different browser or device",
+                "Contact support if this persists",
             ],
         }
 
