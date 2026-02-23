@@ -27,21 +27,21 @@ def analyze_image_for_description(
     if not is_valid_api_key():
         return DEFAULT_AI_RESPONSE
 
-    # Ordered list of best-performing and most-available models for 2026
+    # Use the most recent and stable model IDs for 2026
+    # Note: We avoid 'models/' prefix as the new SDK handles this automatically.
     potential_models = [
-        "gemini-1.5-flash",  # Primary stable
-        "gemini-1.5-flash-8b",  # Best for high-traffic/low-quota
+        "gemini-2.0-flash",  # Newest high-speed stable
+        "gemini-1.5-flash",  # Standard reliable stable
+        "gemini-1.5-flash-8b",  # Best for low-quota environments
         "gemini-1.5-pro",  # High quality fallback
-        "gemini-2.0-flash-exp",  # Experimental fallback
     ]
 
-    last_error = "Unknown AI Error"
+    last_error = "No models attempted"
 
     for model_id in potential_models:
         try:
             print(f"DEBUG: Attempting AI Analysis with model: {model_id}")
 
-            # Re-initializing client to ensure clean state per attempt
             client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
             response = client.models.generate_content(
@@ -51,60 +51,61 @@ def analyze_image_for_description(
                     types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
                 ],
                 config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    temperature=0.2,  # Lower temperature for more stable JSON
+                    response_mime_type="application/json", temperature=0.1
                 ),
             )
 
             result = parse_response(response)
-            print(f"DEBUG: AI Analysis SUCCESS with model: {model_id}")
-            return result
+            if result and result.get("description"):
+                print(f"DEBUG: AI Analysis SUCCESS with model: {model_id}")
+                return result
+
+            raise ValueError("Empty response from AI")
 
         except Exception as error:
-            last_error = str(error)
-            print(f"AI Model {model_id} failed: {last_error[:100]}...")
+            last_error = f"Model {model_id} failed: {str(error)}"
+            print(f"DEBUG: {last_error[:150]}...")
 
-            # Critical errors that won't work with ANY model
-            check_msg = last_error.upper()
+            # Stop immediately for authentication issues
             if any(
-                kw in check_msg
-                for kw in ["API_KEY_INVALID", "401", "403", "PERMISSION_DENIED"]
+                kw in str(error).upper()
+                for kw in ["401", "403", "KEY_INVALID", "PERMISSION_DENIED"]
             ):
                 break
 
             continue
 
-    # If all models fail, determine the most helpful error message
+    # Final error handling if all fail
     error_str = last_error.upper()
-    error_hint = last_error[:100] + "..." if len(last_error) > 100 else last_error
+    error_hint = last_error[:120] + "..." if len(last_error) > 120 else last_error
 
-    # Categorized user-friendly responses
-    if any(kw in error_str for kw in ["429", "QUOTA", "EXHAUSTED", "LIMIT"]):
+    # Categorize for the user
+    if "429" in error_str or "QUOTA" in error_str:
         return {
-            "description": f"AI QUOTA REACHED ({error_hint}). Please describe manually.",
+            "description": f"AI QUOTA EXCEEDED ({error_hint}). Please describe manually.",
             "advice": [
-                "Try again in 5-10 minutes",
-                "Check your Google AI Studio quota",
-                "Manual detail is prioritized",
+                "The free tier has reached its per-minute limit",
+                "Retry in 60 seconds",
+                "Wait for quota reset",
             ],
         }
 
-    if any(kw in error_str for kw in ["404", "NOT_FOUND", "MODEL_NOT_FOUND"]):
+    if "404" in error_str or "NOT_FOUND" in error_str:
         return {
-            "description": f"AI MODEL MISMATCH ({error_hint}). Please describe manually.",
+            "description": f"AI MODEL UNAVAILABLE ({error_hint}). Please describe manually.",
             "advice": [
-                "Ensure Generative Language API is enabled in Cloud Console",
-                "Wait for the service to synchronize",
-                "Check your API key region",
+                "Ensure 'Generative Language API' is enabled in your Google Cloud Project",
+                "Check if your region supports Gemini",
+                "Try a fresh API key in a brand new project",
             ],
         }
 
     return {
-        "description": f"AI SERVICE ISSUE ({error_hint}). Please describe manually.",
+        "description": f"AI SERVICE ERROR ({error_hint}). Please describe manually.",
         "advice": [
-            "Check your internet and wait 60 seconds",
-            "Try a different photo format",
-            f"Debug Info: {error_hint}",
+            "Ensure the photo is under 5MB and clear",
+            "The service might be temporarily down",
+            f"Technical Trace: {error_hint}",
         ],
     }
 
@@ -124,20 +125,20 @@ def get_prompt() -> str:
     """Return AI prompt."""
     return (
         "Analyze this image of a person in distress. "
-        "Provide a compassionate, factual description and 3 helpful steps. "
-        "Return strictly as JSON with 'description' (string) and 'advice' (list of strings)."
+        "Strictly return JSON: {'description': 'A compassionate 1-2 sentence description', 'advice': ['step 1', 'step 2', 'step 3']}"
     )
 
 
 def parse_response(response) -> dict:
     """Convert AI response to dictionary safely."""
     try:
+        # Some SDK versions provide .parsed directly
         if hasattr(response, "parsed") and response.parsed:
             return response.parsed
 
         raw_text = response.text.strip()
 
-        # Clean markdown if present
+        # Clean markdown code blocks
         if raw_text.startswith("```"):
             lines = raw_text.split("\n")
             if lines[0].startswith("```"):
@@ -149,5 +150,5 @@ def parse_response(response) -> dict:
         return json.loads(raw_text)
 
     except Exception as e:
-        print(f"Parse Error: {e}")
+        print(f"DEBUG: Parse Error: {e} | Text: {response.text[:50]}...")
         return DEFAULT_AI_RESPONSE
