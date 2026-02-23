@@ -148,8 +148,8 @@ function aiScan() {
         document.getElementById("report-description").value = data.description;
       }
 
-      // If there's special advice (like a technical error hint), show it
-      if (data.advice && (data.description.includes("Exceeded") || data.description.includes("Overloaded") || data.description.includes("unavailable"))) {
+      // Show advice/debug info for ANY error description
+      if (data.advice && data.description) {
         alert(`${data.description}\n\n${data.advice.join("\n")}`);
       }
     } catch (e) {
