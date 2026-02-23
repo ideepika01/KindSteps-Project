@@ -47,28 +47,13 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
         error_msg = str(error)
         print(f"AI ERROR [{type(error).__name__}]: {error_msg}")
 
-        # Check for 503/UNAVAILABLE or Quota issues
-        error_str = error_msg.upper()
-        if any(
-            kw in error_str
-            for kw in ["503", "UNAVAILABLE", "QUOTA", "RATE_LIMIT", "429"]
-        ):
-            return {
-                "description": "AI analysis is temporarily overloaded or has reached its limit. Please try again in a few moments or describe the situation manually.",
-                "advice": [
-                    "Take a deep breath and stay calm",
-                    "Try again in a few minutes",
-                    "Fill in the details manually for now",
-                ],
-            }
-
-        # Return the actual error for debugging in the frontend (if logged)
+        # Temporary: Return the EXACT error message to the user for debugging
         return {
-            "description": f"AI Service Error: {error_msg}",
+            "description": f"DEBUG INFO: {error_msg}",
             "advice": [
-                "Check your internet connection",
-                "Try a different photo",
-                "Report this error if it persists",
+                "Please report the 'DEBUG INFO' above to the development team.",
+                "Ensure your API key is active in the Google AI Studio console.",
+                "Try a smaller image or a different file format (JPG/PNG).",
             ],
         }
 
