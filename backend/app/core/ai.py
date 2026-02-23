@@ -27,13 +27,11 @@ def analyze_image_for_description(
     if not is_valid_api_key():
         return DEFAULT_AI_RESPONSE
 
-    # Use the most recent and stable model IDs for 2026
-    # Note: We avoid 'models/' prefix as the new SDK handles this automatically.
+    # Use 'latest' aliases which are often more resilient to API versioning changes
     potential_models = [
-        "gemini-2.0-flash",  # Newest high-speed stable
-        "gemini-1.5-flash",  # Standard reliable stable
-        "gemini-1.5-flash-8b",  # Best for low-quota environments
-        "gemini-1.5-pro",  # High quality fallback
+        "gemini-1.5-flash-latest",
+        "gemini-1.5-pro-latest",
+        "gemini-1.5-flash",
     ]
 
     last_error = "No models attempted"
@@ -41,7 +39,6 @@ def analyze_image_for_description(
     for model_id in potential_models:
         try:
             print(f"DEBUG: Attempting AI Analysis with model: {model_id}")
-
             client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
             response = client.models.generate_content(
@@ -66,13 +63,25 @@ def analyze_image_for_description(
             last_error = f"Model {model_id} failed: {str(error)}"
             print(f"DEBUG: {last_error[:150]}...")
 
-            # Stop immediately for authentication issues
+            error_msg = last_error.upper()
+            # If the API isn't enabled, all models will return 404 or PERMISSION_DENIED
+            if "NOT_FOUND" in error_msg or "404" in error_msg:
+                # If the first model fails with 404, suggest activation
+                if model_id == "gemini-1.5-flash-latest":
+                    return {
+                        "description": "AI SERVICE NOT ENABLED: Please enable the 'Generative Language API' in your Google Cloud Console.",
+                        "advice": [
+                            "Go to console.cloud.google.com/apis/library",
+                            "Search for 'Generative Language API'",
+                            "Click ENABLE for your project.",
+                        ],
+                    }
+
             if any(
-                kw in str(error).upper()
+                kw in error_msg
                 for kw in ["401", "403", "KEY_INVALID", "PERMISSION_DENIED"]
             ):
                 break
-
             continue
 
     # Final error handling if all fail
