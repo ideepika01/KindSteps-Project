@@ -86,6 +86,16 @@ def analyze_image_for_description(
     error_str = last_error.upper()
     error_hint = last_error[:150] + "..." if len(last_error) > 150 else last_error
 
+    if "429" in error_str or "EXHAUSTED" in error_str:
+        return {
+            "description": "AI QUOTA EXCEEDED (429). Your API key is working, but you have reached the free tier limit.",
+            "advice": [
+                "Please wait 60 seconds and try again.",
+                "Check your daily quota at https://aistudio.google.com/app/plan_and_billing.",
+                "The free tier allows 15 requests per minute.",
+            ],
+        }
+
     return {
         "description": f"AI SERVICE MISMATCH ({error_hint}).",
         "advice": [
