@@ -1,4 +1,4 @@
-# KindSteps Support API - v1.0.1 (Deployment Trigger)
+# KindSteps Support API - v1.0.2 (Model Upgrade)
 import sys
 import os
 from fastapi import FastAPI, Request

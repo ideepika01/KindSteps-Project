@@ -29,9 +29,8 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
     try:
         client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-        # Using gemini-1.5-flash as it is the current production-stable flash model
-        # The SDK requires the 'models/' prefix for explicit model names
-        model_id = "models/gemini-1.5-flash"
+        # Using gemini-2.0-flash as it is the current high-performance stable model
+        model_id = "gemini-2.0-flash"
 
         response = client.models.generate_content(
             model=model_id,
