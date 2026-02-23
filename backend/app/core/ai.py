@@ -29,8 +29,11 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
     try:
         client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
+        # Using gemini-1.5-flash as it is the current production-stable flash model
+        model_id = "gemini-1.5-flash"
+
         response = client.models.generate_content(
-            model="gemini-flash-latest",
+            model=model_id,
             contents=[
                 get_prompt(),
                 types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
@@ -41,24 +44,32 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
         return parse_response(response)
 
     except Exception as error:
-        print("AI Error:", error)
+        error_msg = str(error)
+        print(f"AI ERROR [{type(error).__name__}]: {error_msg}")
 
-        # Check for 503 specifically
-        error_str = str(error).upper()
-        if "503" in error_str or "UNAVAILABLE" in error_str:
+        # Check for 503/UNAVAILABLE or Quota issues
+        error_str = error_msg.upper()
+        if any(
+            kw in error_str
+            for kw in ["503", "UNAVAILABLE", "QUOTA", "RATE_LIMIT", "429"]
+        ):
             return {
-                "description": "AI analysis is temporarily overloaded due to high demand. Please try again in a few moments or provide a manual description.",
+                "description": "AI analysis is temporarily overloaded or has reached its limit. Please try again in a few moments or describe the situation manually.",
                 "advice": [
-                    "Try again in 30 seconds",
-                    "Describe the situation manually",
-                    "Ensure the image is clear",
+                    "Take a deep breath and stay calm",
+                    "Try again in a few minutes",
+                    "Fill in the details manually for now",
                 ],
             }
 
-        # Return the actual error for debugging
+        # Return the actual error for debugging in the frontend (if logged)
         return {
-            "description": f"AI Error: {str(error)}",
-            "advice": ["Check API Key", "Check Model Availability", "Check Logs"],
+            "description": f"AI Service Error: {error_msg}",
+            "advice": [
+                "Check your internet connection",
+                "Try a different photo",
+                "Report this error if it persists",
+            ],
         }
 
 
