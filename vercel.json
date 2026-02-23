@@ -1,4 +1,5 @@
 {
+    "_redeploy": "v2",
     "version": 2,
     "builds": [
         {
