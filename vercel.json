@@ -1,6 +1,5 @@
 {
     "version": 2,
-    "cleanUrls": true,
     "builds": [
         {
             "src": "backend/app/main.py",
@@ -21,27 +20,23 @@
         },
         {
             "src": "/about",
-            "dest": "/frontend/pages/about.html"
+            "dest": "frontend/pages/about.html"
         },
         {
             "src": "/contact",
-            "dest": "/frontend/pages/contact.html"
+            "dest": "frontend/pages/contact.html"
         },
         {
             "src": "/works",
-            "dest": "/frontend/pages/works.html"
-        },
-        {
-            "src": "/how-it-works",
-            "dest": "/frontend/pages/works.html"
+            "dest": "frontend/pages/works.html"
         },
         {
             "src": "/",
-            "dest": "/frontend/index.html"
+            "dest": "frontend/index.html"
         },
         {
             "src": "/(.*)",
-            "dest": "/frontend/$1"
+            "dest": "frontend/$1"
         }
     ]
 }
