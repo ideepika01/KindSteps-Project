@@ -22,71 +22,88 @@ DEFAULT_AI_RESPONSE = {
 def analyze_image_for_description(
     image_bytes: bytes, mime_type: str = "image/jpeg"
 ) -> dict:
-    """Analyze image using Gemini and return description and advice."""
+    """Analyze image using Gemini with automatic model failover."""
 
-    # Check API key
     if not is_valid_api_key():
         return DEFAULT_AI_RESPONSE
 
-    try:
-        client = genai.Client(api_key=settings.GEMINI_API_KEY)
+    # List of models to try in order of likelihood of availability/quota
+    potential_models = [
+        "gemini-1.5-flash",
+        "gemini-1.5-pro",
+        "gemini-1.0-pro-vision-latest",
+        "gemini-1.5-flash-latest",
+    ]
 
-        # Using gemini-1.5-flash-latest for better compatibility with free tier
-        model_id = "gemini-1.5-flash-latest"
+    last_error = "Unknown AI Error"
 
-        response = client.models.generate_content(
-            model=model_id,
-            contents=[
-                get_prompt(),
-                types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
-            ],
-            config=types.GenerateContentConfig(response_mime_type="application/json"),
-        )
+    for model_id in potential_models:
+        try:
+            print(f"DEBUG: Attempting AI Analysis with model: {model_id}")
+            client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-        return parse_response(response)
-
-    except Exception as error:
-        error_msg = str(error)
-        print(f"AI ERROR [{type(error).__name__}]: {error_msg}")
-
-        error_str = error_msg.upper()
-
-        # Determine a helpful hint from the error for the advice section
-        error_hint = error_msg[:60] + "..." if len(error_msg) > 60 else error_msg
-
-        # Handle Quota / Resource Exhausted
-        if any(kw in error_str for kw in ["429", "QUOTA", "EXHAUSTED", "LIMIT"]):
-            return {
-                "description": "AI Quota Exceeded: The free tier has reached its daily or per-minute limit. Please provide a manual description for now.",
-                "advice": [
-                    "Try again in a few minutes",
-                    "The AI service is currently at capacity",
-                    f"Technical Note: {error_hint}",
+            response = client.models.generate_content(
+                model=model_id,
+                contents=[
+                    get_prompt(),
+                    types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
                 ],
-            }
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json"
+                ),
+            )
 
-        # Handle Overload / Service Unavailable
-        if any(
-            kw in error_str for kw in ["503", "UNAVAILABLE", "OVERLOADED", "TIMEOUT"]
-        ):
-            return {
-                "description": "AI Overloaded: The service is currently receiving too many requests. Please try again in 30 seconds.",
-                "advice": [
-                    "Wait a moment and retry",
-                    "The service is temporarily busy",
-                    f"Technical Note: {error_hint}",
-                ],
-            }
+            result = parse_response(response)
+            print(f"DEBUG: AI Analysis SUCCESS with model: {model_id}")
+            return result
 
-        # Catch-all for other errors (e.g. Region not supported, Invalid Key)
+        except Exception as error:
+            last_error = str(error)
+            print(f"AI Model {model_id} failed: {last_error[:100]}...")
+            # If 401 (Unauth) or 403 (Forbidden), we stop early as it's an API key issue
+            if (
+                "401" in last_error
+                or "403" in last_error
+                or "API_KEY_INVALID" in last_error.upper()
+            ):
+                break
+            continue
+
+    # If all models fail, determine the most helpful error message
+    error_str = last_error.upper()
+    error_hint = last_error[:65] + "..." if len(last_error) > 65 else last_error
+
+    # Handle Quota / Resource Exhausted
+    if any(kw in error_str for kw in ["429", "QUOTA", "EXHAUSTED", "LIMIT"]):
         return {
-            "description": "AI analysis is temporarily unavailable. Please describe the situation manually.",
+            "description": "AI Quota Exceeded: All available models have reached their free tier limit. Please describe the situation manually for now.",
             "advice": [
-                "Describe the situation manually for now",
-                "Ensure your photo is clear and under 5MB",
+                "Try again in 5-10 minutes",
+                "The free tier daily limit has likely been reached",
                 f"Service Info: {error_hint}",
             ],
         }
+
+    # Handle Overload / Service Unavailable
+    if any(kw in error_str for kw in ["503", "UNAVAILABLE", "OVERLOADED", "TIMEOUT"]):
+        return {
+            "description": "AI Service Busy: The AI service is currently receiving too many requests. Please try again in 30 seconds.",
+            "advice": [
+                "Wait a moment and click 'Auto-describe' again",
+                "The server is temporarily overloaded",
+                f"Service Info: {error_hint}",
+            ],
+        }
+
+    # Catch-all for API Key errors or Regional restrictions
+    return {
+        "description": "AI analysis is temporarily limited for your API key. Please describe the situation manually.",
+        "advice": [
+            "Check if your API key is restricted in AI Studio",
+            "Try creating a NEW API key in a NEW project",
+            f"Technical Note: {error_hint}",
+        ],
+    }
 
 
 # -------- HELPER FUNCTIONS --------
@@ -124,11 +141,9 @@ def parse_response(response) -> dict:
 
     # Handle markdown code blocks if the model included them
     if raw_text.startswith("```"):
-        # Remove starting ```json or ```
         lines = raw_text.split("\n")
         if lines[0].startswith("```"):
             lines = lines[1:]
-        # Remove ending ```
         if lines and lines[-1].strip() == "```":
             lines = lines[:-1]
         raw_text = "\n".join(lines).strip()
