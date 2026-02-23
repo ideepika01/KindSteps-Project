@@ -20,24 +20,8 @@
             "dest": "backend/app/main.py"
         },
         {
-            "src": "/about",
-            "dest": "/pages/about"
-        },
-        {
-            "src": "/contact",
-            "dest": "/pages/contact"
-        },
-        {
-            "src": "/works",
-            "dest": "/pages/works"
-        },
-        {
-            "src": "/how-it-works",
-            "dest": "/pages/works"
-        },
-        {
             "src": "/",
-            "dest": "/index"
+            "dest": "/frontend/index.html"
         },
         {
             "src": "/(.*)",
