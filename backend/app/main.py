@@ -1,4 +1,4 @@
-# KindSteps Support API - v1.0.2 (Model Upgrade)
+# KindSteps Support API - v1.0.3 (Robust AI Fix)
 import sys
 import os
 from fastapi import FastAPI, Request

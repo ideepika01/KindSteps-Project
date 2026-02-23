@@ -27,11 +27,13 @@ def analyze_image_for_description(
     if not is_valid_api_key():
         return DEFAULT_AI_RESPONSE
 
-    # Use 'latest' aliases which are often more resilient to API versioning changes
+    # Ordered list of models to try. We try stable, then latest, then specific versions.
     potential_models = [
-        "gemini-1.5-flash-latest",
-        "gemini-1.5-pro-latest",
-        "gemini-1.5-flash",
+        "gemini-2.0-flash",  # Fastest stable
+        "gemini-1.5-flash",  # Standard stable
+        "gemini-1.5-flash-latest",  # Latest alias
+        "gemini-1.5-flash-8b",  # Small model (high availability)
+        "gemini-1.5-pro",  # High quality fallback
     ]
 
     last_error = "No models attempted"
@@ -53,68 +55,57 @@ def analyze_image_for_description(
             )
 
             result = parse_response(response)
-            if result and result.get("description"):
+            if result and (result.get("description") or result.get("advice")):
                 print(f"DEBUG: AI Analysis SUCCESS with model: {model_id}")
                 return result
 
-            raise ValueError("Empty response from AI")
+            raise ValueError("Empty or invalid response structure")
 
         except Exception as error:
-            last_error = f"Model {model_id} failed: {str(error)}"
-            print(f"DEBUG: {last_error[:150]}...")
+            last_error = str(error)
+            print(f"DEBUG: Model {model_id} failed: {last_error[:120]}")
 
-            error_msg = last_error.upper()
-            # If the API isn't enabled, all models will return 404 or PERMISSION_DENIED
-            if "NOT_FOUND" in error_msg or "404" in error_msg:
-                # If the first model fails with 404, suggest activation
-                if model_id == "gemini-1.5-flash-latest":
-                    return {
-                        "description": "AI SERVICE NOT ENABLED: Please enable the 'Generative Language API' in your Google Cloud Console.",
-                        "advice": [
-                            "Go to console.cloud.google.com/apis/library",
-                            "Search for 'Generative Language API'",
-                            "Click ENABLE for your project.",
-                        ],
-                    }
-
+            # If it's a 401/403 (Auth), we stop entirely as no model will work
             if any(
-                kw in error_msg
+                kw in last_error.upper()
                 for kw in ["401", "403", "KEY_INVALID", "PERMISSION_DENIED"]
             ):
                 break
+
+            # For 404 or other errors, continue to the next model
             continue
 
-    # Final error handling if all fail
+    # If we get here, all models failed
     error_str = last_error.upper()
     error_hint = last_error[:120] + "..." if len(last_error) > 120 else last_error
 
-    # Categorize for the user
-    if "429" in error_str or "QUOTA" in error_str:
+    # Categorize the final failure for the user
+    if "404" in error_str or "NOT_FOUND" in error_str:
         return {
-            "description": f"AI QUOTA EXCEEDED ({error_hint}). Please describe manually.",
+            "description": f"AI ACTIVATION PENDING ({error_hint}). Please wait 5 minutes.",
             "advice": [
-                "The free tier has reached its per-minute limit",
-                "Retry in 60 seconds",
-                "Wait for quota reset",
+                "You recently enabled the API, Google takes time to propagate.",
+                "Refresh this page in a few minutes.",
+                "Ensure your Vercel API key matches the Project you enabled.",
             ],
         }
 
-    if "404" in error_str or "NOT_FOUND" in error_str:
+    if "429" in error_str or "QUOTA" in error_str:
         return {
-            "description": f"AI MODEL UNAVAILABLE ({error_hint}). Please describe manually.",
+            "description": f"AI QUOTA LIMIT ({error_hint}). Please describe manually.",
             "advice": [
-                "Ensure 'Generative Language API' is enabled in your Google Cloud Project",
-                "Check if your region supports Gemini",
-                "Try a fresh API key in a brand new project",
+                "Retry in 60 seconds",
+                "Check your daily limit in AI Studio",
+                "Manual entry is recommended for now",
             ],
         }
 
     return {
         "description": f"AI SERVICE ERROR ({error_hint}). Please describe manually.",
         "advice": [
-            "Ensure the photo is under 5MB and clear",
-            "The service might be temporarily down",
-            f"Technical Trace: {error_hint}",
+            "Ensure the photo is clear and under 5MB",
+            "Try again later",
+            f"Technical Note: {error_hint}",
         ],
     }
 
@@ -133,7 +124,7 @@ def is_valid_api_key() -> bool:
 def get_prompt() -> str:
     """Return AI prompt."""
     return (
-        "Analyze this image of a person in distress. "
+        "Analyze this image of a person in potential distress. "
         "Strictly return JSON: {'description': 'A compassionate 1-2 sentence description', 'advice': ['step 1', 'step 2', 'step 3']}"
     )
 
@@ -141,7 +132,6 @@ def get_prompt() -> str:
 def parse_response(response) -> dict:
     """Convert AI response to dictionary safely."""
     try:
-        # Some SDK versions provide .parsed directly
         if hasattr(response, "parsed") and response.parsed:
             return response.parsed
 
@@ -159,5 +149,5 @@ def parse_response(response) -> dict:
         return json.loads(raw_text)
 
     except Exception as e:
-        print(f"DEBUG: Parse Error: {e} | Text: {response.text[:50]}...")
+        print(f"DEBUG: Parse Error: {e}")
         return DEFAULT_AI_RESPONSE
