@@ -19,7 +19,9 @@ DEFAULT_AI_RESPONSE = {
 # -------- MAIN FUNCTION --------
 
 
-def analyze_image_for_description(image_bytes: bytes) -> dict:
+def analyze_image_for_description(
+    image_bytes: bytes, mime_type: str = "image/jpeg"
+) -> dict:
     """Analyze image using Gemini and return description and advice."""
 
     # Check API key
@@ -29,14 +31,14 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
     try:
         client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-        # Reverting to 1.5 Flash which has the most reliable free tier quota
-        model_id = "gemini-1.5-flash"
+        # Using gemini-1.5-flash-latest for better compatibility with free tier
+        model_id = "gemini-1.5-flash-latest"
 
         response = client.models.generate_content(
             model=model_id,
             contents=[
                 get_prompt(),
-                types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
+                types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
             ],
             config=types.GenerateContentConfig(response_mime_type="application/json"),
         )
@@ -49,35 +51,40 @@ def analyze_image_for_description(image_bytes: bytes) -> dict:
 
         error_str = error_msg.upper()
 
+        # Determine a helpful hint from the error for the advice section
+        error_hint = error_msg[:60] + "..." if len(error_msg) > 60 else error_msg
+
         # Handle Quota / Resource Exhausted
-        if "429" in error_str or "QUOTA" in error_str or "EXHAUSTED" in error_str:
+        if any(kw in error_str for kw in ["429", "QUOTA", "EXHAUSTED", "LIMIT"]):
             return {
                 "description": "AI Quota Exceeded: The free tier has reached its daily or per-minute limit. Please provide a manual description for now.",
                 "advice": [
-                    "Try again in 60 seconds",
+                    "Try again in a few minutes",
                     "The AI service is currently at capacity",
-                    "Manual descriptions are always accepted",
+                    f"Technical Note: {error_hint}",
                 ],
             }
 
         # Handle Overload / Service Unavailable
-        if "503" in error_str or "UNAVAILABLE" in error_str:
+        if any(
+            kw in error_str for kw in ["503", "UNAVAILABLE", "OVERLOADED", "TIMEOUT"]
+        ):
             return {
                 "description": "AI Overloaded: The service is currently receiving too many requests. Please try again in 30 seconds.",
                 "advice": [
                     "Wait a moment and retry",
-                    "Check your internet connection",
-                    "Use a smaller image if possible",
+                    "The service is temporarily busy",
+                    f"Technical Note: {error_hint}",
                 ],
             }
 
-        # Catch-all for other errors
+        # Catch-all for other errors (e.g. Region not supported, Invalid Key)
         return {
             "description": "AI analysis is temporarily unavailable. Please describe the situation manually.",
             "advice": [
-                "Ensure the photo is clear and under 5MB",
-                "Try a different browser or device",
-                "Contact support if this persists",
+                "Describe the situation manually for now",
+                "Ensure your photo is clear and under 5MB",
+                f"Service Info: {error_hint}",
             ],
         }
 

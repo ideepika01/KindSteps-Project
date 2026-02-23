@@ -144,8 +144,14 @@ function aiScan() {
 
       const data = await res.json();
 
-      if (data.description)
+      if (data.description) {
         document.getElementById("report-description").value = data.description;
+      }
+
+      // If there's special advice (like a technical error hint), show it
+      if (data.advice && (data.description.includes("Exceeded") || data.description.includes("Overloaded") || data.description.includes("unavailable"))) {
+        alert(`${data.description}\n\n${data.advice.join("\n")}`);
+      }
     } catch (e) {
       console.error(e);
       alert(`AI Connection Error: ${e.message}`);

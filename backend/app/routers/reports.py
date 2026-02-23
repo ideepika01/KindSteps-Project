@@ -59,7 +59,8 @@ async def ai_analyze_report(
     print(f"DEBUG: AI Analyze endpoint hit by user: {current_user.email}")
     content = await photo.read()
 
-    result = analyze_image_for_description(content)
+    mime_type = photo.content_type or "image/jpeg"
+    result = analyze_image_for_description(content, mime_type=mime_type)
     print(f"DEBUG: AI Analysis Result: {str(result)[:200]}...")
     return result
 
