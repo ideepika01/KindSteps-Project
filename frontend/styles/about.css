@@ -362,9 +362,96 @@ body {
   }
 }
 
-/* Mobile Media Query for specific adjustments if needed, 
+/* Mobile Media Query for specific adjustments if needed,
    but Navbar/Footer are now handled globally. */
 @media (max-width: 768px) {
-  /* No special navbar hiding needed here as globals.js handles the toggle 
-     and globals.css handles the layout */
+  .hero-section {
+    padding: 60px 1.5rem;
+  }
+
+  .hero-section h1 {
+    font-size: 2.5rem;
+    letter-spacing: -1px;
+  }
+
+  .hero-section p {
+    font-size: 1.1rem;
+  }
+
+  .story-card {
+    padding: 2.5rem 1.5rem;
+    border-radius: 24px;
+  }
+
+  .story-card h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .story-content {
+    gap: 2rem;
+  }
+
+  .story-content p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .principles-section {
+    padding: 60px 0;
+  }
+
+  .principles-section h2 {
+    font-size: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .principle-card {
+    padding: 2.5rem 1.5rem;
+    border-radius: 20px;
+  }
+
+  .stats-section {
+    padding: 60px 0;
+    margin-bottom: 60px;
+  }
+
+  .stats-section h2 {
+    font-size: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .stat-card h3 {
+    font-size: 2.8rem;
+  }
+
+  .team-section {
+    padding: 60px 0;
+  }
+
+  .team-text h2 {
+    font-size: 2rem;
+  }
+
+  .cta-section {
+    margin: 60px auto;
+    padding: 4rem 1.5rem;
+    border-radius: 32px;
+  }
+
+  .cta-section h2 {
+    font-size: 2rem;
+    letter-spacing: -1px;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .cta-primary,
+  .cta-secondary {
+    width: 100%;
+    text-align: center;
+  }
 }

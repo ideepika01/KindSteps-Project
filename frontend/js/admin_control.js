@@ -8,6 +8,9 @@ async function init() {
 }
 
 
+let allReports = [];
+let allUsers = [];
+
 // ---------- LOAD USERS ----------
 async function loadUsers() {
     try {
@@ -21,8 +24,9 @@ async function loadUsers() {
             return;
         }
 
-        const users = await res.json();
-        renderUserTable(users);
+        allUsers = await res.json();
+        if (typeof applyFilters === "function") applyFilters();
+        else renderUserTable(allUsers);
 
     } catch (e) {
         console.error(e);
@@ -37,7 +41,7 @@ async function loadUsers() {
 function renderUserTable(users) {
     const body = document.getElementById("user-table-body");
     if (!users.length) {
-        body.innerHTML = `<tr><td colspan="6">No users found</td></tr>`;
+        body.innerHTML = `<tr><td colspan="6" style="text-align:center;">No users found matching your search</td></tr>`;
         return;
     }
 
@@ -123,7 +127,8 @@ async function loadReports() {
             return;
         }
 
-        setupFilters(await res.json());
+        allReports = await res.json();
+        setupFiltersAndTriggers();
 
     } catch (e) {
         console.error(e);
@@ -136,59 +141,84 @@ async function loadReports() {
 
 
 // ---------- FILTER ----------
-function setupFilters(reports) {
-
+function applyFilters() {
     const status = document.getElementById("status-filter");
     const start = document.getElementById("start-date");
     const end = document.getElementById("end-date");
     const search = document.getElementById("admin-search");
 
-    function filter() {
+    if (!status || !search) return; // UI not ready
 
-        let list = reports.filter(r => {
+    const s = search.value.toLowerCase();
 
-            if (status.value !== "all" && r.status !== status.value) return false;
+    // 1. Filter Reports
+    let filteredReports = allReports.filter(r => {
+        // Role/Status Filter
+        if (status.value !== "all" && r.status !== status.value) return false;
 
-            const reportDate = new Date(r.created_at);
-            // Set time to midnight for simple date comparison
-            const reportMidnight = new Date(reportDate);
-            reportMidnight.setHours(0, 0, 0, 0);
+        // Date Filters
+        const reportDate = new Date(r.created_at);
+        const reportMidnight = new Date(reportDate);
+        reportMidnight.setHours(0, 0, 0, 0);
 
-            if (start.value) {
-                const startDate = new Date(start.value);
-                startDate.setHours(0, 0, 0, 0);
-                if (reportMidnight < startDate) return false;
-            }
+        if (start.value) {
+            const startDate = new Date(start.value);
+            startDate.setHours(0, 0, 0, 0);
+            if (reportMidnight < startDate) return false;
+        }
+        if (end.value) {
+            const endDate = new Date(end.value);
+            endDate.setHours(0, 0, 0, 0);
+            if (reportMidnight > endDate) return false;
+        }
 
-            if (end.value) {
-                const endDate = new Date(end.value);
-                endDate.setHours(0, 0, 0, 0);
-                if (reportMidnight > endDate) return false;
-            }
+        // Search Filter
+        if (s &&
+            !r.id.toString().includes(s) &&
+            !r.contact_name.toLowerCase().includes(s) &&
+            !r.location.toLowerCase().includes(s))
+            return false;
 
-            const s = search.value.toLowerCase();
+        return true;
+    });
 
-            if (s &&
-                !r.id.toString().includes(s) &&
-                !r.contact_name.toLowerCase().includes(s) &&
-                !r.location.toLowerCase().includes(s))
-                return false;
-
-            return true;
-        });
-
-        list.sort((a, b) =>
-            new Date(b.updated_at || b.created_at) -
-            new Date(a.updated_at || a.created_at)
+    // 2. Filter Users
+    let filteredUsers = allUsers.filter(u => {
+        if (!s) return true;
+        return (
+            u.id.toString().includes(s) ||
+            u.full_name.toLowerCase().includes(s) ||
+            u.email.toLowerCase().includes(s) ||
+            u.role.toLowerCase().includes(s)
         );
+    });
 
-        renderTable(list);
-    }
+    // Sort Reports
+    filteredReports.sort((a, b) =>
+        new Date(b.updated_at || b.created_at) -
+        new Date(a.updated_at || a.created_at)
+    );
 
-    status.onchange = start.onchange = end.onchange = search.oninput = filter;
-
-    filter();
+    renderTable(filteredReports);
+    renderUserTable(filteredUsers);
 }
+
+function setupFiltersAndTriggers() {
+    const status = document.getElementById("status-filter");
+    const start = document.getElementById("start-date");
+    const end = document.getElementById("end-date");
+    const search = document.getElementById("admin-search");
+
+    if (!status || !search) return;
+
+    // Attach listeners
+    status.onchange = start.onchange = end.onchange = search.oninput = applyFilters;
+
+    // Initial run
+    applyFilters();
+}
+
+
 
 
 // ---------- TABLE ----------

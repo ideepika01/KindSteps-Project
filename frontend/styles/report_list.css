@@ -243,41 +243,40 @@ body {
 
 @media (max-width: 768px) {
     .dashboard-container {
-        padding: 3rem 1.5rem;
+        padding: 4rem 1.5rem;
     }
 
     .dashboard-header {
-        margin-bottom: 2rem;
-    }
-
-    .logo {
-        position: relative;
-        z-index: 2002;
-        /* Ensure logo stays above mobile menu */
+        margin-bottom: 2.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .back-link {
         position: static;
         transform: none;
-        margin-bottom: 1.5rem;
-        width: 100%;
+        margin-bottom: 2rem;
         justify-content: center;
-        font-size: 0.95rem;
+        width: fit-content;
+    }
+
+    .back-link:hover {
+        transform: translateX(-5px);
     }
 
     .welcome-box h1 {
         font-size: 2.2rem;
-        line-height: 1.2;
+        letter-spacing: -1px;
     }
 
     .welcome-box p {
         font-size: 1rem;
-        padding: 0 1rem;
+        padding: 0;
     }
 
     .cases-grid {
         grid-template-columns: 1fr;
-        /* Single column on mobile */
         gap: 1.5rem;
     }
 
@@ -288,7 +287,7 @@ body {
 
 @media (max-width: 480px) {
     .dashboard-container {
-        padding: 2rem 1rem;
+        padding: 3rem 1rem;
     }
 
     .welcome-box h1 {
@@ -296,16 +295,10 @@ body {
     }
 
     .case-card h3 {
-        font-size: 1.25rem;
+        font-size: 1.3rem;
     }
 
     .status {
-        font-size: 0.75rem;
-        padding: 4px 10px;
-    }
-
-    .case-card a {
-        padding: 0.75rem 1rem;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
     }
 }

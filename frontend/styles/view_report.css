@@ -285,10 +285,29 @@ body {
 
 /* --- Responsive --- */
 @media (max-width: 768px) {
+    .case-container {
+        margin: 1rem auto;
+        padding: 0 1rem;
+        gap: 1.5rem;
+    }
+
+    .card {
+        padding: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .case-title {
+        font-size: 1.3rem;
+    }
 
     .details-grid,
     .actions-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
 
     .full-width {
@@ -298,18 +317,36 @@ body {
     .timeline-container {
         flex-direction: column;
         align-items: flex-start;
-        gap: 2rem;
+        gap: 1.5rem;
+        padding-left: 10px;
     }
 
     .timeline-container::before {
         width: 2px;
         height: 100%;
-        left: 24px;
+        left: 34px;
         top: 0;
     }
 
     .timeline-step {
         flex-direction: row;
         width: auto;
+        gap: 1.5rem;
+    }
+
+    .step-icon {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+    }
+
+    .step-info h4 {
+        text-align: left;
+    }
+
+    .back-btn {
+        width: 100%;
+        justify-content: center;
+        margin-top: 1rem;
     }
 }

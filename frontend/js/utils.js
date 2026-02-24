@@ -116,14 +116,11 @@ async function setupNavbar() {
 // ================= MOBILE MENU =================
 
 function setupMobileMenu() {
-
     const nav = document.querySelector(".nav-container");
     const links = document.querySelector(".nav-links");
-
     if (!nav || !links) return;
 
     let btn = document.querySelector(".mobile-menu-btn");
-
     if (!btn) {
         btn = document.createElement("button");
         btn.className = "mobile-menu-btn";
@@ -131,22 +128,36 @@ function setupMobileMenu() {
         nav.appendChild(btn);
     }
 
-    btn.onclick = () => {
-
+    // Use a fresh click handler to avoid duplicates if called multiple times
+    btn.onclick = (e) => {
+        e.stopPropagation();
         btn.classList.toggle("active");
         links.classList.toggle("active");
 
-        document.body.style.overflow =
-            links.classList.contains("active") ? "hidden" : "";
+        if (links.classList.contains("active")) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
     };
 
-    links.querySelectorAll("a").forEach(link =>
+    // Close menu when clicking any link
+    links.querySelectorAll("a").forEach(link => {
         link.onclick = () => {
             btn.classList.remove("active");
             links.classList.remove("active");
             document.body.style.overflow = "";
+        };
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener("click", (e) => {
+        if (links.classList.contains("active") && !links.contains(e.target) && !btn.contains(e.target)) {
+            btn.classList.remove("active");
+            links.classList.remove("active");
+            document.body.style.overflow = "";
         }
-    );
+    });
 }
 
 
