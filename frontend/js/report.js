@@ -1,333 +1,238 @@
-document.addEventListener("DOMContentLoaded", () => {
+// Run when page loads
+document.addEventListener("DOMContentLoaded", function () {
+
   checkLogin();
 
   photoPreview();
 
-  cameraInit();
+  startCamera();
 
-  aiScan();
+  scanAI();
 
-  formSubmit();
+  submitForm();
 
-  mapInit();
+  initMap();
+
 });
 
-// -------- PHOTO --------
 
+// Show selected photo name
 function photoPreview() {
+
   const input = document.getElementById("report-photo");
 
-  const box = document.querySelector(".upload-box");
+  const text = document.querySelector(".upload-content");
 
-  const content = document.querySelector(".upload-content");
+  if (!input) return;
 
-  const ai = document.getElementById("ai-scan-container");
+  input.onchange = function () {
 
-  if (!input || !box) return;
+    if (input.files.length > 0)
+      text.innerText = "Selected: " + input.files[0].name;
+    else
+      text.innerText = "Click to upload";
 
-  input.onchange = () => {
-    const file = input.files[0];
-
-    content.innerHTML = file ? `Selected: ${file.name}` : "Click to upload";
-
-    if (ai) ai.style.display = file ? "block" : "none";
   };
 }
 
-// -------- CAMERA --------
 
-function cameraInit() {
-  const startBtn = document.getElementById("start-camera-btn");
-  const stopBtn = document.getElementById("stop-camera-btn");
-  const captureBtn = document.getElementById("capture-btn");
-  const cameraContainer = document.getElementById("camera-container");
+
+// Start camera
+function startCamera() {
+
+  const start = document.getElementById("start-camera-btn");
+
   const video = document.getElementById("camera-feed");
+
   const canvas = document.getElementById("camera-canvas");
+
+  const capture = document.getElementById("capture-btn");
+
   const input = document.getElementById("report-photo");
 
-  if (!startBtn || !cameraContainer || !video || !canvas || !input) return;
+  if (!start) return;
 
-  let stream = null;
+  let stream;
 
-  startBtn.onclick = async () => {
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-      });
-      video.srcObject = stream;
-      cameraContainer.style.display = "block";
-      startBtn.style.display = "none";
-    } catch (err) {
-      alert("Camera access denied or not available.");
-      console.error(err);
-    }
+  start.onclick = async function () {
+
+    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+    video.srcObject = stream;
+
   };
 
-  stopBtn.onclick = () => stopCamera();
 
-  function stopCamera() {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-      stream = null;
-    }
-    cameraContainer.style.display = "none";
-    startBtn.style.display = "flex";
-  }
+  capture.onclick = function () {
 
-  captureBtn.onclick = () => {
-    if (!stream) return;
-
-    // Set canvas dimensions to match video
     canvas.width = video.videoWidth;
+
     canvas.height = video.videoHeight;
 
-    // Draw video frame to canvas
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.getContext("2d").drawImage(video, 0, 0);
 
-    // Convert to blob/file
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const file = new File([blob], `capture_${Date.now()}.jpg`, {
-        type: "image/jpeg",
-      });
+    canvas.toBlob(function (blob) {
 
-      // Create DataTransfer to simulate user selection
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      input.files = dataTransfer.files;
+      const file = new File([blob], "photo.jpg");
 
-      // Trigger change event so photoPreview picks it up
-      input.dispatchEvent(new Event("change"));
+      const dt = new DataTransfer();
 
-      stopCamera();
-    }, "image/jpeg");
+      dt.items.add(file);
+
+      input.files = dt.files;
+
+    });
+
   };
+
 }
 
-// -------- AI --------
 
-function aiScan() {
+
+// Scan using AI
+function scanAI() {
+
   const btn = document.getElementById("ai-scan-btn");
-
-  const statusObj = document.getElementById("ai-status");
 
   if (!btn) return;
 
-  btn.onclick = async () => {
-    const photo = document.getElementById("report-photo").files[0];
-    const statusObj = document.getElementById("ai-status");
+  btn.onclick = async function () {
+
+    const photo =
+      document.getElementById("report-photo").files[0];
 
     if (!photo) {
-      if (statusObj) {
-        statusObj.innerText = "Please select/capture a photo first.";
-        statusObj.style.color = "#ef4444";
-        statusObj.style.display = "block";
-      }
+
+      alert("Select photo");
+
       return;
     }
 
     const form = new FormData();
+
     form.append("photo", photo);
 
-    btn.disabled = true;
-    if (statusObj) {
-      statusObj.innerText = "AI is analyzing... please wait.";
-      statusObj.style.color = "#666";
-      statusObj.style.display = "block";
-    }
-
-    try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/reports/ai-analyze`, {
+    const res = await fetchWithAuth(
+      API_BASE_URL + "/reports/ai-analyze",
+      {
         method: "POST",
-        body: form,
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        if (statusObj) {
-          statusObj.innerText = `Analysis Failed: ${err.detail || res.statusText}`;
-          statusObj.style.color = "#ef4444";
-        }
-        btn.disabled = false;
-        return;
+        body: form
       }
+    );
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (data.description) {
-        const descBox = document.getElementById("report-description");
-        if (descBox) {
-          descBox.value = data.description;
-          // Trigger any change listeners if necessary
-          descBox.dispatchEvent(new Event('input'));
-        }
-      }
+    document.getElementById("report-description").value =
+      data.description;
 
-      // Show advice/safety tips in the UI
-      const adviceCard = document.getElementById("ai-compassion-card");
-      const adviceList = document.getElementById("ai-advice-list");
-
-      if (data.advice && adviceCard && adviceList) {
-        adviceList.innerHTML = data.advice
-          .map((item) => `<li>${item}</li>`)
-          .join("");
-        adviceCard.style.display = "block";
-      }
-
-      if (statusObj) statusObj.style.display = "none";
-    } catch (e) {
-      console.error(e);
-      if (statusObj) {
-        statusObj.innerText = `Connection Error: ${e.message}`;
-        statusObj.style.color = "#ef4444";
-      }
-    }
-
-    btn.disabled = false;
   };
+
 }
 
-// -------- SUBMIT --------
 
-function formSubmit() {
-  const btn = document.getElementById("submit-report-btn");
+
+// Submit report
+function submitForm() {
+
+  const btn =
+    document.getElementById("submit-report-btn");
 
   if (!btn) return;
 
-  btn.onclick = async (e) => {
+  btn.onclick = async function (e) {
+
     e.preventDefault();
+
+    const photo =
+      document.getElementById("report-photo").files[0];
+
+    const desc =
+      document.getElementById("report-description").value;
+
+    const phone =
+      document.getElementById("contact-phone").value;
+
+    const lat =
+      document.getElementById("report-lat").value;
+
+    const lng =
+      document.getElementById("report-lng").value;
+
+
+    if (!photo || !desc || !phone) {
+
+      alert("Fill all fields");
+
+      return;
+    }
+
 
     const form = new FormData();
 
-    const fields = {
-      "report-condition": "condition",
-      "report-description": "description",
-      "report-location": "location",
-      "location_details": "location_details",
-      "contact-name": "contact_name",
-      "contact-phone": "contact_phone",
-      "report-lat": "latitude",
-      "report-lng": "longitude"
-    };
+    form.append("description", desc);
 
-    for (const [id, apiField] of Object.entries(fields)) {
-      const val = document.getElementById(id)?.value;
-      // Append even if empty string so backend validation catches it properly
-      if (val !== undefined && val !== null) form.append(apiField, val);
-    }
+    form.append("phone", phone);
 
-    const photo = document.getElementById("report-photo").files[0];
-    const phone = document.getElementById("contact-phone")?.value.trim();
-    const desc = document.getElementById("report-description")?.value.trim();
-    const lat = document.getElementById("report-lat")?.value;
-    const lng = document.getElementById("report-lng")?.value;
+    form.append("lat", lat);
 
-    const errorBox = document.getElementById("form-error-msg");
-    const showError = (msg) => {
-      if (errorBox) {
-        errorBox.innerText = msg;
-        errorBox.style.display = "block";
-        errorBox.scrollIntoView({ behavior: "smooth", block: "center" });
-      } else {
-        alert(msg);
-      }
-    };
-    if (errorBox) errorBox.style.display = "none";
+    form.append("lng", lng);
 
-    // 1. Photo Validation
-    if (!photo) return showError("Please upload or capture a photo of the individual.");
-    if (photo.size > 5 * 1024 * 1024) return showError("Image size exceeds 5MB. Please upload a smaller image.");
-    if (!['image/jpeg', 'image/png', 'image/jpg'].includes(photo.type)) {
-      return showError("Only JPG and PNG images are allowed.");
-    }
+    form.append("photo", photo);
 
-    // 2. Description Quality
-    if (!desc || desc.length < 15) {
-      return showError("Please provide a more detailed description (at least 15 characters) to help our rescue teams.");
-    }
 
-    // 3. Phone Validation
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(phone)) {
-      return showError("Please enter a valid 10-digit phone number for contact.");
-    }
-
-    // 4. Map Location Pin
-    if (!lat || !lng || lat === "0" || lng === "0") {
-      return showError("Please select a precise location on the map by clicking or using your GPS.");
-    }
-
-    if (photo) form.append("photo", photo);
-
-    try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/reports/`, {
+    const res = await fetchWithAuth(
+      API_BASE_URL + "/reports/",
+      {
         method: "POST",
-
-        body: form,
-      });
-
-      if (res.ok) {
-        location.href = "./my_reports.html";
-      } else {
-        // Try to get error message from server
-        try {
-          const errorData = await res.json();
-          showError(`Submit failed:\n${formatError(errorData)}`);
-        } catch (e) {
-          showError(`Submit failed: ${res.statusText}`);
-        }
+        body: form
       }
-    } catch (err) {
-      console.error(err);
-      showError(`Server connection error: ${err.message}`);
-    }
+    );
+
+
+    if (res.ok)
+      location.href = "my_reports.html";
+    else
+      alert("Failed");
 
   };
+
 }
 
-// Helper to format validation errors
-function formatError(data) {
-  if (typeof data.detail === "string") return data.detail;
-  if (Array.isArray(data.detail)) {
-    return data.detail.map(e => `${e.loc.join(".")} : ${e.msg}`).join("\n");
-  }
-  return JSON.stringify(data);
-}
 
-// -------- MAP --------
 
-function mapInit() {
-  const div = document.getElementById("report-map");
+// Initialize map
+function initMap() {
 
-  if (!div) return;
+  const map =
+    L.map("report-map")
+      .setView([13.0827, 80.2707], 13);
+
+
+  L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+  ).addTo(map);
+
 
   let marker;
 
-  const map = L.map(div).setView([13.0827, 80.2707], 13);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+  map.on("click", function (e) {
 
-  map.on('click', (e) => set(e.latlng));
+    const lat = e.latlng.lat;
 
-  navigator.geolocation?.getCurrentPosition((pos) => set(pos.coords));
+    const lng = e.latlng.lng;
 
-  function set(p) {
-    const lat = p.lat || p.latitude;
 
-    const lng = p.lng || p.longitude;
-
-    if (!marker) {
-      marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-      marker.on("dragend", () => {
-        const pos = marker.getLatLng();
-        set(pos);
-      });
-    } else {
+    if (!marker)
+      marker = L.marker([lat, lng]).addTo(map);
+    else
       marker.setLatLng([lat, lng]);
-    }
+
 
     document.getElementById("report-lat").value = lat;
+
     document.getElementById("report-lng").value = lng;
-  }
+
+  });
+
 }

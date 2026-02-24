@@ -1,8 +1,8 @@
+# Reports Router - Handles Incident Reporting and Case Management
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import base64
-
 from app.db.session import get_db
 from app.dependencies import get_current_user
 from app.models.report import Report, ReportStatus, ReportPriority
@@ -12,179 +12,110 @@ from app.core.ai import analyze_image_for_description
 
 router = APIRouter()
 
+# --- HELPERS ---
 
-# -------- HELPER FUNCTIONS --------
 
-
-def convert_file_to_base64(photo: UploadFile):
-
+# Convert an uploaded image file to a Base64 string for database storage
+def convert_to_b64(photo: UploadFile):
     if not photo:
         return None
-
     content = photo.file.read()
-    mime_type = photo.content_type or "image/jpeg"
     b64_str = base64.b64encode(content).decode("utf-8")
-    return f"data:{mime_type};base64,{b64_str}"
+    return f"data:{photo.content_type or 'image/jpeg'};base64,{b64_str}"
 
 
-def get_default_team(db: Session):
-
-    return db.query(User).filter(User.email == "team@kindsteps.com").first()
-
-
-def get_report_or_404(db: Session, report_id: int):
-
-    report = db.query(Report).filter(Report.id == report_id).first()
-
-    if not report:
-        raise HTTPException(404, "Report not found")
-
-    return report
-
-
-def check_staff_access(user: User):
-
+# Verify if the user is an admin or part of the rescue team
+def check_staff(user: User):
     if user.role not in (UserRole.admin, UserRole.rescue_team):
         raise HTTPException(403, "Access denied")
 
 
-# -------- AI ANALYZE --------
+# --- ROUTES ---
 
 
+# Use AI to automatically describe an uploaded photo (Rescue Assistance)
 @router.post("/ai-analyze")
-async def ai_analyze_report(
-    photo: UploadFile = File(...),
-    current_user: User = Depends(get_current_user),
+async def ai_analyze(
+    photo: UploadFile = File(...), current_user: User = Depends(get_current_user)
 ):
-    print(f"DEBUG: AI Analyze endpoint hit by user: {current_user.email}")
-    content = await photo.read()
-
-    mime_type = photo.content_type or "image/jpeg"
-    result = analyze_image_for_description(content, mime_type=mime_type)
-    print(f"DEBUG: AI Analysis Result: {str(result)[:200]}...")
-    return result
+    return analyze_image_for_description(
+        await photo.read(), mime_type=photo.content_type
+    )
 
 
-# -------- CREATE REPORT --------
-
-
+# Create a new rescue report (Incident Submission)
 @router.post("/", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)
 def create_report(
     condition: str = Form(...),
     description: str = Form(...),
     location: str = Form(...),
-    location_details: Optional[str] = Form(None),
     contact_name: str = Form(...),
     contact_phone: str = Form(...),
     priority: ReportPriority = Form(ReportPriority.medium),
+    photo: UploadFile = File(None),
     latitude: Optional[str] = Form(None),
     longitude: Optional[str] = Form(None),
-    photo: UploadFile = File(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-
     try:
-        photo_data = convert_file_to_base64(photo)
-
-        team = get_default_team(db)
-
-        report = Report(
+        new_report = Report(
             reporter_id=current_user.id,
             condition=condition,
             description=description,
             location=location,
-            location_details=location_details,
             contact_name=contact_name,
             contact_phone=contact_phone,
             priority=priority.value if hasattr(priority, "value") else priority,
             latitude=latitude,
             longitude=longitude,
-            photo_url=photo_data,
+            photo_url=convert_to_b64(photo),
             status=ReportStatus.received.value,
-            assigned_team_id=team.id if team else None,
         )
-
-        db.add(report)
+        db.add(new_report)
         db.commit()
-        db.refresh(report)
-
-        return report
-
+        db.refresh(new_report)
+        return new_report
     except Exception as e:
-        print(f"CRITICAL ERROR creating report: {str(e)}")
-        import traceback
-
-        traceback.print_exc()
-        raise HTTPException(
-            status_code=500, detail=f"Failed to create report: {str(e)}"
-        )
+        raise HTTPException(500, f"Error creating report: {str(e)}")
 
 
-# -------- LIST REPORTS --------
-
-
+# Get all reports (Users see their own, Staff see everything)
 @router.get("/", response_model=List[ReportResponse])
 def list_reports(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
-
     if current_user.role == UserRole.user:
         return db.query(Report).filter(Report.reporter_id == current_user.id).all()
-
     return db.query(Report).all()
 
 
-# -------- MY ASSIGNMENTS --------
-
-
-@router.get("/my-assignments", response_model=List[ReportResponse])
-def my_assignments(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-
-    check_staff_access(current_user)
-
-    return db.query(Report).filter(Report.assigned_team_id == current_user.id).all()
-
-
-# -------- GET REPORT --------
-
-
+# Get a specific report's details by ID
 @router.get("/{id}", response_model=ReportResponse)
 def get_report(
     id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-
-    report = get_report_or_404(db, id)
-
-    if current_user.role == UserRole.user:
-        if report.reporter_id != current_user.id:
-            raise HTTPException(403, "Access denied")
-
+    report = db.query(Report).filter(Report.id == id).first()
+    if not report:
+        raise HTTPException(404, "Report not found")
+    if current_user.role == UserRole.user and report.reporter_id != current_user.id:
+        raise HTTPException(403, "Access denied")
     return report
 
 
-# -------- TRACK REPORT --------
-
-
+# Track a report's progress (Direct alias for get_report)
 @router.get("/track/{id}", response_model=ReportResponse)
 def track_report(
     id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-
     return get_report(id, db, current_user)
 
 
-# -------- UPDATE REPORT --------
-
-
+# Update a report's status or assigned team (Staff only)
 @router.put("/{id}", response_model=ReportResponse)
 def update_report(
     id: int,
@@ -192,17 +123,14 @@ def update_report(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    check_staff(current_user)
+    report = db.query(Report).filter(Report.id == id).first()
+    if not report:
+        raise HTTPException(404, "Report not found")
 
-    check_staff_access(current_user)
-
-    report = get_report_or_404(db, id)
-
-    update_data = report_update.model_dump(exclude_unset=True)
-
-    for key in update_data:
-        setattr(report, key, update_data[key])
+    for key, val in report_update.model_dump(exclude_unset=True).items():
+        setattr(report, key, val)
 
     db.commit()
     db.refresh(report)
-
     return report

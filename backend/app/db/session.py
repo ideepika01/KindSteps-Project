@@ -3,26 +3,30 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from app.core.config import settings
 
 
-# Create database engine using database URL
+# extra connection settings
 connect_args = {}
 
-# Only use SSL if NOT connecting to localhost
+
+# add ssl only for remote database
 if "pg8000" in settings.SQLALCHEMY_DATABASE_URI:
-    # Check if host is not local
-    if (
-        "@localhost" not in settings.SQLALCHEMY_DATABASE_URI
-        and "@127.0.0.1" not in settings.SQLALCHEMY_DATABASE_URI
-    ):
+
+    if "@localhost" not in settings.SQLALCHEMY_DATABASE_URI and "@127.0.0.1" not in settings.SQLALCHEMY_DATABASE_URI:
+
         try:
             import ssl
 
             ssl_context = ssl.create_default_context()
             ssl_context.check_hostname = False
             ssl_context.verify_mode = ssl.CERT_NONE
+
             connect_args["ssl_context"] = ssl_context
+
         except ImportError:
             pass
 
+
+
+# create main database engine
 engine = create_engine(
     settings.SQLALCHEMY_DATABASE_URI,
     pool_pre_ping=True,
@@ -30,22 +34,28 @@ engine = create_engine(
 )
 
 
-# Create session factory
+
+# create session object
 SessionLocal = sessionmaker(
-    bind=engine,  # Connect session to engine
-    autocommit=False,  # Changes must be committed manually
-    autoflush=False,  # Don't auto-save before commit
+    bind=engine,
+    autocommit=False,
+    autoflush=False,
 )
 
 
-# Base class for all database models
+
+# base class for models
 Base = declarative_base()
 
 
-# Dependency for getting database session in FastAPI
+
+# get db session for each request
 def get_db():
-    db = SessionLocal()  # Create new database session
+
+    db = SessionLocal()
+
     try:
-        yield db  # Use session
+        yield db
+
     finally:
-        db.close()  # Close session after request
+        db.close()

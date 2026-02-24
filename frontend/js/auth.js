@@ -1,102 +1,72 @@
-document.addEventListener("DOMContentLoaded", init);
+// start when page loads
+document.addEventListener("DOMContentLoaded", () => {
+    bind("login-form", login);
+    bind("signup-form", signup);
+});
 
-function init() {
-    document.getElementById("login-form")?.addEventListener("submit", login);
-    document.getElementById("signup-form")?.addEventListener("submit", signup);
-}
 
-
-// ---------- LOGIN ----------
+// login user
 async function login(e) {
 
     e.preventDefault();
 
-    const rawEmail = document.getElementById("login-email")?.value || "";
-    const email = rawEmail.trim();
-    const password = document.getElementById("login-password")?.value || "";
+    const email = val("login-email");
+    const password = val("login-password");
 
-    // Validation: No whitespace allowed in "username" (email)
-    if (rawEmail !== email || email.includes(" ")) {
-        return alert("Email should not contain any spaces or whitespace.");
-    }
-
-    // Validation: Strict Email Format (no extra special chars except @ and .)
-    // Allows alphanumeric, dots, underscores, plus, and hyphens before @
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
-        return alert("Please enter a valid email address (e.g. user@example.com). Extra special characters are not allowed.");
-    }
-
-    if (!email || !password)
-        return alert("Enter email and password");
+    if (!validEmail(email)) return alert("Invalid email");
+    if (!password) return alert("Enter password");
 
     const btn = document.getElementById("login-btn");
-    const originalText = btn.innerHTML;
+    setLoading(btn, true);
 
-    // Show Loading
-    btn.innerHTML = '<span class="loader"></span>';
-    btn.disabled = true;
+    const data = await send(
+        "/auth/login",
+        new URLSearchParams({ username: email, password }),
+        "application/x-www-form-urlencoded"
+    );
 
-    try {
-        const data = await send("/auth/login",
-            new URLSearchParams({ username: email, password }),
-            "application/x-www-form-urlencoded"
-        );
+    if (!data) return setLoading(btn, false);
 
-        if (!data) throw new Error("Login failed");
+    saveToken(data.access_token);
 
-        saveToken(data.access_token);
-        redirectUser();
-        // Keep loading state during redirect
-
-    } catch (err) {
-        // Reset on error
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
+    redirectUser();
 }
 
 
-// ---------- SIGNUP ----------
+
+// signup user
 async function signup(e) {
 
     e.preventDefault();
 
-    const fullName = get("signup-name");
-    const email = get("signup-email");
-    const phone = get("signup-phone");
-    const password = get("signup-password");
-    const role = document.querySelector('input[name="role"]:checked')?.value || "user";
+    const full_name = val("signup-name");
+    const email = val("signup-email");
+    const phone = val("signup-phone");
+    const password = val("signup-password");
 
-    // Strict Email Validation for Signup too
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
-        return alert("Invalid email format. Special characters other than @, dot, underscore, and hyphen are not permitted.");
-    }
+    const role =
+        document.querySelector('input[name="role"]:checked')?.value || "user";
 
-    // Full Name whitespace validation
-    if (!fullName || fullName.trim().split(" ").length < 1) {
-        return alert("Please enter your full name.");
-    }
 
-    // Password Strength
-    if (!password || password.length < 6) {
-        return alert("Password must be at least 6 characters long.");
-    }
+    if (!full_name) return alert("Enter name");
 
-    // Phone Validation (basic 10 digit check)
-    const phoneRegex = /^[0-9]{10}$/;
-    if (phone && !phoneRegex.test(phone)) {
-        return alert("Please enter a valid 10-digit phone number without spaces or symbols.");
-    }
+    if (!validEmail(email)) return alert("Invalid email");
+
+    if (!password || password.length < 6)
+        return alert("Password too short");
+
+    if (phone && !/^[0-9]{10}$/.test(phone))
+        return alert("Invalid phone");
+
 
     const data = await send("/auth/signup", {
-        full_name: fullName,
-        email: email,
-        phone: phone,
-        password: password,
-        role: role
+        full_name,
+        email,
+        phone,
+        password,
+        role
     });
+
 
     if (!data) return;
 
@@ -106,7 +76,8 @@ async function signup(e) {
 }
 
 
-// ---------- REDIRECT ----------
+
+// redirect based on role
 async function redirectUser() {
 
     try {
@@ -117,63 +88,102 @@ async function redirectUser() {
 
         const user = await res.json();
 
-        const pages = {
-            admin: "./pages/admin_control.html",
-            rescue_team: "./pages/rescue_team.html"
-        };
+        if (user.role === "admin")
+            location.href = "./pages/admin_control.html";
 
-        location.href = pages[user.role] || "./pages/main.html";
+        else if (user.role === "rescue_team")
+            location.href = "./pages/rescue_team.html";
+
+        else
+            goHome();
 
     }
     catch {
+
         goHome();
+
     }
 }
 
+
+
+// default home
 function goHome() {
 
     location.href = "./pages/main.html";
+
 }
 
 
-// ---------- COMMON SEND ----------
-async function send(endpoint, body, type = "application/json") {
+
+// send post request
+async function send(url, body, type = "application/json") {
 
     try {
 
-        const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+        const res = await fetch(`${API_BASE_URL}${url}`, {
 
             method: "POST",
 
             headers: { "Content-Type": type },
 
-            body: type === "application/json"
-                ? JSON.stringify(body)
-                : body
+            body:
+                type === "application/json"
+                    ? JSON.stringify(body)
+                    : body
+
         });
+
 
         const data = await res.json().catch(() => null);
 
+
         if (!res.ok) {
 
-            alert(data?.detail || data?.error || "Failed");
+            alert(data?.detail || "Failed");
 
             return null;
+
         }
 
+
         return data;
+
     }
     catch {
 
         alert("Server error");
 
         return null;
+
     }
+
 }
 
 
-// ---------- HELPER ----------
-function get(id) {
 
+// helpers
+
+function val(id) {
     return document.getElementById(id)?.value.trim();
+}
+
+function bind(id, fn) {
+    document.getElementById(id)?.addEventListener("submit", fn);
+}
+
+function validEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function setLoading(btn, state) {
+
+    if (!btn) return;
+
+    btn.disabled = state;
+
+    btn.innerHTML = state
+        ? '<span class="loader"></span>'
+        : "Login";
+
 }

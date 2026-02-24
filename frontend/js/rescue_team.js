@@ -1,15 +1,17 @@
-document.addEventListener("DOMContentLoaded", () => {
+
+// Run when page loads
+document.addEventListener("DOMContentLoaded", function () {
 
     checkLogin();
 
-    load();
+    loadReports();
 
 });
 
 
-// -------- LOAD --------
 
-async function load() {
+// Load reports from backend
+async function loadReports() {
 
     const grid = document.getElementById("rescue-reports-grid");
 
@@ -17,180 +19,137 @@ async function load() {
 
     try {
 
-        const res = await fetchWithAuth(`${API_BASE_URL}/reports`);
+        const res = await fetchWithAuth(API_BASE_URL + "/reports");
 
-        if (!res.ok) return show(grid, "Unable to load cases");
+        if (!res.ok) {
+
+            grid.innerHTML = "Failed to load";
+
+            return;
+
+        }
 
         const reports = await res.json();
 
-        stats(reports);
+        showStats(reports);
 
-        filters(reports, grid);
+        setupFilter(reports, grid);
 
     }
     catch {
 
-        show(grid, "Server error");
+        grid.innerHTML = "Server error";
 
     }
 
 }
 
 
-// -------- STATS --------
 
-function stats(reports) {
+// Show statistics
+function showStats(reports) {
 
-    let total = reports.length,
-        progress = 0,
-        resolved = 0;
+    let total = reports.length;
 
-    reports.forEach(r => {
+    let progress = 0;
 
-        const s = r.status?.toLowerCase();
+    let resolved = 0;
 
-        if (s === "resolved") resolved++;
 
-        if (s === "active" || s === "in_progress") progress++;
+    reports.forEach(function (r) {
+
+        if (r.status === "resolved")
+            resolved++;
+
+        if (r.status === "active" || r.status === "in_progress")
+            progress++;
 
     });
 
-    text("stat-total", total);
 
-    text("stat-progress", progress);
+    document.getElementById("stat-total").innerText = total;
 
-    text("stat-resolved", resolved);
+    document.getElementById("stat-progress").innerText = progress;
 
-}
-
-function text(id, val) {
-
-    const el = document.getElementById(id);
-
-    if (el) el.textContent = val;
+    document.getElementById("stat-resolved").innerText = resolved;
 
 }
 
 
-// -------- FILTER --------
 
-function filters(reports, grid) {
+// Filter reports
+function setupFilter(reports, grid) {
 
     const status = document.getElementById("status-filter");
 
-    const start = document.getElementById("start-date");
+    status.onchange = function () {
 
-    const end = document.getElementById("end-date");
+        const value = status.value;
 
-    function apply() {
+        let filtered = [];
 
-        const s = status.value;
 
-        const sDate = start.value ? new Date(start.value) : null;
+        if (value === "all")
+            filtered = reports;
 
-        const eDate = end.value ? new Date(end.value) : null;
+        else
+            filtered = reports.filter(function (r) {
 
-        const list = reports.filter(r => {
+                return r.status === value;
 
-            const rs = r.status;
+            });
 
-            const reportDate = new Date(r.updated_at || r.created_at);
-            const reportMidnight = new Date(reportDate);
-            reportMidnight.setHours(0, 0, 0, 0);
 
-            if (s !== "all" && rs !== s && !(s === "in_progress" && rs === "active"))
-                return false;
+        showReports(filtered, grid);
 
-            if (sDate) {
-                const startMidnight = new Date(sDate);
-                startMidnight.setHours(0, 0, 0, 0);
-                if (reportMidnight < startMidnight) return false;
-            }
+    };
 
-            if (eDate) {
-                const endMidnight = new Date(eDate);
-                endMidnight.setHours(0, 0, 0, 0);
-                if (reportMidnight > endMidnight) return false;
-            }
 
-            return true;
+    showReports(reports, grid);
 
-        });
+}
 
-        render(list, grid);
+
+
+// Show reports
+function showReports(reports, grid) {
+
+    grid.innerHTML = "";
+
+
+    if (reports.length === 0) {
+
+        grid.innerHTML = "No reports";
+
+        return;
 
     }
 
-    status.onchange = start.onchange = end.onchange = apply;
 
-    apply();
+    reports.forEach(function (r) {
 
-}
+        const div = document.createElement("div");
+
+        div.className = "case-card";
 
 
-// -------- RENDER --------
+        div.innerHTML = `
 
-function render(list, grid) {
-    grid.innerHTML = "";
-    if (!list.length) return show(grid, "No assigned cases found.");
+        <h3>${r.condition}</h3>
 
-    list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        <p>${r.location}</p>
 
-    list.forEach((r, index) => {
-        const card = document.createElement("div");
-        card.className = "case-card";
-        // Staggered animation
-        card.style.animationDelay = `${index * 100}ms`;
+        <p>Status: ${r.status}</p>
 
-        // Determine status badge class
-        const status = r.status.toLowerCase();
-        let statusClass = "received";
-        if (status === "active" || status === "in_progress") statusClass = "in_progress";
-        if (status === "resolved") statusClass = "resolved";
+        <a href="view_report.html?id=${r.id}">
+        View
+        </a>
 
-        // Generate HTML
-        card.innerHTML = `
-            <div class="case-top">
-                <span class="case-id">#CASE-${String(r.id).padStart(4, "0")}</span>
-                <span class="status-badge ${statusClass}">${r.status.replace("_", " ")}</span>
-            </div>
-
-            <h3>${r.condition}</h3>
-
-            <ul class="case-info">
-                <li>
-                    <i data-lucide="map-pin"></i>
-                    <span>${r.location}</span>
-                </li>
-                <li>
-                    <i data-lucide="file-text"></i>
-                    <span>${r.description.substring(0, 60)}${r.description.length > 60 ? "..." : ""}</span>
-                </li>
-                <li>
-                    <i data-lucide="calendar"></i>
-                    <span>${new Date(r.created_at).toLocaleDateString()}</span>
-                </li>
-            </ul>
-
-            <div class="case-actions">
-                <a href="./view_report.html?id=${r.id}" class="btn-update">
-                    Update Status <i data-lucide="arrow-right"></i>
-                </a>
-            </div>
         `;
 
-        grid.appendChild(card);
+
+        grid.appendChild(div);
+
     });
-
-    // Re-initialize icons for new elements
-    if (window.lucide) lucide.createIcons();
-}
-
-
-// -------- MESSAGE --------
-
-function show(grid, msg) {
-
-    grid.innerHTML = msg;
 
 }

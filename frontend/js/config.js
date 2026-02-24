@@ -1,9 +1,16 @@
-const API_BASE_URL = (function () {
-    const host = window.location.hostname;
-    // If we're on localhost/127.0.0.1 or an IP address (likely local network testing)
-    if (host === "localhost" || host === "127.0.0.1" || /^(\d+\.){3}\d+$/.test(host)) {
-        return `http://${host}:8000`;
-    }
-    // Production URL fallback
-    return "https://kindsteps-project.vercel.app"; // Assuming this is the prod URL mentioned in main.py
-})();
+// set api base url
+const host = window.location.hostname;
+
+let API_BASE_URL;
+
+// use local backend if running locally
+if (
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    /^(\d+\.){3}\d+$/.test(host)
+) {
+    API_BASE_URL = `http://${host}:8000`;
+}
+else {
+    API_BASE_URL = "https://kindsteps-project.vercel.app";
+}
