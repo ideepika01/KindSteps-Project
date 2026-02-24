@@ -91,8 +91,7 @@
         </div>
 
         <h2 class="section-title">Recent Reports Overview</h2>
-
-        <div class="table-wrapper">
+        <div class="table-wrapper" style="margin-bottom: 3rem;">
           <table class="report-table">
             <thead>
               <tr>
@@ -105,15 +104,35 @@
                 <th>Actions</th>
               </tr>
             </thead>
-
             <tbody id="report-table-body">
-              <!-- Real reports will be loaded here -->
               <tr>
-                <td colspan="6" style="text-align:center;">Loading reports...</td>
+                <td colspan="7" style="text-align:center;">Loading reports...</td>
               </tr>
             </tbody>
-
           </table>
+        </div>
+
+        <div id="users-section">
+          <h2 class="section-title">User Management</h2>
+          <div class="table-wrapper">
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Joined Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="user-table-body">
+                <tr>
+                  <td colspan="6" style="text-align:center;">Loading users...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
       </main>

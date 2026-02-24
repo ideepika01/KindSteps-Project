@@ -4,7 +4,86 @@ async function init() {
     if (!checkLogin()) return;
     loadStats();
     loadReports();
+    loadUsers();
 }
+
+
+// ---------- LOAD USERS ----------
+async function loadUsers() {
+    try {
+        const res = await fetchWithAuth(`${API_BASE_URL}/admin/users`);
+
+        if (!res.ok) {
+            document.getElementById("user-table-body").innerHTML =
+                `<tr><td colspan="6" style="color:red; text-align:center;">
+                    Error loading users: ${res.status}
+                </td></tr>`;
+            return;
+        }
+
+        const users = await res.json();
+        renderUserTable(users);
+
+    } catch (e) {
+        console.error(e);
+        document.getElementById("user-table-body").innerHTML =
+            `<tr><td colspan="6" style="color:red; text-align:center;">
+                Network Error: ${e.message}
+            </td></tr>`;
+    }
+}
+
+
+function renderUserTable(users) {
+    const body = document.getElementById("user-table-body");
+    if (!users.length) {
+        body.innerHTML = `<tr><td colspan="6">No users found</td></tr>`;
+        return;
+    }
+
+    body.innerHTML = users.map(u => {
+        return `
+        <tr>
+            <td>USR-${u.id.toString().padStart(4, "0")}</td>
+            <td>${u.full_name}</td>
+            <td>${u.email}</td>
+            <td><span class="badge ${u.role === 'admin' ? 'resolved' : 'active'}">${u.role}</span></td>
+            <td>${new Date(u.created_at || Date.now()).toLocaleDateString()}</td>
+            <td>
+                <button class="view-btn" onclick="deleteUser(${u.id}, '${u.full_name}')" 
+                    style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                    Delete
+                </button>
+            </td>
+        </tr>`;
+    }).join("");
+}
+
+
+async function deleteUser(id, name) {
+    if (!confirm(`Are you sure you want to delete user "${name}"? This action cannot be undone.`)) {
+        return;
+    }
+
+    try {
+        const res = await fetchWithAuth(`${API_BASE_URL}/admin/users/${id}`, {
+            method: "DELETE"
+        });
+
+        if (res.ok) {
+            alert("User deleted successfully.");
+            loadUsers();
+            loadStats(); // Update the user count stat
+        } else {
+            const err = await res.json();
+            alert(`Delete failed: ${err.detail || res.statusText}`);
+        }
+    } catch (e) {
+        console.error(e);
+        alert(`Error: ${e.message}`);
+    }
+}
+
 
 
 // ---------- LOAD STATS ----------
