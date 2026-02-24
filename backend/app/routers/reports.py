@@ -26,7 +26,7 @@ def convert_to_b64(photo: UploadFile):
 
 # Verify if the user is an admin or part of the rescue team
 def check_staff(user: User):
-    if user.role not in (UserRole.admin, UserRole.rescue_team):
+    if user.role not in (UserRole.admin.value, UserRole.rescue_team.value):
         raise HTTPException(403, "Access denied")
 
 
@@ -59,6 +59,9 @@ def create_report(
     current_user: User = Depends(get_current_user),
 ):
     try:
+        # Find the first available rescue team to auto-assign
+        team = db.query(User).filter(User.role == UserRole.rescue_team).first()
+
         new_report = Report(
             reporter_id=current_user.id,
             condition=condition,
@@ -70,13 +73,15 @@ def create_report(
             latitude=latitude,
             longitude=longitude,
             photo_url=convert_to_b64(photo),
-            status=ReportStatus.received.value,
+            status=ReportStatus.active.value if team else ReportStatus.received.value,
+            assigned_team_id=team.id if team else None,
         )
         db.add(new_report)
         db.commit()
         db.refresh(new_report)
         return new_report
     except Exception as e:
+        db.rollback()
         raise HTTPException(500, f"Error creating report: {str(e)}")
 
 
@@ -88,6 +93,15 @@ def list_reports(
     if current_user.role == UserRole.user:
         return db.query(Report).filter(Report.reporter_id == current_user.id).all()
     return db.query(Report).all()
+
+
+# Get reports assigned to the current rescue team member
+@router.get("/my-assignments", response_model=List[ReportResponse])
+def list_my_assignments(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
+    check_staff(current_user)
+    return db.query(Report).filter(Report.assigned_team_id == current_user.id).all()
 
 
 # Get a specific report's details by ID
@@ -129,7 +143,10 @@ def update_report(
         raise HTTPException(404, "Report not found")
 
     for key, val in report_update.model_dump(exclude_unset=True).items():
-        setattr(report, key, val)
+        if val is not None:
+            # Handle Enum objects by getting their underlying value
+            actual_val = val.value if hasattr(val, "value") else val
+            setattr(report, key, actual_val)
 
     db.commit()
     db.refresh(report)

@@ -14,13 +14,20 @@ function saveToken(token) {
 }
 
 
+// Helper to get correct relative path to root or pages
+function getRedirectPath(target) {
+    const isInsidePages = window.location.pathname.includes("/pages/");
+    if (target === "index.html") {
+        return isInsidePages ? "../index.html" : "index.html";
+    }
+    return isInsidePages ? `./${target}` : `./pages/${target}`;
+}
+
+
 // Logout user
 function logout() {
-
     localStorage.removeItem("access_token");
-
-    location.href = "index.html";
-
+    window.location.href = getRedirectPath("index.html");
 }
 
 
@@ -46,41 +53,43 @@ function checkLogin() {
 
 // Fetch with token
 async function fetchWithAuth(url, options = {}) {
+    const headers = {
+        Authorization: "Bearer " + getToken(),
+        ...options.headers
+    };
 
-    const res = await fetch(url, {
-
-        ...options,
-
-        headers: {
-            Authorization: "Bearer " + getToken()
+    let body = options.body;
+    if (body && typeof body === 'object' && !(body instanceof FormData)) {
+        body = JSON.stringify(body);
+        if (!headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json';
         }
-
-    });
-
-
-    if (res.status === 401) {
-
-        logout();
-
     }
 
+    const res = await fetch(url, {
+        ...options,
+        headers,
+        body
+    });
+
+    if (res.status === 401) {
+        logout();
+    }
 
     return res;
-
 }
 
 
 // Setup logout button
 function setupNavbar() {
 
-    const btn =
-        document.querySelector(".logout-btn");
-
+    const btn = document.querySelector(".logout-btn");
 
     if (btn) {
-
-        btn.onclick = logout;
-
+        btn.onclick = (e) => {
+            e.preventDefault();
+            logout();
+        };
     }
 
 }

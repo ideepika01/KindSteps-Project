@@ -1,17 +1,15 @@
-
-// Run when page loads
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
 
     checkLogin();
 
-    loadReports();
+    load();
 
 });
 
 
+// -------- LOAD --------
 
-// Load reports from backend
-async function loadReports() {
+async function load() {
 
     const grid = document.getElementById("rescue-reports-grid");
 
@@ -19,137 +17,170 @@ async function loadReports() {
 
     try {
 
-        const res = await fetchWithAuth(API_BASE_URL + "/reports");
+        const res = await fetchWithAuth(`${API_BASE_URL}/reports/my-assignments`);
 
-        if (!res.ok) {
-
-            grid.innerHTML = "Failed to load";
-
-            return;
-
-        }
+        if (!res.ok) return show(grid, "Unable to load cases");
 
         const reports = await res.json();
 
-        showStats(reports);
+        stats(reports);
 
-        setupFilter(reports, grid);
+        filters(reports, grid);
 
     }
     catch {
 
-        grid.innerHTML = "Server error";
+        show(grid, "Server error");
 
     }
 
 }
 
 
+// -------- STATS --------
 
-// Show statistics
-function showStats(reports) {
+function stats(reports) {
 
-    let total = reports.length;
+    let total = reports.length,
+        progress = 0,
+        resolved = 0;
 
-    let progress = 0;
+    reports.forEach(r => {
 
-    let resolved = 0;
+        const s = r.status?.toLowerCase();
 
+        if (s === "resolved") resolved++;
 
-    reports.forEach(function (r) {
-
-        if (r.status === "resolved")
-            resolved++;
-
-        if (r.status === "active" || r.status === "in_progress")
-            progress++;
+        if (s === "active" || s === "in_progress") progress++;
 
     });
 
+    text("stat-total", total);
 
-    document.getElementById("stat-total").innerText = total;
+    text("stat-progress", progress);
 
-    document.getElementById("stat-progress").innerText = progress;
+    text("stat-resolved", resolved);
 
-    document.getElementById("stat-resolved").innerText = resolved;
+}
+
+function text(id, val) {
+
+    const el = document.getElementById(id);
+
+    if (el) el.textContent = val;
 
 }
 
 
+// -------- FILTER --------
 
-// Filter reports
-function setupFilter(reports, grid) {
+function filters(reports, grid) {
 
     const status = document.getElementById("status-filter");
 
-    status.onchange = function () {
+    const start = document.getElementById("start-date");
 
-        const value = status.value;
+    const end = document.getElementById("end-date");
 
-        let filtered = [];
+    function apply() {
 
+        const s = status.value;
 
-        if (value === "all")
-            filtered = reports;
+        const sDate = start.value ? new Date(start.value) : null;
 
-        else
-            filtered = reports.filter(function (r) {
+        const eDate = end.value ? new Date(end.value) : null;
 
-                return r.status === value;
+        const list = reports.filter(r => {
 
-            });
+            const rs = r.status;
 
+            const d = new Date(r.updated_at || r.created_at);
 
-        showReports(filtered, grid);
+            if (s !== "all" && rs !== s && !(s === "in_progress" && rs === "active"))
+                return false;
 
-    };
+            if (sDate && d < sDate) return false;
 
+            if (eDate && d > eDate) return false;
 
-    showReports(reports, grid);
+            return true;
+
+        });
+
+        render(list, grid);
+
+    }
+
+    status.onchange = start.onchange = end.onchange = apply;
+
+    apply();
 
 }
 
 
+// -------- RENDER --------
 
-// Show reports
-function showReports(reports, grid) {
-
+function render(list, grid) {
     grid.innerHTML = "";
+    if (!list.length) return show(grid, "No assigned cases found.");
 
+    list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-    if (reports.length === 0) {
+    list.forEach((r, index) => {
+        const card = document.createElement("div");
+        card.className = "case-card";
+        // Staggered animation
+        card.style.animationDelay = `${index * 100}ms`;
 
-        grid.innerHTML = "No reports";
+        // Determine status badge class
+        const status = r.status.toLowerCase();
+        let statusClass = "received";
+        if (status === "active" || status === "in_progress") statusClass = "in_progress";
+        if (status === "resolved") statusClass = "resolved";
 
-        return;
+        // Generate HTML
+        card.innerHTML = `
+            <div class="case-top">
+                <span class="case-id">#CASE-${String(r.id).padStart(4, "0")}</span>
+                <span class="status-badge ${statusClass}">${r.status.replace("_", " ")}</span>
+            </div>
 
-    }
+            <h3>${r.condition}</h3>
 
+            <ul class="case-info">
+                <li>
+                    <i data-lucide="map-pin"></i>
+                    <span>${r.location}</span>
+                </li>
+                <li>
+                    <i data-lucide="file-text"></i>
+                    <span>${r.description.substring(0, 60)}${r.description.length > 60 ? "..." : ""}</span>
+                </li>
+                <li>
+                    <i data-lucide="calendar"></i>
+                    <span>${new Date(r.created_at).toLocaleDateString()}</span>
+                </li>
+            </ul>
 
-    reports.forEach(function (r) {
-
-        const div = document.createElement("div");
-
-        div.className = "case-card";
-
-
-        div.innerHTML = `
-
-        <h3>${r.condition}</h3>
-
-        <p>${r.location}</p>
-
-        <p>Status: ${r.status}</p>
-
-        <a href="view_report.html?id=${r.id}">
-        View
-        </a>
-
+            <div class="case-actions">
+                <a href="./view_report.html?id=${r.id}" class="btn-update">
+                    Update Status <i data-lucide="arrow-right"></i>
+                </a>
+            </div>
         `;
 
-
-        grid.appendChild(div);
-
+        grid.appendChild(card);
     });
+
+    // Re-initialize icons for new elements
+    if (window.lucide) lucide.createIcons();
+}
+
+
+// -------- MESSAGE --------
+
+function show(grid, msg) {
+
+    grid.innerHTML = msg;
 
 }

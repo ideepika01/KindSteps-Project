@@ -95,13 +95,15 @@ function setupActionControls(r) {
         try {
             const res = await fetchWithAuth(`${API_BASE_URL}/reports/${r.id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status, field_review: review, rescued_location: destination })
+                body: { status, field_review: review, rescued_location: destination }
             });
             if (res.ok) {
                 alert("Case updated successfully.");
                 location.reload();
-            } else alert("Update failed.");
+            } else {
+                const data = await res.json().catch(() => ({}));
+                alert(data.detail || "Update failed.");
+            }
         } catch (err) { alert("Server error."); }
     };
 }

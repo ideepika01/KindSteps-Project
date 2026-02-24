@@ -1,125 +1,111 @@
-// ================= INIT =================
-
-document.addEventListener("DOMContentLoaded", init);
-
-function init() {
+document.addEventListener("DOMContentLoaded", () => {
     checkLogin();
     loadReports();
-}
+});
 
 
-// ================= API =================
-
+// ---------- LOAD ----------
 async function loadReports() {
-    const container = document.getElementById("my-reports-grid");
-    if (!container) return;
+
+    const box = document.getElementById("my-reports-grid");
+
+    if (!box) return;
 
     try {
-        const response = await fetchWithAuth(`${API_BASE_URL}/reports/`);
 
-        if (!response.ok) {
-            showError(container, "Failed to load reports");
-            return;
-        }
+        const res = await fetchWithAuth(`${API_BASE_URL}/reports/`);
 
-        const reports = await response.json();
-        displayReports(container, reports);
+        if (!res.ok)
+            return show(box, "Failed to load reports", true);
 
-    } catch {
-        showError(container, "Network error");
+        const reports = await res.json();
+
+        display(reports, box);
+
+    }
+    catch {
+
+        show(box, "Server error", true);
     }
 }
 
 
-// ================= DISPLAY =================
+// ---------- DISPLAY ----------
+function display(reports, box) {
 
-function displayReports(container, reports) {
+    box.innerHTML = "";
 
-    if (!reports.length) {
-        container.innerHTML = "<p>No reports submitted yet.</p>";
-        return;
-    }
+    if (!reports.length)
+        return show(box, "No reports yet");
 
-    container.innerHTML = "";
+    reports
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .forEach((r, i) => box.appendChild(card(r, i)));
 
-    const sorted = reports.sort(
-        (a, b) => new Date(b.created_at) - new Date(a.created_at)
-    );
-
-    sorted.forEach((report, index) => {
-        container.appendChild(createCard(report, index));
-    });
-
-    if (window.lucide) lucide.createIcons();
+    lucide?.createIcons();
 }
 
 
-// ================= CARD =================
+// ---------- CARD ----------
+function card(r, i) {
 
-function createCard(report, index) {
+    const el = document.createElement("article");
 
-    const status = getStatus(report.status);
+    const status = statusInfo(r.status);
 
-    const card = document.createElement("article");
+    el.className = "case-card";
 
-    card.className = "case-card";
+    el.setAttribute("data-aos", "fade-up");
 
-    card.innerHTML = `
-        <div class="card-header">
-            <span>RSC-${String(report.id).padStart(6, "0")}</span>
-            <span>Priority: ${report.priority || "Medium"}</span>
-        </div>
+    el.setAttribute("data-aos-delay", (i * 100) % 500);
 
-        <h3>${report.condition || "Incident Report"}</h3>
+    el.innerHTML = `
 
-        <p>${report.location || "Unknown Location"}</p>
+    <div class="card-header">
+        <span>RSC-${String(r.id).padStart(6, "0")}</span>
+        <span>${r.priority || "Medium"}</span>
+    </div>
 
-        <p>${formatDate(report.created_at)}</p>
+    <h3>${r.condition || "No description"}</h3>
 
-        <div class="status-box ${report.status}">
-            <i data-lucide="${status.icon}"></i>
-            ${status.text}
-        </div>
+    <p>${r.location || "No location"}</p>
 
-        <a href="./track_report.html?id=${report.id}" class="track-btn">
-            Track Update
-        </a>
+    <p>${new Date(r.created_at).toLocaleDateString()}</p>
+
+    <div class="${r.status}">
+        <i data-lucide="${status.icon}"></i>
+        ${status.text}
+    </div>
+
+    <a href="./track_report.html?id=${r.id}">
+        Track
+    </a>
     `;
 
-    return card;
+    return el;
 }
 
 
-// ================= HELPERS =================
+// ---------- STATUS ----------
+function statusInfo(s) {
 
-function getStatus(status) {
+    return {
 
-    const map = {
+        received: { text: "Checking", icon: "clock" },
 
-        received:
-        { text: "Received", icon: "clock" },
+        active: { text: "Helping", icon: "heart" },
 
-        active:
-        { text: "Active", icon: "heart" },
+        in_progress: { text: "Helping", icon: "heart" },
 
-        in_progress:
-        { text: "Hero on Way", icon: "heart" },
+        resolved: { text: "Safe", icon: "check-circle" }
 
-        resolved:
-        { text: "Safe & Resolved", icon: "check-circle" }
-    };
-
-    return map[status] ||
-    { text: "Pending", icon: "help-circle" };
+    }[s] || { text: "Pending", icon: "help-circle" };
 }
 
 
-function formatDate(date) {
-    return new Date(date).toLocaleDateString();
-}
+// ---------- MESSAGE ----------
+function show(box, msg, error = false) {
 
-
-function showError(container, message) {
-    container.innerHTML =
-        `<p style="color:red">${message}</p>`;
+    box.innerHTML =
+        `<p style="color:${error ? "red" : "black"}">${msg}</p>`;
 }

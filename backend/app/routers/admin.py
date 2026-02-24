@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.dependencies import get_current_user
 from app.models.user import User, UserRole
-from app.models.report import Report
+from app.models.report import Report, ReportStatus
 from app.schemas.user import UserResponse
 from app.schemas.report import ReportResponse
 
@@ -16,13 +16,13 @@ router = APIRouter()
 
 # Ensure only administrators can access a route
 def require_admin(user: User):
-    if user.role != UserRole.admin:
+    if user.role != UserRole.admin.value:
         raise HTTPException(status_code=403, detail="Admins only")
 
 
 # Ensure only admins or rescue team members can access a route
 def require_staff(user: User):
-    if user.role not in [UserRole.admin, UserRole.rescue_team]:
+    if user.role not in [UserRole.admin.value, UserRole.rescue_team.value]:
         raise HTTPException(status_code=403, detail="Access denied")
 
 
@@ -53,9 +53,18 @@ def get_dashboard_stats(
     return {
         "reports": {
             "total": db.query(Report).count(),
-            "resolved": db.query(Report).filter(Report.status == "resolved").count(),
-            "active": db.query(Report).filter(Report.status == "active").count(),
-            "received": db.query(Report).filter(Report.status == "received").count(),
+            "resolved": db.query(Report)
+            .filter(Report.status == ReportStatus.resolved.value)
+            .count(),
+            "active": db.query(Report)
+            .filter(Report.status == ReportStatus.active.value)
+            .count(),
+            "received": db.query(Report)
+            .filter(Report.status == ReportStatus.received.value)
+            .count(),
+            "in_progress": db.query(Report)
+            .filter(Report.status == ReportStatus.in_progress.value)
+            .count(),
         },
         "users": {
             "total": db.query(User).count(),
@@ -131,3 +140,20 @@ def delete_user(
     db.delete(user)
     db.commit()
     return {"message": "User deleted successfully"}
+
+
+# Delete a rescue report from the platform (Admin only)
+@router.delete("/reports/{report_id}")
+def delete_report(
+    report_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    require_admin(current_user)
+    report = db.query(Report).filter(Report.id == report_id).first()
+    if not report:
+        raise HTTPException(404, "Report not found")
+
+    db.delete(report)
+    db.commit()
+    return {"message": "Report deleted successfully"}

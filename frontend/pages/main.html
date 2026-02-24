@@ -236,7 +236,7 @@
                     if (res.ok) {
                         const user = await res.json();
                         if (user.role === 'admin') window.location.href = './admin_control.html';
-                        else if (user.role === 'rescue_team') window.location.href = './report_list.html';
+                        else if (user.role === 'rescue_team') window.location.href = './rescue_team.html';
                     }
                 } catch (e) { }
             }

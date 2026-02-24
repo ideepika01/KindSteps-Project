@@ -1,25 +1,11 @@
-/* =========================================
-   CASE DETAILS - PREMIUM SPLIT-SCREEN
-   ========================================= */
-
 body {
     background: #f1f5f9;
     color: #1e293b;
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
-    padding-bottom: 4rem;
-}
-
-/* =========================================
-   CASE DETAILS - SINGLE COLUMN LINEAR LAYOUT
-   ========================================= */
-
-body {
-    background: #f1f5f9;
-    color: #1e293b;
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    padding-bottom: 4rem;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
 }
 
 .case-container {
@@ -28,10 +14,11 @@ body {
     align-items: center;
     gap: 2rem;
     max-width: 900px;
-    /* Constrained width for readability */
     margin: 2rem auto;
     padding: 0 1.5rem;
     width: 100%;
+    flex: 1;
+    /* Pushes footer to bottom */
 }
 
 /* --- Cards --- */

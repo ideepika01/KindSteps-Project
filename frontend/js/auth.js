@@ -72,46 +72,33 @@ async function signup(e) {
 
     alert("Account created");
 
-    location.href = "../index.html";
+    location.href = getRedirectPath("index.html");
 }
 
 
 
 // redirect based on role
 async function redirectUser() {
-
     try {
-
         const res = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
-
         if (!res.ok) return goHome();
 
         const user = await res.json();
-
         if (user.role === "admin")
-            location.href = "./pages/admin_control.html";
-
+            location.href = getRedirectPath("admin_control.html");
         else if (user.role === "rescue_team")
-            location.href = "./pages/rescue_team.html";
-
+            location.href = getRedirectPath("rescue_team.html");
         else
             goHome();
-
     }
     catch {
-
         goHome();
-
     }
 }
 
-
-
 // default home
 function goHome() {
-
-    location.href = "./pages/main.html";
-
+    location.href = getRedirectPath("main.html");
 }
 
 

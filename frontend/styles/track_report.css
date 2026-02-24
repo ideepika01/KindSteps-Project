@@ -139,24 +139,26 @@ body {
     background: #fff;
 }
 
-.progress-item.highlight .progress-icon,
-.progress-item.highlight img {
-    border-color: var(--accent);
-    background: rgba(99, 102, 241, 0.1);
+.progress-item.active .progress-icon,
+.progress-item.active img {
+    border-color: #1e293b;
+    background: rgba(30, 41, 59, 0.1);
     transform: scale(1.1);
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 0 20px rgba(30, 41, 59, 0.2);
+    color: #1e293b;
 }
 
 .progress-line {
     flex: 1;
     height: 4px;
     background: #e2e8f0;
-    margin: 0 -30px;
-    margin-top: -35px;
+    margin: 0;
+    position: relative;
+    top: -12px;
 }
 
-.progress-line.highlight {
-    background: var(--accent);
+.progress-line.active {
+    background: #1e293b !important;
 }
 
 /* =========================================
