@@ -158,3 +158,34 @@ def assign_report_to_team(
         "message": f"Assigned to {team.full_name}",
         "report_id": report.id,
     }
+
+
+# -------- DELETE USER --------
+
+
+@router.delete("/users/{user_id}")
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    require_admin(current_user)
+
+    # Prevent self-deletion
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="You cannot delete yourself.")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Prevent deleting the default team user (critical for the app)
+    if user.email == "team@kindsteps.com":
+        raise HTTPException(
+            status_code=400, detail="Cannot delete the default rescue team account."
+        )
+
+    db.delete(user)
+    db.commit()
+
+    return {"message": f"User {user.full_name} deleted successfully"}

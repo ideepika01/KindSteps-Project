@@ -25,8 +25,6 @@ function photoPreview() {
 
   if (!input || !box) return;
 
-  box.onclick = () => input.click();
-
   input.onchange = () => {
     const file = input.files[0];
 
@@ -118,48 +116,75 @@ function aiScan() {
 
   btn.onclick = async () => {
     const photo = document.getElementById("report-photo").files[0];
+    const statusObj = document.getElementById("ai-status");
 
-    if (!photo) return alert("Select photo");
+    if (!photo) {
+      if (statusObj) {
+        statusObj.innerText = "Please select/capture a photo first.";
+        statusObj.style.color = "#ef4444";
+        statusObj.style.display = "block";
+      }
+      return;
+    }
 
     const form = new FormData();
-
     form.append("photo", photo);
 
     btn.disabled = true;
-
-    if (statusObj) statusObj.style.display = "block";
+    if (statusObj) {
+      statusObj.innerText = "AI is analyzing... please wait.";
+      statusObj.style.color = "#666";
+      statusObj.style.display = "block";
+    }
 
     try {
       const res = await fetchWithAuth(`${API_BASE_URL}/reports/ai-analyze`, {
         method: "POST",
-
         body: form,
       });
 
       if (!res.ok) {
         const err = await res.json();
-        alert(`AI Analysis Failed: ${err.detail || res.statusText}`);
+        if (statusObj) {
+          statusObj.innerText = `Analysis Failed: ${err.detail || res.statusText}`;
+          statusObj.style.color = "#ef4444";
+        }
+        btn.disabled = false;
         return;
       }
 
       const data = await res.json();
 
       if (data.description) {
-        document.getElementById("report-description").value = data.description;
+        const descBox = document.getElementById("report-description");
+        if (descBox) {
+          descBox.value = data.description;
+          // Trigger any change listeners if necessary
+          descBox.dispatchEvent(new Event('input'));
+        }
       }
 
-      // Show advice/debug info for ANY error description
-      if (data.advice && data.description) {
-        alert(`${data.description}\n\n${data.advice.join("\n")}`);
+      // Show advice/safety tips in the UI
+      const adviceCard = document.getElementById("ai-compassion-card");
+      const adviceList = document.getElementById("ai-advice-list");
+
+      if (data.advice && adviceCard && adviceList) {
+        adviceList.innerHTML = data.advice
+          .map((item) => `<li>${item}</li>`)
+          .join("");
+        adviceCard.style.display = "block";
       }
+
+      if (statusObj) statusObj.style.display = "none";
     } catch (e) {
       console.error(e);
-      alert(`AI Connection Error: ${e.message}`);
+      if (statusObj) {
+        statusObj.innerText = `Connection Error: ${e.message}`;
+        statusObj.style.color = "#ef4444";
+      }
     }
 
     btn.disabled = false;
-
-    if (statusObj) statusObj.style.display = "none";
   };
 }
 
@@ -198,27 +223,39 @@ function formSubmit() {
     const lat = document.getElementById("report-lat")?.value;
     const lng = document.getElementById("report-lng")?.value;
 
+    const errorBox = document.getElementById("form-error-msg");
+    const showError = (msg) => {
+      if (errorBox) {
+        errorBox.innerText = msg;
+        errorBox.style.display = "block";
+        errorBox.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        alert(msg);
+      }
+    };
+    if (errorBox) errorBox.style.display = "none";
+
     // 1. Photo Validation
-    if (!photo) return alert("Please upload or capture a photo of the individual.");
-    if (photo.size > 5 * 1024 * 1024) return alert("Image size exceeds 5MB. Please upload a smaller image.");
+    if (!photo) return showError("Please upload or capture a photo of the individual.");
+    if (photo.size > 5 * 1024 * 1024) return showError("Image size exceeds 5MB. Please upload a smaller image.");
     if (!['image/jpeg', 'image/png', 'image/jpg'].includes(photo.type)) {
-      return alert("Only JPG and PNG images are allowed.");
+      return showError("Only JPG and PNG images are allowed.");
     }
 
     // 2. Description Quality
     if (!desc || desc.length < 15) {
-      return alert("Please provide a more detailed description (at least 15 characters) to help our rescue teams.");
+      return showError("Please provide a more detailed description (at least 15 characters) to help our rescue teams.");
     }
 
     // 3. Phone Validation
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(phone)) {
-      return alert("Please enter a valid 10-digit phone number for contact.");
+      return showError("Please enter a valid 10-digit phone number for contact.");
     }
 
     // 4. Map Location Pin
     if (!lat || !lng || lat === "0" || lng === "0") {
-      return alert("Please select a precise location on the map by clicking or using your GPS.");
+      return showError("Please select a precise location on the map by clicking or using your GPS.");
     }
 
     if (photo) form.append("photo", photo);
@@ -236,15 +273,16 @@ function formSubmit() {
         // Try to get error message from server
         try {
           const errorData = await res.json();
-          alert(`Submit failed:\n${formatError(errorData)}`);
+          showError(`Submit failed:\n${formatError(errorData)}`);
         } catch (e) {
-          alert(`Submit failed: ${res.statusText}`);
+          showError(`Submit failed: ${res.statusText}`);
         }
       }
     } catch (err) {
       console.error(err);
-      alert(`Server connection error: ${err.message}`);
+      showError(`Server connection error: ${err.message}`);
     }
+
   };
 }
 
