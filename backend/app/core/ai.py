@@ -29,7 +29,16 @@ def analyze_image_for_description(
 
     # Try both v1 and v1beta API versions
     api_versions = ["v1", "v1beta"]
-    potential_models = ["gemini-1.5-flash", "gemini-2.0-flash"]
+
+    # Expanded model list to handle name mismatches and model-specific quota limits
+    # gemini-flash-latest and gemini-flash-lite-latest are often more reliable aliases
+    potential_models = [
+        "gemini-1.5-flash",
+        "gemini-flash-latest",
+        "gemini-flash-lite-latest",
+        "gemini-1.5-flash-8b",
+        "gemini-2.0-flash",
+    ]
 
     last_error = "No models attempted"
 
@@ -70,6 +79,7 @@ def analyze_image_for_description(
                 last_error = str(error)
                 print(f"DEBUG: Model {model_id} ({version}) failed: {last_error[:100]}")
 
+                # If it's a 401, stop immediately
                 if any(kw in last_error.upper() for kw in ["401", "API_KEY_INVALID"]):
                     return {
                         "description": "AI KEY INVALID (401). Your Vercel environment variable might be incorrect.",
@@ -80,6 +90,8 @@ def analyze_image_for_description(
                         ],
                     }
 
+                # If it's a 429 for this specific model, we can try the next model
+                # This is useful if one model (like 2.0) is exhausted but 1.5 is not
                 continue
 
     # Final error handling if all fail
@@ -88,9 +100,10 @@ def analyze_image_for_description(
 
     if "429" in error_str or "EXHAUSTED" in error_str:
         return {
-            "description": "AI QUOTA EXCEEDED (429). Your API key is working, but you have reached the free tier limit.",
+            "description": "AI QUOTA EXCEEDED (429). You have reached the free tier limit.",
             "advice": [
                 "Please wait 60 seconds and try again.",
+                "Note: Daily quotas reset at Midnight PST (GMT-8). If it's been 'one night' in your local time, the Google cycle might not have reset yet.",
                 "Check your daily quota at https://aistudio.google.com/app/plan_and_billing.",
                 "The free tier allows 15 requests per minute.",
             ],
