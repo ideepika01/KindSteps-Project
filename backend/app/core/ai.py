@@ -43,7 +43,11 @@ def analyze_image_for_description(
                 response = client.models.generate_content(
                     model=model,
                     contents=[
-                        "Analyze and return JSON with description and advice",
+                        "Analyze the image and return a JSON object with the following fields: "
+                        "'description' (a detailed summary of what you see), "
+                        "'advice' (a list of 3-4 actionable steps for a rescuer), "
+                        "'condition' (one of: 'child', 'mentally-challenged', 'elderly', 'beggar', 'injured', 'disabled'). "
+                        "Base the condition on visual cues. Return ONLY raw JSON.",
                         types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
                     ],
                     config=types.GenerateContentConfig(

@@ -59,8 +59,8 @@ def create_report(
     current_user: User = Depends(get_current_user),
 ):
     try:
-        # Find the first available rescue team to auto-assign
-        team = db.query(User).filter(User.role == UserRole.rescue_team).first()
+        # Find "Team Alpha" to auto-assign
+        team_alpha = db.query(User).filter(User.email == "team@kindsteps.com").first()
 
         new_report = Report(
             reporter_id=current_user.id,
@@ -73,8 +73,8 @@ def create_report(
             latitude=latitude,
             longitude=longitude,
             photo_url=convert_to_b64(photo),
-            status=ReportStatus.active.value if team else ReportStatus.received.value,
-            assigned_team_id=team.id if team else None,
+            status=ReportStatus.received.value,
+            assigned_team_id=team_alpha.id if team_alpha else None,
         )
         db.add(new_report)
         db.commit()

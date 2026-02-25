@@ -72,7 +72,7 @@ function setupAIScan() {
 
   btn.onclick = async () => {
     const photo = document.getElementById("report-photo").files[0];
-    if (!photo) { status.innerText = "Please select a photo first."; status.style.color = "#ef4444"; return; }
+    if (!photo) { status.innerText = "Please select a photo first."; status.style.color = "#ef4444"; status.style.display = "block"; return; }
 
     btn.disabled = true;
     status.innerText = "AI is analyzing... please wait."; status.style.color = "#666";
@@ -84,15 +84,47 @@ function setupAIScan() {
       if (!res.ok) throw new Error("Analysis failed");
 
       const data = await res.json();
-      if (data.description) document.getElementById("report-description").value = data.description;
 
-      const adviceCard = document.getElementById("ai-compassion-card"), adviceList = document.getElementById("ai-advice-list");
-      if (data.advice && adviceCard) {
-        adviceList.innerHTML = data.advice.map(i => `<li>${i}</li>`).join("");
-        adviceCard.style.display = "block";
+      // Update Description
+      if (data.description) {
+        document.getElementById("report-description").value = data.description;
+      }
+
+      // Update Condition if AI suggested one
+      if (data.condition) {
+        const conditionSelect = document.getElementById("report-condition");
+        if (conditionSelect) {
+          // Check if the suggested condition is valid
+          const options = Array.from(conditionSelect.options).map(o => o.value);
+          if (options.includes(data.condition)) {
+            conditionSelect.value = data.condition;
+          }
+        }
+      }
+
+      const adviceCard = document.getElementById("ai-compassion-card"),
+        adviceList = document.getElementById("ai-advice-list");
+
+      if (adviceCard && adviceList && data.advice) {
+        let adviceArray = [];
+        if (Array.isArray(data.advice)) {
+          adviceArray = data.advice;
+        } else if (typeof data.advice === 'string') {
+          adviceArray = [data.advice];
+        }
+
+        if (adviceArray.length > 0) {
+          adviceList.innerHTML = adviceArray.map(i => `<li>${i}</li>`).join("");
+          adviceCard.style.display = "block";
+        }
       }
       status.style.display = "none";
-    } catch (e) { status.innerText = "AI Service temporarily unavailable."; status.style.color = "#ef4444"; }
+    } catch (e) {
+      console.error("AI Scan Error:", e);
+      status.innerText = "AI Service temporarily unavailable.";
+      status.style.color = "#ef4444";
+      status.style.display = "block";
+    }
     btn.disabled = false;
   };
 }

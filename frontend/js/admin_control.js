@@ -1,3 +1,7 @@
+// Global data stores
+let allReports = [];
+let allUsers = [];
+
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
@@ -5,6 +9,17 @@ async function init() {
     loadStats();
     loadReports();
     loadUsers();
+
+    // Setup event listeners for filtering
+    const status = document.getElementById("status-filter");
+    const start = document.getElementById("start-date");
+    const end = document.getElementById("end-date");
+    const search = document.getElementById("admin-search");
+
+    if (status) status.onchange = applyAllFilters;
+    if (start) start.onchange = applyAllFilters;
+    if (end) end.onchange = applyAllFilters;
+    if (search) search.oninput = applyAllFilters;
 
     // Scroll to section when clicking stats
     document.getElementById("stat-users-card")?.addEventListener("click", () => {
@@ -27,74 +42,98 @@ async function loadStats() {
             (d.reports.received || 0) + (d.reports.active || 0) + (d.reports.in_progress || 0);
         document.getElementById("stat-resolved-cases").textContent = d.reports.resolved;
 
+        // Hide "Loading..." text
+        const changeEl = document.getElementById("stat-users-change");
+        if (changeEl) changeEl.textContent = "Community base";
+
     } catch (e) {
         console.error(e);
     }
 }
 
 
+// ---------- LOAD DATA ----------
 
-
-// ---------- LOAD REPORTS ----------
 async function loadReports() {
     try {
         const res = await fetchWithAuth(`${API_BASE_URL}/admin/reports`);
         if (!res.ok) return;
-        setupFilters(await res.json());
+        allReports = await res.json();
+        applyAllFilters();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function loadUsers() {
+    try {
+        const res = await fetchWithAuth(`${API_BASE_URL}/admin/users`);
+        if (!res.ok) return;
+        allUsers = await res.json();
+        applyAllFilters();
     } catch (e) {
         console.error(e);
     }
 }
 
 
-// ---------- FILTER ----------
-function setupFilters(reports) {
+// ---------- FILTERING LOGIC ----------
 
-    const status = document.getElementById("status-filter");
-    const start = document.getElementById("start-date");
-    const end = document.getElementById("end-date");
-    const search = document.getElementById("admin-search");
+function applyAllFilters() {
+    const statusVal = document.getElementById("status-filter")?.value || "all";
+    const startVal = document.getElementById("start-date")?.value;
+    const endVal = document.getElementById("end-date")?.value;
+    const searchVal = document.getElementById("admin-search")?.value.toLowerCase() || "";
 
-    function filter() {
+    // 1. Filter Reports
+    let filteredReports = allReports.filter(r => {
+        // Status filter
+        if (statusVal !== "all" && r.status !== statusVal) return false;
 
-        let list = reports.filter(r => {
+        // Date range filter
+        const date = new Date(r.created_at);
+        if (startVal && date < new Date(startVal)) return false;
+        if (endVal && date > new Date(endVal)) return false;
 
-            if (status.value !== "all" && r.status !== status.value) return false;
+        // Search filter (ID, Contact Name, Location, Description)
+        if (searchVal &&
+            !r.id.toString().includes(searchVal) &&
+            !r.contact_name.toLowerCase().includes(searchVal) &&
+            !r.location.toLowerCase().includes(searchVal) &&
+            !r.description.toLowerCase().includes(searchVal))
+            return false;
 
-            const date = new Date(r.created_at);
+        return true;
+    });
 
-            if (start.value && date < new Date(start.value)) return false;
-            if (end.value && date > new Date(end.value)) return false;
+    filteredReports.sort((a, b) =>
+        new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at)
+    );
 
-            const s = search.value.toLowerCase();
+    // 2. Filter Users
+    let filteredUsers = allUsers.filter(u => {
+        // Search filter (ID, Name, Email, Role)
+        if (searchVal &&
+            !u.id.toString().includes(searchVal) &&
+            !u.full_name.toLowerCase().includes(searchVal) &&
+            !u.email.toLowerCase().includes(searchVal) &&
+            !u.role.toLowerCase().includes(searchVal))
+            return false;
 
-            if (s &&
-                !r.id.toString().includes(s) &&
-                !r.contact_name.toLowerCase().includes(s) &&
-                !r.location.toLowerCase().includes(s))
-                return false;
+        return true;
+    });
 
-            return true;
-        });
-
-        list.sort((a, b) =>
-            new Date(b.updated_at || b.created_at) -
-            new Date(a.updated_at || a.created_at)
-        );
-
-        renderTable(list);
-    }
-
-    status.onchange = start.onchange = end.onchange = search.oninput = filter;
-
-    filter();
+    // Render both tables
+    renderReportTable(filteredReports);
+    renderUserTable(filteredUsers);
 }
 
 
-// ---------- TABLE ----------
-function renderTable(reports) {
+// ---------- TABLE RENDERING ----------
 
+function renderReportTable(reports) {
     const body = document.getElementById("report-table-body");
+    if (!body) return;
 
     if (!reports.length) {
         body.innerHTML = `<tr><td colspan="7">No reports found</td></tr>`;
@@ -102,7 +141,6 @@ function renderTable(reports) {
     }
 
     body.innerHTML = reports.map(r => {
-
         const action = `
             <button onclick="viewDetails(${r.id})" class="view-btn">View Details</button>
             <button onclick="deleteReport(${r.id})" class="delete-btn">Delete Report</button>
@@ -131,62 +169,6 @@ function renderTable(reports) {
     if (window.lucide) lucide.createIcons();
 }
 
-async function deleteReport(id) {
-    if (!confirm("Are you sure you want to delete this report? This action cannot be undone.")) return;
-
-    try {
-        const res = await fetchWithAuth(`${API_BASE_URL}/admin/reports/${id}`, {
-            method: "DELETE"
-        });
-
-        if (res.ok) {
-            alert("Report deleted successfully");
-            loadReports();
-            loadStats();
-        } else {
-            const err = await res.json();
-            alert(err.detail || "Failed to delete report");
-        }
-    } catch (e) {
-        alert("Server error");
-    }
-}
-
-
-
-
-// ---------- VIEW ----------
-function viewDetails(id) {
-    location.href = `view_report.html?id=${id}`;
-}
-
-
-// ---------- STATUS CLASS ----------
-function getStatusClass(status) {
-
-    const map = {
-        received: "pending",
-        active: "active",
-        in_progress: "progress",
-        resolved: "resolved"
-    };
-
-    return map[status?.toLowerCase()] || "";
-}
-
-// ---------- USERS ----------
-
-async function loadUsers() {
-    try {
-        const res = await fetchWithAuth(`${API_BASE_URL}/admin/users`);
-        if (!res.ok) return;
-        const users = await res.json();
-        renderUserTable(users);
-    } catch (e) {
-        console.error(e);
-    }
-}
-
 function renderUserTable(users) {
     const body = document.getElementById("user-table-body");
     if (!body) return;
@@ -212,6 +194,30 @@ function renderUserTable(users) {
     `).join("");
 }
 
+
+// ---------- ACTIONS & UTILS ----------
+
+async function deleteReport(id) {
+    if (!confirm("Are you sure you want to delete this report? This action cannot be undone.")) return;
+
+    try {
+        const res = await fetchWithAuth(`${API_BASE_URL}/admin/reports/${id}`, {
+            method: "DELETE"
+        });
+
+        if (res.ok) {
+            alert("Report deleted successfully");
+            loadReports();
+            loadStats();
+        } else {
+            const err = await res.json();
+            alert(err.detail || "Failed to delete report");
+        }
+    } catch (e) {
+        alert("Server error");
+    }
+}
+
 async function deleteUser(id) {
     if (!confirm("Are you sure you want to delete this user? This cannot be undone.")) return;
 
@@ -232,3 +238,18 @@ async function deleteUser(id) {
         alert("Server error");
     }
 }
+
+function viewDetails(id) {
+    location.href = `view_report.html?id=${id}`;
+}
+
+function getStatusClass(status) {
+    const map = {
+        received: "pending",
+        active: "active",
+        in_progress: "progress",
+        resolved: "resolved"
+    };
+    return map[status?.toLowerCase()] || "";
+}
+
