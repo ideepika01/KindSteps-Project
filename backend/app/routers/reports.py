@@ -1,8 +1,10 @@
-# Reports Router - Handles Incident Reporting and Case Management
+# Handles Incident Reporting and Case Management
+
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import base64
+
 from app.db.session import get_db
 from app.dependencies import get_current_user
 from app.models.report import Report, ReportStatus, ReportPriority
@@ -12,38 +14,32 @@ from app.core.ai import analyze_image_for_description
 
 router = APIRouter()
 
-# --- HELPERS ---
 
-
-# Convert an uploaded image file to a Base64 string for database storage
+# Convert uploaded image to base64
 def convert_to_b64(photo: UploadFile):
     if not photo:
         return None
-    content = photo.file.read()
-    b64_str = base64.b64encode(content).decode("utf-8")
-    return f"data:{photo.content_type or 'image/jpeg'};base64,{b64_str}"
+    return base64.b64encode(photo.file.read()).decode("utf-8")
 
 
-# Verify if the user is an admin or part of the rescue team
+# Check if user is admin or rescue team
 def check_staff(user: User):
-    if user.role not in (UserRole.admin.value, UserRole.rescue_team.value):
-        raise HTTPException(403, "Access denied")
+    if user.role not in [UserRole.admin, UserRole.rescue_team]:
+        raise HTTPException(status_code=403, detail="Access denied")
 
 
-# --- ROUTES ---
-
-
-# Use AI to automatically describe an uploaded photo (Rescue Assistance)
+# AI image analysis
 @router.post("/ai-analyze")
 async def ai_analyze(
-    photo: UploadFile = File(...), current_user: User = Depends(get_current_user)
+    photo: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
 ):
     return analyze_image_for_description(
         await photo.read(), mime_type=photo.content_type
     )
 
 
-# Create a new rescue report (Incident Submission)
+# Create new report
 @router.post("/", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)
 def create_report(
     condition: str = Form(...),
@@ -58,68 +54,75 @@ def create_report(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    try:
-        # Find "Team Alpha" to auto-assign
-        team_alpha = db.query(User).filter(User.email == "team@kindsteps.com").first()
 
-        new_report = Report(
-            reporter_id=current_user.id,
-            condition=condition,
-            description=description,
-            location=location,
-            contact_name=contact_name,
-            contact_phone=contact_phone,
-            priority=priority.value if hasattr(priority, "value") else priority,
-            latitude=latitude,
-            longitude=longitude,
-            photo_url=convert_to_b64(photo),
-            status=ReportStatus.received.value,
-            assigned_team_id=team_alpha.id if team_alpha else None,
-        )
-        db.add(new_report)
-        db.commit()
-        db.refresh(new_report)
-        return new_report
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(500, f"Error creating report: {str(e)}")
+    team = db.query(User).filter(User.email == "team@kindsteps.com").first()
+
+    report = Report(
+        reporter_id=current_user.id,
+        condition=condition,
+        description=description,
+        location=location,
+        contact_name=contact_name,
+        contact_phone=contact_phone,
+        priority=priority.value,
+        latitude=latitude,
+        longitude=longitude,
+        photo_url=convert_to_b64(photo),
+        status=ReportStatus.received.value,
+        assigned_team_id=team.id if team else None,
+    )
+
+    db.add(report)
+    db.commit()
+    db.refresh(report)
+
+    return report
 
 
-# Get all reports (Users see their own, Staff see everything)
+# Get reports
 @router.get("/", response_model=List[ReportResponse])
 def list_reports(
-    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+
     if current_user.role == UserRole.user:
         return db.query(Report).filter(Report.reporter_id == current_user.id).all()
+
     return db.query(Report).all()
 
 
-# Get reports assigned to the current rescue team member
+# Get reports assignments (Move above generic ID route)
 @router.get("/my-assignments", response_model=List[ReportResponse])
-def list_my_assignments(
-    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+def my_assignments(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    print(f"DEBUG: my_assignments for {current_user.email} (Role: {current_user.role})")
     check_staff(current_user)
     return db.query(Report).filter(Report.assigned_team_id == current_user.id).all()
 
 
-# Get a specific report's details by ID
+# Get report by ID
 @router.get("/{id}", response_model=ReportResponse)
 def get_report(
     id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    print(f"DEBUG: get_report by ID: {id}")
     report = db.query(Report).filter(Report.id == id).first()
+
     if not report:
-        raise HTTPException(404, "Report not found")
+        raise HTTPException(status_code=404, detail="Report not found")
+
     if current_user.role == UserRole.user and report.reporter_id != current_user.id:
-        raise HTTPException(403, "Access denied")
+        raise HTTPException(status_code=403, detail="Access denied")
+
     return report
 
 
-# Track a report's progress (Direct alias for get_report)
+# Track report (alias)
 @router.get("/track/{id}", response_model=ReportResponse)
 def track_report(
     id: int,
@@ -129,7 +132,9 @@ def track_report(
     return get_report(id, db, current_user)
 
 
-# Update a report's status or assigned team (Staff only)
+
+
+# Update report
 @router.put("/{id}", response_model=ReportResponse)
 def update_report(
     id: int,
@@ -137,17 +142,18 @@ def update_report(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    check_staff(current_user)
-    report = db.query(Report).filter(Report.id == id).first()
-    if not report:
-        raise HTTPException(404, "Report not found")
 
-    for key, val in report_update.model_dump(exclude_unset=True).items():
-        if val is not None:
-            # Handle Enum objects by getting their underlying value
-            actual_val = val.value if hasattr(val, "value") else val
-            setattr(report, key, actual_val)
+    check_staff(current_user)
+
+    report = db.query(Report).filter(Report.id == id).first()
+
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    for key, value in report_update.model_dump(exclude_unset=True).items():
+        setattr(report, key, value.value if hasattr(value, "value") else value)
 
     db.commit()
     db.refresh(report)
+
     return report

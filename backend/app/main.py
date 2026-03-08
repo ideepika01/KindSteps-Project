@@ -1,27 +1,20 @@
-import sys
-import os
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+import time
 from starlette.exceptions import HTTPException as StarletteHTTPException
-
-
-# fix import path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 
 from app.routers import auth, reports, admin
 
 
-# create fastapi app
 app = FastAPI(title="KindSteps Support API")
 
 
-# allowed frontend urls
+# Allowed frontend URLs
 origin_regex = r"https?://(localhost|127\.0\.0\.1)(:\d+)?|https://kindsteps-project\.vercel\.app"
 
 
-# enable cors
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=origin_regex,
@@ -31,51 +24,37 @@ app.add_middleware(
 )
 
 
-# log every request
+# Log every request and measure time
 @app.middleware("http")
-async def log_requests(request: Request, call_next):
-
-    print(f"{request.method} {request.url}")
-
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
     response = await call_next(request)
-
+    process_time = time.time() - start_time
+    print(f"DEBUG: {request.method} {request.url.path} - Total Process Time: {process_time:.4f}s")
+    response.headers["X-Process-Time"] = str(process_time)
     return response
 
 
-
-# connect route files
+# Include routers
 app.include_router(auth.router, prefix="/auth")
 app.include_router(reports.router, prefix="/reports")
 app.include_router(admin.router, prefix="/admin")
 
 
-
-# handle http errors
+# Handle HTTP errors
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
-
     return JSONResponse(
         status_code=exc.status_code,
         content={"detail": exc.detail},
     )
 
 
-
-# handle server errors
+# Handle unexpected server errors
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-
     print("ERROR:", exc)
-
     return JSONResponse(
         status_code=500,
         content={"detail": "Internal Server Error"},
     )
-
-
-
-# run on startup
-@app.on_event("startup")
-def startup():
-
-    print("KindSteps API started")

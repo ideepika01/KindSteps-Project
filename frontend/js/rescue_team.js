@@ -1,186 +1,160 @@
 document.addEventListener("DOMContentLoaded", () => {
-
     checkLogin();
-
     load();
-
 });
 
 
-// -------- LOAD --------
-
+// -------- LOAD DATA --------
 async function load() {
 
     const grid = document.getElementById("rescue-reports-grid");
-
     if (!grid) return;
 
     try {
 
         const res = await fetchWithAuth(`${API_BASE_URL}/reports/my-assignments`);
-
-        if (!res.ok) return show(grid, "Unable to load cases");
+        if (!res.ok) return message(grid, "Unable to load cases");
 
         const reports = await res.json();
 
-        stats(reports);
+        updateStats(reports);
+        setupFilters(reports, grid);
 
-        filters(reports, grid);
-
+    } catch {
+        message(grid, "Server error");
     }
-    catch {
-
-        show(grid, "Server error");
-
-    }
-
 }
 
 
-// -------- STATS --------
+// -------- UPDATE DASHBOARD STATS --------
+function updateStats(reports) {
 
-function stats(reports) {
+    const s = reports.reduce((a, r) => {
 
-    let total = reports.length,
-        progress = 0,
-        resolved = 0;
+        const st = r.status?.toLowerCase();
 
-    reports.forEach(r => {
+        a.total++;
 
-        const s = r.status?.toLowerCase();
+        if (st === "resolved") a.resolved++;
+        if (st === "active" || st === "in_progress") a.progress++;
 
-        if (s === "resolved") resolved++;
+        return a;
 
-        if (s === "active" || s === "in_progress") progress++;
+    }, { total:0, progress:0, resolved:0 });
 
-    });
-
-    text("stat-total", total);
-
-    text("stat-progress", progress);
-
-    text("stat-resolved", resolved);
-
+    set("stat-total", s.total);
+    set("stat-progress", s.progress);
+    set("stat-resolved", s.resolved);
 }
 
-function text(id, val) {
-
-    const el = document.getElementById(id);
-
-    if (el) el.textContent = val;
-
+function set(id,val){
+    const el=document.getElementById(id);
+    if(el) el.textContent=val;
 }
 
 
-// -------- FILTER --------
-
-function filters(reports, grid) {
+// -------- FILTER HANDLING --------
+function setupFilters(reports, grid) {
 
     const status = document.getElementById("status-filter");
+    const start  = document.getElementById("start-date");
+    const end    = document.getElementById("end-date");
 
-    const start = document.getElementById("start-date");
-
-    const end = document.getElementById("end-date");
-
-    function apply() {
+    const apply = () => {
 
         const s = status.value;
-
         const sDate = start.value ? new Date(start.value) : null;
-
         const eDate = end.value ? new Date(end.value) : null;
 
-        const list = reports.filter(r => {
+        const filtered = reports.filter(r => {
 
             const rs = r.status;
-
             const d = new Date(r.updated_at || r.created_at);
 
-            if (s !== "all" && rs !== s && !(s === "in_progress" && rs === "active"))
+            if (s !== "all" && rs !== s && !(s==="in_progress" && rs==="active"))
                 return false;
 
             if (sDate && d < sDate) return false;
-
             if (eDate && d > eDate) return false;
 
             return true;
-
         });
 
-        render(list, grid);
-
-    }
+        render(filtered, grid);
+    };
 
     status.onchange = start.onchange = end.onchange = apply;
-
     apply();
-
 }
 
 
-// -------- RENDER --------
-
+// -------- RENDER CASE CARDS --------
 function render(list, grid) {
-    grid.innerHTML = "";
-    if (!list.length) return show(grid, "No assigned cases found.");
 
-    list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    if (!list.length) return message(grid,"No assigned cases found.");
 
-    list.forEach((r, index) => {
-        const card = document.createElement("div");
-        card.className = "case-card";
-        // Staggered animation
-        card.style.animationDelay = `${index * 100}ms`;
+    grid.innerHTML = list
+        .sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))
+        .map((r,i)=>card(r,i))
+        .join("");
 
-        // Determine status badge class
-        const status = r.status.toLowerCase();
-        let statusClass = "received";
-        if (status === "active" || status === "in_progress") statusClass = "in_progress";
-        if (status === "resolved") statusClass = "resolved";
-
-        // Generate HTML
-        card.innerHTML = `
-            <div class="case-top">
-                <span class="case-id">#CASE-${String(r.id).padStart(4, "0")}</span>
-                <span class="status-badge ${statusClass}">${r.status.replace("_", " ")}</span>
-            </div>
-
-            <h3>${r.condition}</h3>
-
-            <ul class="case-info">
-                <li>
-                    <i data-lucide="map-pin"></i>
-                    <span>${r.location}</span>
-                </li>
-                <li>
-                    <i data-lucide="file-text"></i>
-                    <span>${r.description.substring(0, 60)}${r.description.length > 60 ? "..." : ""}</span>
-                </li>
-                <li>
-                    <i data-lucide="calendar"></i>
-                    <span>${new Date(r.created_at).toLocaleDateString()}</span>
-                </li>
-            </ul>
-
-            <div class="case-actions">
-                <a href="./view_report.html?id=${r.id}" class="btn-update">
-                    Update Status <i data-lucide="arrow-right"></i>
-                </a>
-            </div>
-        `;
-
-        grid.appendChild(card);
-    });
-
-    // Re-initialize icons for new elements
-    if (window.lucide) lucide.createIcons();
+    lucide?.createIcons();
 }
 
 
-// -------- MESSAGE --------
+// -------- CARD TEMPLATE --------
+function card(r,i){
 
-function show(grid, msg) {
+    const s=r.status.toLowerCase();
 
-    grid.innerHTML = msg;
+    const badge =
+        s==="resolved" ? "resolved" :
+        (s==="active"||s==="in_progress") ? "in_progress" :
+        "received";
 
+    const desc=r.description||"";
+    const short=desc.substring(0,60)+(desc.length>60?"...":"");
+
+    return `
+    <div class="case-card" style="animation-delay:${i*100}ms">
+
+        <div class="case-top">
+            <span class="case-id">#CASE-${String(r.id).padStart(4,"0")}</span>
+            <span class="status-badge ${badge}">
+                ${r.status.replace("_"," ")}
+            </span>
+        </div>
+
+        <h3>${r.condition}</h3>
+
+        <ul class="case-info">
+            <li>
+                <i data-lucide="map-pin"></i>
+                <span>${r.location}</span>
+            </li>
+
+            <li>
+                <i data-lucide="file-text"></i>
+                <span>${short}</span>
+            </li>
+
+            <li>
+                <i data-lucide="calendar"></i>
+                <span>${new Date(r.created_at).toLocaleDateString()}</span>
+            </li>
+        </ul>
+
+        <div class="case-actions">
+            <a href="./view_report.html?id=${r.id}" class="btn-update">
+                Update Status <i data-lucide="arrow-right"></i>
+            </a>
+        </div>
+
+    </div>`;
+}
+
+
+// -------- SIMPLE MESSAGE --------
+function message(el,msg){
+    el.innerHTML=`<p>${msg}</p>`;
 }

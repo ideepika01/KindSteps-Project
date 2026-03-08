@@ -4,66 +4,46 @@ from app.models.user import User, UserRole
 from app.models.report import Report
 
 
-def create_user_if_not_exists(db: Session, full_name: str, email: str, password: str, role: str, phone: str):
-    # Check if user already exists using email
-    user = db.query(User).filter(User.email == email).first()
+def get_user_by_email(db: Session, email: str):
+    return db.query(User).filter_by(email=email).first()  # Fetch user by email
 
-    # If user exists, return that user
-    if user:
-        return user
 
-    # Create new user object
-    new_user = User(
+def create_user(db: Session, full_name: str, email: str, password: str, role: str, phone: str):
+    user = User(
         full_name=full_name,
         email=email,
-        hashed_password=hash_password(password),  # Convert password into hashed value
+        hashed_password=hash_password(password),  # Store hashed password
         role=role,
-        phone=phone,
+        phone=phone
     )
-
-    # Add user to database
-    db.add(new_user)
-
-    # Save changes permanently
+    db.add(user)
     db.commit()
-
-    # Refresh to get updated data (like id)
-    db.refresh(new_user)
-
-    # Return newly created user
-    return new_user
+    db.refresh(user)
+    return user
 
 
-def assign_unassigned_reports(db: Session, team: User):
-    # Update all reports where assigned_team_id is empty
-    db.query(Report)\
-        .filter(Report.assigned_team_id == None)\
-        .update({Report.assigned_team_id: team.id})
+def get_or_create_user(db: Session, full_name: str, email: str, password: str, role: str, phone: str):
+    user = get_user_by_email(db, email)
+    return user or create_user(db, full_name, email, password, role, phone)  # Reuse existing user if found
 
-    # Save changes to database
+
+def assign_unassigned_reports(db: Session, team_id: int):
+    # Assign all reports without a team
+    db.query(Report).filter(Report.assigned_team_id == None).update(
+        {Report.assigned_team_id: team_id}
+    )
     db.commit()
 
 
 def init_db(db: Session):
-    # Create admin user if not exists
-    create_user_if_not_exists(
-        db,
-        "KindSteps Admin",
-        "admin@kindsteps.com",
-        "admin123",
-        UserRole.admin.value,
-        "1234567890",
+    admin = get_or_create_user(
+        db, "KindSteps Admin", "admin@kindsteps.com", "admin123",
+        UserRole.admin.value, "1234567890"
     )
 
-    # Create team user if not exists
-    team = create_user_if_not_exists(
-        db,
-        "Team Alpha",
-        "team@kindsteps.com",
-        "team123",
-        UserRole.rescue_team.value,
-        "0987654321",
+    team = get_or_create_user(
+        db, "Team Alpha", "team@kindsteps.com", "team123",
+        UserRole.rescue_team.value, "0987654321"
     )
 
-    # Assign all unassigned reports to the team
-    assign_unassigned_reports(db, team)
+    assign_unassigned_reports(db, team.id)

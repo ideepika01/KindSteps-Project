@@ -1,0 +1,95 @@
+KINDSTEPS PROJECT - FILE MAPPING GUIDE
+========================================
+
+This document maps each functional page/feature to its corresponding frontend and backend files.
+
+1. AUTHENTICATION
+-----------------
+Login Page:
+- Frontend HTML: frontend/index.html
+- Frontend CSS:  frontend/style.css, frontend/styles/globals.css
+- Frontend JS:   frontend/js/auth.js, frontend/js/config.js, frontend/js/utils.js
+- Backend API:    backend/app/routers/auth.py
+
+Signup Page:
+- Frontend HTML: frontend/pages/signup.html
+- Frontend CSS:  frontend/styles/signup.css, frontend/styles/globals.css
+- Frontend JS:   frontend/js/auth.js, frontend/js/config.js, frontend/js/utils.js
+- Backend API:    backend/app/routers/auth.py
+
+2. MAIN & INFORMATION PAGES
+---------------------------
+Main Dashboard:
+- Frontend HTML: frontend/pages/main.html
+- Frontend CSS:  frontend/styles/main.css, frontend/styles/globals.css
+- Frontend JS:   frontend/js/config.js, frontend/js/utils.js
+- Backend API:    backend/app/main.py
+
+About Us:
+- Frontend HTML: frontend/pages/about.html
+- Frontend CSS:  frontend/styles/about.css, frontend/styles/globals.css
+
+Contact Page:
+- Frontend HTML: frontend/pages/contact.html
+- Frontend CSS:  frontend/styles/contact.css, frontend/styles/globals.css
+
+How It Works:
+- Frontend HTML: frontend/pages/works.html
+- Frontend CSS:  frontend/styles/works.css, frontend/styles/globals.css
+
+3. INCIDENT REPORTING & TRACKING
+--------------------------------
+Report Incident:
+- Frontend HTML: frontend/pages/report.html
+- Frontend CSS:  frontend/styles/report.css, frontend/styles/globals.css
+- Frontend JS:   frontend/js/report.js, frontend/js/config.js
+- Backend API:    backend/app/routers/reports.py
+
+My Reports (List):
+- Frontend HTML: frontend/pages/my_reports.html
+- Frontend CSS:  frontend/styles/report_list.css, frontend/styles/globals.css
+- Frontend JS:   frontend/js/my_reports.js, frontend/js/config.js
+- Backend API:    backend/app/routers/reports.py
+
+Track Report (By ID):
+- Frontend HTML: frontend/pages/track_report.html
+- Frontend CSS:  frontend/styles/track_report.css, frontend/styles/globals.css
+- Frontend JS:   frontend/js/track.js, frontend/js/config.js
+- Backend API:    backend/app/routers/reports.py
+
+View Report Details:
+- Frontend HTML: frontend/pages/view_report.html
+- Frontend CSS:  frontend/styles/view_report.css, frontend/styles/globals.css
+- Frontend JS:   frontend/js/view_report.js, frontend/js/config.js
+- Backend API:    backend/app/routers/reports.py
+
+4. ADMINISTRATION & SUPPORT
+---------------------------
+Admin Control Panel:
+- Frontend HTML: frontend/pages/admin_control.html
+- Frontend CSS:  frontend/styles/admin_control.css, frontend/styles/globals.css
+- Frontend JS:   frontend/js/admin_control.js, frontend/js/config.js
+- Backend API:    backend/app/routers/admin.py, backend/app/routers/reports.py
+
+Rescue Team Dashboard:
+- Frontend HTML: frontend/pages/rescue_team.html
+- Frontend CSS:  frontend/styles/rescue_team.css, frontend/styles/globals.css
+- Frontend JS:   frontend/js/rescue_team.js, frontend/js/config.js
+- Backend API:    backend/app/routers/reports.py
+
+5. CORE BACKEND INFRASTRUCTURE (Global)
+---------------------------------------
+Database Models:
+- backend/app/models/user.py
+- backend/app/models/report.py
+
+Data Schemas (Pydantic):
+- backend/app/schemas/user.py
+- backend/app/schemas/report.py
+- backend/app/schemas/token.py
+
+Core Logic:
+- Entry Point: backend/app/main.py
+- Dependencies/Auth: backend/app/dependencies.py
+- Security/Config: backend/app/core/
+- Database Config: backend/app/db/

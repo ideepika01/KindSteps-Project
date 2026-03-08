@@ -3,59 +3,22 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from app.core.config import settings
 
 
-# extra connection settings
-connect_args = {}
+# create database engine
+engine = create_engine(settings.SQLALCHEMY_DATABASE_URI)
 
 
-# add ssl only for remote database
-if "pg8000" in settings.SQLALCHEMY_DATABASE_URI:
-
-    if "@localhost" not in settings.SQLALCHEMY_DATABASE_URI and "@127.0.0.1" not in settings.SQLALCHEMY_DATABASE_URI:
-
-        try:
-            import ssl
-
-            ssl_context = ssl.create_default_context()
-            ssl_context.check_hostname = False
-            ssl_context.verify_mode = ssl.CERT_NONE
-
-            connect_args["ssl_context"] = ssl_context
-
-        except ImportError:
-            pass
+# create session factory
+SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 
-
-# create main database engine
-engine = create_engine(
-    settings.SQLALCHEMY_DATABASE_URI,
-    pool_pre_ping=True,
-    connect_args=connect_args,
-)
-
-
-
-# create session object
-SessionLocal = sessionmaker(
-    bind=engine,
-    autocommit=False,
-    autoflush=False,
-)
-
-
-
-# base class for models
+# base class for all models
 Base = declarative_base()
 
 
-
-# get db session for each request
+# dependency to get DB session
 def get_db():
-
     db = SessionLocal()
-
     try:
         yield db
-
     finally:
         db.close()

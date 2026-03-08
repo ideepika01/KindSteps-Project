@@ -1,38 +1,41 @@
-// Initialize the report tracking view
 document.addEventListener("DOMContentLoaded", () => {
-    checkLogin(); // Ensure user is authenticated
-    const id = new URLSearchParams(window.location.search).get("id");
 
-    // Setup UI listeners
+    checkLogin();
+
     const input = document.getElementById("tracking-id-input");
     const btn = document.getElementById("track-btn");
 
+    const id = new URLSearchParams(location.search).get("id");
+
     if (id) {
         input.value = id;
-        loadTrackingInfo(id);
+        load(id);
     }
 
     btn.onclick = () => {
         const val = input.value.trim();
-        if (val) loadTrackingInfo(val);
-        else alert("Please enter a Tracking ID");
+        if (!val) return alert("Please enter a Tracking ID");
+        load(val);
     };
 });
 
-// --- DATA FETCHING ---
 
-// Fetch the tracking status from the API
-async function loadTrackingInfo(id) {
-    const msg = document.getElementById("status-message");
-    const detailedInfo = document.getElementById("detailed-info");
-    const progressContainer = document.getElementById("progress-container");
+// -------- FETCH DATA --------
+async function load(id) {
 
-    msg.innerText = "🔍 Searching for report RSC-" + String(id).padStart(6, "0") + "...";
-    detailedInfo.style.display = "none";
-    progressContainer.style.display = "none";
+    const msg = $("#status-message");
+    const info = $("#detailed-info");
+    const progress = $("#progress-container");
+
+    msg.innerText = `🔍 Searching for report RSC-${String(id).padStart(6,"0")}...`;
+
+    info.style.display = "none";
+    progress.style.display = "none";
 
     try {
+
         const res = await fetchWithAuth(`${API_BASE_URL}/reports/track/${id}`);
+
         if (!res.ok) {
             msg.innerText = "❌ Report not found. Please check the ID.";
             msg.style.color = "#ef4444";
@@ -40,110 +43,101 @@ async function loadTrackingInfo(id) {
         }
 
         const report = await res.json();
-        renderTrackingDashboard(report);
-    } catch (err) {
+        render(report);
+
+    } catch {
         msg.innerText = "⚠️ Network error. Try again later.";
     }
 }
 
-// --- UI RENDERING ---
 
-// Update the dashboard with the latest report data
-function renderTrackingDashboard(r) {
+// -------- RENDER DASHBOARD --------
+function render(r){
+
     const status = r.status || "received";
-    const msg = document.getElementById("status-message");
-    const badge = document.getElementById("status-badge");
-    const detailedInfo = document.getElementById("detailed-info");
-    const progressContainer = document.getElementById("progress-container");
 
-    // 1. Show Containers
-    detailedInfo.style.display = "grid";
-    progressContainer.style.display = "flex";
-    msg.style.color = "inherit";
+    $("#detailed-info").style.display = "grid";
+    $("#progress-container").style.display = "flex";
 
-    // 2. Update Header & Progress Message
-    badge.innerText = status.replace("_", " ").toUpperCase();
+    const badge=$("#status-badge");
+    badge.innerText = status.replace("_"," ").toUpperCase();
     badge.className = `status-badge ${status}`;
-    msg.innerText = getFriendlyMessage(status);
 
-    // 3. Update Team Info
-    const teamName = (r.assigned_team_name && r.assigned_team_name !== "Unassigned")
+    $("#status-message").innerText = messages[status] || messages.default;
+
+    const teamName =
+        r.assigned_team_name && r.assigned_team_name!=="Unassigned"
         ? r.assigned_team_name
         : "Volunteer Team Assigning...";
 
-    setText("info-team-name", teamName);
-    setText("info-team-phone", r.assigned_team_phone && r.assigned_team_phone !== "N/A"
+    $("#info-team-name").innerText = teamName;
+
+    $("#info-team-phone").innerText =
+        r.assigned_team_phone && r.assigned_team_phone!=="N/A"
         ? `📞 ${r.assigned_team_phone}`
-        : "Contact pending...");
+        : "Contact pending...";
 
-    // 4. Update Status Updates
-    setText("info-status-label", getStatusTitle(status));
-    setText("info-updated", `Last update: ${new Date(r.updated_at).toLocaleString()}`);
+    $("#info-status-label").innerText = titles[status] || "Processing";
 
-    // 5. Update Rescue Location & Notes
-    setText("info-rescue-location", r.rescued_location || "Awaiting rescue completion...");
+    $("#info-updated").innerText =
+        `Last update: ${new Date(r.updated_at).toLocaleString()}`;
 
-    const notesBox = document.getElementById("field-review-container");
-    if (r.field_review) {
-        notesBox.style.display = "flex";
-        setText("info-field-review", r.field_review);
-    } else {
-        notesBox.style.display = "none";
+    $("#info-rescue-location").innerText =
+        r.rescued_location || "Awaiting rescue completion...";
+
+    const notes=$("#field-review-container");
+
+    if(r.field_review){
+        notes.style.display="flex";
+        $("#info-field-review").innerText=r.field_review;
+    }else{
+        notes.style.display="none";
     }
 
-    // 6. Update Progress Stepper
-    updateProgressSteps(status);
+    progressSteps(status);
 
-    if (window.lucide) lucide.createIcons();
+    lucide?.createIcons();
 }
 
-// --- UI HELPERS ---
 
-function updateProgressSteps(status) {
-    const steps = ["received", "in_progress", "resolved"];
-    // Map 'active' to the second step (index 1) which is 'In Progress'
-    const currentIdx = status === "active" ? 1 : steps.indexOf(status);
+// -------- PROGRESS STEPPER --------
+function progressSteps(status){
 
-    // Update icons/labels
-    steps.forEach((step, idx) => {
-        const id = step === "in_progress" ? "inprogress" : step;
-        const el = document.getElementById(`status-${id}`);
-        if (el) {
-            if (idx <= currentIdx) el.classList.add("active");
-            else el.classList.remove("active");
-        }
+    const steps=["received","in_progress","resolved"];
+
+    const idx = status==="active" ? 1 : steps.indexOf(status);
+
+    steps.forEach((s,i)=>{
+        const id=s==="in_progress"?"inprogress":s;
+        const el=$(`#status-${id}`);
+        if(!el) return;
+
+        el.classList.toggle("active", i<=idx);
     });
 
-    // Update connecting lines
-    const lines = document.querySelectorAll(".progress-line");
-    lines.forEach((line, idx) => {
-        // Line 0 connects step 0 and 1. Line 1 connects step 1 and 2.
-        if (idx < currentIdx) line.classList.add("active");
-        else line.classList.remove("active");
-    });
+    document.querySelectorAll(".progress-line")
+        .forEach((l,i)=>l.classList.toggle("active", i<idx));
 }
 
-function getFriendlyMessage(s) {
-    const msgs = {
-        received: "We've received your report and are verifying the details.",
-        active: "A rescue team has been alerted and is reviewing the case.",
-        in_progress: "Heroes are currently on their way to the location!",
-        resolved: "Success! The individual has been safely rescued and cared for."
-    };
-    return msgs[s] || "Tracking your report progress...";
-}
 
-function getStatusTitle(s) {
-    const titles = {
-        received: "Ticket Logged",
-        active: "Team Alerted",
-        in_progress: "Rescue in Action",
-        resolved: "Mission Accomplished"
-    };
-    return titles[s] || "Processing";
-}
+// -------- STATUS MAPS --------
+const messages={
+    received:"We've received your report and are verifying the details.",
+    active:"A rescue team has been alerted and is reviewing the case.",
+    in_progress:"Heroes are currently on their way to the location!",
+    resolved:"Success! The individual has been safely rescued and cared for.",
+    default:"Tracking your report progress..."
+};
 
-function setText(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.innerText = val;
+const titles={
+    received:"Ticket Logged",
+    active:"Team Alerted",
+    in_progress:"Rescue in Action",
+    resolved:"Mission Accomplished"
+};
+
+
+// -------- SHORT DOM HELPER --------
+function $(id){
+    return document.getElementById(id.replace("#",""));
 }

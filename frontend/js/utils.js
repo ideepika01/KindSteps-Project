@@ -1,69 +1,65 @@
-// Get token from storage
+// -------- TOKEN STORAGE --------
+
+// Get token
 function getToken() {
-
-    return localStorage.getItem("access_token");
-
+    return localStorage.getItem("access_token") || null;
 }
 
-
-// Save token after login
+// Save token
 function saveToken(token) {
-
     localStorage.setItem("access_token", token);
-
 }
 
+// Remove token
+function clearToken() {
+    localStorage.removeItem("access_token");
+}
 
-// Helper to get correct relative path to root or pages
-function getRedirectPath(target) {
-    const isInsidePages = window.location.pathname.includes("/pages/");
-    if (target === "index.html") {
-        return isInsidePages ? "../index.html" : "index.html";
+// Get correct path for redirects (handling root vs /pages/ directory)
+function getRedirectPath(page) {
+    const rootPages = ["index.html", "about.html", "contact.html", "works.html"];
+    const inPagesDir = window.location.pathname.includes("/pages/");
+
+    if (rootPages.includes(page)) {
+        return inPagesDir ? `../${page}` : `./${page}`;
     }
-    return isInsidePages ? `./${target}` : `./pages/${target}`;
+
+    return inPagesDir ? `./${page}` : `./pages/${page}`;
 }
 
+
+// -------- AUTH --------
 
 // Logout user
 function logout() {
-    localStorage.removeItem("access_token");
+    clearToken();
     window.location.href = getRedirectPath("index.html");
 }
 
-
-// Check user login
+// Ensure user logged in
 function checkLogin() {
-
     const token = getToken();
-
-    if (!token) {
-
-        alert("Please login first");
-
-        logout();
-
-        return null;
-
-    }
-
+    if (!token) logout();
     return token;
-
 }
 
 
-// Fetch with token
+// -------- FETCH HELPER --------
+
 async function fetchWithAuth(url, options = {}) {
+
+    const token = getToken();
+
     const headers = {
-        Authorization: "Bearer " + getToken(),
-        ...options.headers
+        ...options.headers,
+        Authorization: token ? `Bearer ${token}` : ""
     };
 
     let body = options.body;
-    if (body && typeof body === 'object' && !(body instanceof FormData)) {
+
+    if (body && typeof body === "object" && !(body instanceof FormData)) {
         body = JSON.stringify(body);
-        if (!headers['Content-Type']) {
-            headers['Content-Type'] = 'application/json';
-        }
+        headers["Content-Type"] = "application/json";
     }
 
     const res = await fetch(url, {
@@ -72,32 +68,30 @@ async function fetchWithAuth(url, options = {}) {
         body
     });
 
+    // If token expired
     if (res.status === 401) {
         logout();
+        throw new Error("Unauthorized");
     }
 
     return res;
 }
 
 
-// Setup logout button
-function setupNavbar() {
+// -------- NAVBAR --------
 
+function setupNavbar() {
     const btn = document.querySelector(".logout-btn");
 
     if (btn) {
-        btn.onclick = (e) => {
+        btn.addEventListener("click", e => {
             e.preventDefault();
             logout();
-        };
+        });
     }
-
 }
 
 
-// Run when page loads
-document.addEventListener("DOMContentLoaded", function () {
+// -------- INIT --------
 
-    setupNavbar();
-
-});
+document.addEventListener("DOMContentLoaded", setupNavbar);

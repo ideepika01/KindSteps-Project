@@ -1,13 +1,12 @@
-// start when page loads
+// Run when page loads
 document.addEventListener("DOMContentLoaded", () => {
     bind("login-form", login);
     bind("signup-form", signup);
 });
 
 
-// login user
+// ---------- LOGIN ----------
 async function login(e) {
-
     e.preventDefault();
 
     const email = val("login-email");
@@ -19,22 +18,35 @@ async function login(e) {
     const btn = document.getElementById("login-btn");
     setLoading(btn, true);
 
-    const data = await send(
-        "/auth/login",
-        new URLSearchParams({ username: email, password }),
-        "application/x-www-form-urlencoded"
-    );
+    try {
+        const data = await send(
+            "/auth/login",
+            new URLSearchParams({ username: email, password }),
+            "application/x-www-form-urlencoded"
+        );
 
-    if (!data) return setLoading(btn, false);
+        if (!data) {
+            setLoading(btn, false);
+            return;
+        }
 
-    saveToken(data.access_token);
-
-    redirectUser();
+        saveToken(data.access_token);
+        
+        if (data.user) {
+            localStorage.setItem("user_role", data.user.role);
+            handleRedirect(data.user);
+        } else {
+            await redirectUser();
+        }
+    } catch (error) {
+        console.error("Login process error:", error);
+        setLoading(btn, false);
+        alert("Something went wrong during login.");
+    }
 }
 
 
-
-// signup user
+// ---------- SIGNUP ----------
 async function signup(e) {
 
     e.preventDefault();
@@ -44,133 +56,103 @@ async function signup(e) {
     const phone = val("signup-phone");
     const password = val("signup-password");
 
-    const role =
-        document.querySelector('input[name="role"]:checked')?.value || "user";
-
+    const role = document.querySelector('input[name="role"]:checked')?.value || "user";
 
     if (!full_name) return alert("Enter name");
-
     if (!validEmail(email)) return alert("Invalid email");
+    if (!password || password.length < 6) return alert("Password too short");
+    if (phone && !/^[0-9]{10}$/.test(phone)) return alert("Invalid phone");
 
-    if (!password || password.length < 6)
-        return alert("Password too short");
-
-    if (phone && !/^[0-9]{10}$/.test(phone))
-        return alert("Invalid phone");
-
-
-    const data = await send("/auth/signup", {
-        full_name,
-        email,
-        phone,
-        password,
-        role
-    });
-
+    const data = await send("/auth/signup", { full_name, email, phone, password, role });
 
     if (!data) return;
 
     alert("Account created");
-
     location.href = getRedirectPath("index.html");
 }
 
 
-
-// redirect based on role
+// ---------- REDIRECT BASED ON ROLE ----------
 async function redirectUser() {
     try {
         const res = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
         if (!res.ok) return goHome();
 
         const user = await res.json();
-        if (user.role === "admin")
-            location.href = getRedirectPath("admin_control.html");
-        else if (user.role === "rescue_team")
-            location.href = getRedirectPath("rescue_team.html");
-        else
-            goHome();
-    }
-    catch {
+        localStorage.setItem("user_role", user.role);
+        handleRedirect(user);
+    } catch {
         goHome();
     }
 }
 
-// default home
+function handleRedirect(user) {
+    if (user.role === "admin")
+        location.href = getRedirectPath("admin_control.html");
+    else if (user.role === "rescue_team")
+        location.href = getRedirectPath("rescue_team.html");
+    else
+        goHome();
+}
+
+
+// Default home page
 function goHome() {
     location.href = getRedirectPath("main.html");
 }
 
 
-
-// send post request
+// ---------- API REQUEST ----------
 async function send(url, body, type = "application/json") {
 
     try {
 
         const res = await fetch(`${API_BASE_URL}${url}`, {
-
             method: "POST",
-
             headers: { "Content-Type": type },
-
-            body:
-                type === "application/json"
-                    ? JSON.stringify(body)
-                    : body
-
+            body: type === "application/json" ? JSON.stringify(body) : body
         });
-
 
         const data = await res.json().catch(() => null);
 
-
         if (!res.ok) {
-
-            alert(data?.detail || "Failed");
-
+            alert(data?.detail || "Request failed");
             return null;
-
         }
-
 
         return data;
 
-    }
-    catch {
-
+    } catch {
         alert("Server error");
-
         return null;
-
     }
-
 }
 
 
+// ---------- HELPERS ----------
 
-// helpers
-
+// Get input value
 function val(id) {
     return document.getElementById(id)?.value.trim();
 }
 
+// Bind form submit
 function bind(id, fn) {
     document.getElementById(id)?.addEventListener("submit", fn);
 }
 
+// Basic email validation
 function validEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// Show loading spinner on button
 function setLoading(btn, state) {
 
     if (!btn) return;
 
     btn.disabled = state;
-
     btn.innerHTML = state
         ? '<span class="loader"></span>'
         : "Login";
-
 }

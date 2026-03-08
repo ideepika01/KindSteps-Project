@@ -1,16 +1,7 @@
-// set api base url
+// Set API base URL depending on environment
 const host = window.location.hostname;
 
-let API_BASE_URL;
-
-// use local backend if running locally
-if (
-    host === "localhost" ||
-    host === "127.0.0.1" ||
-    /^(\d+\.){3}\d+$/.test(host)
-) {
-    API_BASE_URL = `http://${host}:8000`;
-}
-else {
-    API_BASE_URL = "https://kindsteps-project.vercel.app";
-}
+const API_BASE_URL =
+    host === "localhost" || host === "127.0.0.1"
+        ? `http://127.0.0.1:8000`
+        : "https://kindsteps-project.vercel.app";

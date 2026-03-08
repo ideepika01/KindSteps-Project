@@ -3,95 +3,42 @@ from google.genai import types
 from app.core.config import settings
 import json
 
-
-# fallback if AI fails
+# fallback response if AI fails
 DEFAULT_AI_RESPONSE = {
-    "description": "AI is unavailable. Please describe manually.",
-    "advice": [
-        "Stay calm.",
-        "Check for injuries.",
-        "Wait for help.",
-    ],
+    "description": "AI unavailable. Please describe manually.",
+    "advice": ["Stay calm.", "Check for injuries.", "Wait for help."]
 }
 
 
-# main function to analyze image
-def analyze_image_for_description(
-    image_bytes: bytes, mime_type: str = "image/jpeg"
-) -> dict:
+def analyze_image_for_description(image_bytes: bytes, mime_type: str = "image/jpeg") -> dict:
 
     # return fallback if API key missing
-    if not settings.GEMINI_API_KEY or "your_gemini_api_key" in settings.GEMINI_API_KEY:
+    if not settings.GEMINI_API_KEY:
+        print("DEBUG: Gemini API Key missing in settings")
         return DEFAULT_AI_RESPONSE
 
-    versions = ["v1", "v1beta"]
-    models = ["gemini-1.5-flash", "gemini-flash-latest", "gemini-2.0-flash"]
-
-    last_error = None
-
-    # try each version and model
-    for version in versions:
-        for model in models:
-            try:
-                # create gemini client
-                client = genai.Client(
-                    api_key=settings.GEMINI_API_KEY,
-                    http_options={"api_version": version},
-                )
-
-                # send image to AI
-                response = client.models.generate_content(
-                    model=model,
-                    contents=[
-                        "Analyze the image and return a JSON object with the following fields: "
-                        "'description' (a detailed summary of what you see), "
-                        "'advice' (a list of 3-4 actionable steps for a rescuer), "
-                        "'condition' (one of: 'child', 'mentally-challenged', 'elderly', 'beggar', 'injured', 'disabled'). "
-                        "Base the condition on visual cues. Return ONLY raw JSON.",
-                        types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
-                    ],
-                    config=types.GenerateContentConfig(
-                        response_mime_type="application/json",
-                        temperature=0.1,
-                    ),
-                )
-
-                # convert and return result
-                return parse_ai_response(response)
-
-            except Exception as e:
-                last_error = str(e)
-
-                # invalid key error
-                if "401" in last_error or "API_KEY_INVALID" in last_error:
-                    return {
-                        "description": "Invalid API Key",
-                        "advice": ["Check your GEMINI_API_KEY"],
-                    }
-
-                continue
-
-    # quota limit error
-    if last_error and ("429" in last_error or "EXHAUSTED" in last_error):
-        return {
-            "description": "Daily limit reached",
-            "advice": ["Try again later"],
-        }
-
-    return DEFAULT_AI_RESPONSE
-
-
-# convert AI text to dictionary
-def parse_ai_response(response) -> dict:
-
     try:
-        text = response.text.strip()
+        # create Gemini client
+        client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-        # remove markdown if present
-        if "```" in text:
-            text = text.split("```json")[-1].split("```")[0].strip()
+        # send image and prompt to Gemini
+        # We switched to gemini-2.0-flash as it is more likely available in this environment
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=[
+                "Analyze the image and return JSON with fields: description, advice, condition.",
+                types.Part.from_bytes(data=image_bytes, mime_type=mime_type)  # attach image bytes
+            ],
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",  # force JSON response
+                temperature=0.1
+            )
+        )
 
-        return json.loads(text)
+        # convert AI response to dictionary
+        return json.loads(response.text)
 
-    except Exception:
+    except Exception as e:
+        # fallback if any error occurs
+        print(f"ERROR: AI analysis failed: {e}")
         return DEFAULT_AI_RESPONSE
