@@ -2,7 +2,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   checkLogin();
   setupPhotoPreview();
-  setupCamera();
+  // setupCamera();
   setupAIScan();
   setupFormSubmit();
   setupMap();
@@ -25,6 +25,7 @@ function setupPhotoPreview() {
 
 
 // ---------- CAMERA ----------
+/*
 function setupCamera() {
 
   const start = document.getElementById("start-camera-btn");
@@ -76,6 +77,7 @@ function setupCamera() {
     });
   };
 }
+*/
 
 
 // ---------- AI SCAN ----------

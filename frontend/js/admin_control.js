@@ -50,7 +50,7 @@ async function loadStats() {
         const change = document.getElementById("stat-users-change");
         if (change) change.textContent = "Community base";
 
-    } catch(e){ console.error(e); }
+    } catch(e){  }
 }
 
 

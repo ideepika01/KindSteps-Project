@@ -14,7 +14,6 @@ def analyze_image_for_description(image_bytes: bytes, mime_type: str = "image/jp
 
     # return fallback if API key missing
     if not settings.GEMINI_API_KEY:
-        print("DEBUG: Gemini API Key missing in settings")
         return DEFAULT_AI_RESPONSE
 
     try:
@@ -22,7 +21,6 @@ def analyze_image_for_description(image_bytes: bytes, mime_type: str = "image/jp
         client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
         # send image and prompt to Gemini
-        # We switched to gemini-2.0-flash as it is more likely available in this environment
         response = client.models.generate_content(
             model="gemini-2.0-flash",
             contents=[
@@ -40,5 +38,4 @@ def analyze_image_for_description(image_bytes: bytes, mime_type: str = "image/jp
 
     except Exception as e:
         # fallback if any error occurs
-        print(f"ERROR: AI analysis failed: {e}")
         return DEFAULT_AI_RESPONSE

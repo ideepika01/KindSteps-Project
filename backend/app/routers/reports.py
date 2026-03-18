@@ -98,7 +98,6 @@ def my_assignments(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    print(f"DEBUG: my_assignments for {current_user.email} (Role: {current_user.role})")
     check_staff(current_user)
     return db.query(Report).filter(Report.assigned_team_id == current_user.id).all()
 
@@ -110,7 +109,6 @@ def get_report(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    print(f"DEBUG: get_report by ID: {id}")
     report = db.query(Report).filter(Report.id == id).first()
 
     if not report:
@@ -120,16 +118,6 @@ def get_report(
         raise HTTPException(status_code=403, detail="Access denied")
 
     return report
-
-
-# Track report (alias)
-@router.get("/track/{id}", response_model=ReportResponse)
-def track_report(
-    id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    return get_report(id, db, current_user)
 
 
 

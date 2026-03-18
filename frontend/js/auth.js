@@ -39,7 +39,7 @@ async function login(e) {
             await redirectUser();
         }
     } catch (error) {
-        console.error("Login process error:", error);
+
         setLoading(btn, false);
         alert("Something went wrong during login.");
     }
