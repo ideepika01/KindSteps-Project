@@ -34,7 +34,7 @@ class ReportStatusUpdate(BaseModel):
 
 class ReportResponse(BaseModel):
     id: int
-    reporter_id: int
+    reporter_id: Optional[int] = None
     condition: str
     description: str
     location: str

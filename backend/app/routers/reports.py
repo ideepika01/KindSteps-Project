@@ -102,6 +102,19 @@ def my_assignments(
     return db.query(Report).filter(Report.assigned_team_id == current_user.id).all()
 
 
+# Track report by ID (Public/Any user)
+@router.get("/track/{id}", response_model=ReportResponse)
+def track_report(
+    id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    report = db.query(Report).filter(Report.id == id).first()
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    return report
+
+
 # Get report by ID
 @router.get("/{id}", response_model=ReportResponse)
 def get_report(
