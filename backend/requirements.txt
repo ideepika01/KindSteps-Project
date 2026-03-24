@@ -1,15 +1,13 @@
 fastapi
 uvicorn
 sqlalchemy
-psycopg2-binary
 pg8000
 pydantic
 pydantic[email]
 pydantic-settings
 python-multipart
 python-jose[cryptography]
-passlib[bcrypt]
-bcrypt
+passlib
 python-dotenv
 email-validator
 httpx
