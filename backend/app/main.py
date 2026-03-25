@@ -1,3 +1,8 @@
+import sys
+import os
+# Add the 'backend' directory to sys.path so 'from app.routers' works on Vercel
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import auth, reports, admin
