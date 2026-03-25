@@ -27,6 +27,11 @@ class Settings(BaseSettings):
 
         # Force SQLAlchemy to use pg8000 in Vercel to avoid psycopg2-binary crashes
         url = self.DATABASE_URL
+        
+        # Strip ?pgbouncer=true or any unhandled query arguments that crash pg8000
+        if "?" in url:
+            url = url.split("?")[0]
+            
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+pg8000://", 1)
         if url.startswith("postgresql://") and not url.startswith("postgresql+pg8000://"):

@@ -4,6 +4,7 @@ from app.core.config import settings
 
 
 import ssl
+from sqlalchemy.pool import NullPool
 
 # create database engine
 connect_args = {}
@@ -14,7 +15,7 @@ if "supabase" in settings.SQLALCHEMY_DATABASE_URI and "pg8000" in settings.SQLAL
     context.verify_mode = ssl.CERT_NONE  # Prevent cert verification errors on serverless
     connect_args["ssl_context"] = context
 
-engine = create_engine(settings.SQLALCHEMY_DATABASE_URI, connect_args=connect_args)
+engine = create_engine(settings.SQLALCHEMY_DATABASE_URI, connect_args=connect_args, poolclass=NullPool)
 
 
 # create session factory
