@@ -97,7 +97,11 @@ function renderReport(r) {
 
     const img = getEl("case-image");
     if (img && r.photo_url) {
-        img.src = r.photo_url;
+        let src = r.photo_url;
+        if (!src.startsWith("data:image") && !src.startsWith("http")) {
+            src = `data:image/jpeg;base64,${src}`;
+        }
+        img.src = src;
         img.style.display = "block";
     }
 
